@@ -51,12 +51,8 @@
 
   (begin
 
-      (define (assq-ref ls key . o)
-        (cond ((assq key ls) => cdr) (else (and (pair? o) (car o)))))
-
-
       (define (conc . args)
-        (apply string-append (map display-to-string args)) )
+        (apply string-append (map display-to-string args)))
 
 
       (define (string-intersperse strs sep)
