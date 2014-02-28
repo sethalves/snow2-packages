@@ -1,0 +1,31 @@
+-*- org -*-
+
+* andyjpb uses entropy-unix
+
+(use entropy-unix)
+
+; really random but blocks
+;(make-entropy-source-random-device)
+; not so random but doesn't block
+;(make-entropy-source-urandom-device)
+(define (make-secret-generator)
+  (let ((source (make-entropy-source-urandom-device)))
+    (lambda (byte-width)
+       (u8vectors->base64 (entropy-source-u8vector source byte-width)))))
+(define get-cid-secret
+  (make-secret-generator))
+
+* chicken has random
+
+(randomized ...)
+(define (random-integer less-than)
+  (random less-than))
+
+* gauche
+
+(define mersenne-twister (make <mersenne-twister> :seed
+                               ;; (sys-time)
+                               0
+                               ))
+(define (random-integer less-than)
+  (mt-random-integer mersenne-twister less-than))

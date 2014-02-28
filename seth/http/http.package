@@ -1,0 +1,18 @@
+  (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/http.tgz")
+    (library
+      (name (seth http))
+      (path "seth/http.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "http")
+      (license lgpl/v2.1)
+      (depends
+       (snow snowlib)
+       (snow bytevector)
+       (snow srfi-13-strings)
+       (seth mime)
+       (seth port-extras)
+       (seth network-socket))))

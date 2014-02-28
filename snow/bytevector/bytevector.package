@@ -1,0 +1,11 @@
+  (package
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
+    (library
+      (name (snow bytevector))
+      (path "snow/bytevector.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "bytevector compatibility layer")
+      (license lgpl/v2.1)))

@@ -1,0 +1,17 @@
+  (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/uuid.tgz")
+    (library
+      (name (seth uuid))
+      (path "seth/uuid.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "uuid")
+      (license lgpl/v2.1)
+      (depends
+        (snow bytevector)
+        (snow srfi-60-integers-as-bits)
+        (seth binary-pack)
+        (snow srfi-13-strings)
+        (seth srfi-27-random))))

@@ -1,0 +1,12 @@
+  (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/binary-pack.tgz")
+    (library
+      (name (seth binary-pack))
+      (path "seth/binary-pack.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "binary-pack")
+      (license lgpl/v2.1)
+      (depends (snow bytevector))))

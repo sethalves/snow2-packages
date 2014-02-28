@@ -1,0 +1,11 @@
+  (package
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/extio.tgz")
+    (library
+      (name (snow extio))
+      (path "snow/extio.sld")
+      (version "1.0.3")
+      (homepage "http://snow.iro.umontreal.ca")
+      (maintainers "Seth Alves <alves@hungry.com>")
+      (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+      (description "Extended I/O." i/o snow)
+      (license lgpl/v2.1)))

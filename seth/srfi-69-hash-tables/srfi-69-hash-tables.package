@@ -1,0 +1,11 @@
+  (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/srfi-69-hash-tables.tgz")
+    (library
+      (name (seth srfi-69-hash-tables))
+      (path "seth/srfi-69-hash-tables.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "srfi-69-hash-tables")
+      (license lgpl/v2.1)))

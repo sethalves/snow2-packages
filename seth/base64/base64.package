@@ -1,0 +1,12 @@
+  (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/base64.tgz")
+    (library
+      (name (seth base64))
+      (path "seth/base64.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "base64")
+      (license lgpl/v2.1)
+      (depends (snow bytevector))))

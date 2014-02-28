@@ -1,0 +1,16 @@
+  (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/uri.tgz")
+    (library
+      (name (seth uri))
+      (path "seth/uri.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Ivan Raikov" "Peter Bex")
+      (description "uri")
+      (license bsd)
+      (depends
+       (snow snowlib)
+       (snow srfi-13-strings)
+       (seth string-read-write)
+      )))

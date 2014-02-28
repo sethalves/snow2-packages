@@ -1,0 +1,12 @@
+  (package
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/random.tgz")
+    (library
+      (name (snow random))
+      (path "snow/random.sld")
+      (version "1.0.1")
+      (homepage "http://snow.iro.umontreal.ca")
+      (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+      (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+      (description "High-quality random number generation." snow)
+      (license lgpl/v2.1)
+      (depends (snow binio) (snow bignum))))

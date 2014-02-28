@@ -1,0 +1,24 @@
+  (package
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/zlib.tgz")
+    (library
+      (name (snow zlib))
+      (path "snow/zlib.sld")
+      (version "1.0.1")
+      (homepage "http://snow.iro.umontreal.ca")
+      (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+      (authors
+        "Marc Feeley <feeley at iro.umontreal.ca>"
+        "Manuel Serrano <Manuel.Serrano at sophia.inria.fr>")
+      (description
+        "Compression and decompression of deflate and gzip formats."
+        conv
+        i/o
+        snow)
+      (license lgpl/v2.1)
+      (depends
+        (snow snowlib)
+        (snow bytevector)
+        (snow digest)
+        (snow srfi-60-integers-as-bits)
+        (snow genport)
+        (snow digest))))

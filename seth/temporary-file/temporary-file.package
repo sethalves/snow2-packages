@@ -1,0 +1,12 @@
+  (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/temporary-file.tgz")
+    (library
+      (name (seth temporary-file))
+      (path "seth/temporary-file.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "temporary-file")
+      (license lgpl/v2.1)
+      (depends (seth srfi-27-random))))

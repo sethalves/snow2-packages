@@ -1,0 +1,16 @@
+  (package
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/processio.tgz")
+    (library
+      (name (snow processio))
+      (path "snow/processio.sld")
+      (version "1.0.0")
+      (homepage "http://snow.iro.umontreal.ca")
+      (maintainers "Seth Alves <alves@hungry.com")
+      (authors
+        "Nils M Holm <nmh at t3x.org>"
+        "Marc Feeley <feeley at iro.umontreal.ca>")
+      (description "I/O to operating system subprocesses." i/o os)
+      (license bsdl)
+      (depends (snow snowlib)
+               (snow extio)
+               (snow filesys))))

@@ -1,0 +1,176 @@
+#! /bin/sh
+#| -*- scheme -*-
+exec csi -s $0 "$@"
+|#
+
+(use posix)
+
+
+(define (make-package-skeleton repo-name package-name)
+  (create-directory (string-append repo-name "/" package-name))
+
+  (let ((makefile-hndl
+         (open-output-file
+          (string-append repo-name "/" package-name "/Makefile"))))
+    (display "include ../../makefiles/package-toplevel.make\n" makefile-hndl)
+    (close-output-port makefile-hndl))
+
+  (let ((sld-hndl (open-output-file
+                   (string-append repo-name "/"
+                                  package-name "/"
+                                  package-name ".sld"))))
+    (format sld-hndl
+            (string-append
+            "(define-library (~A ~A)\n"
+            "  (export SOMETHING)\n"
+            "  (import (scheme base))\n"
+            "  (cond-expand\n"
+            "   (chibi\n"
+            "    (import (chibi io) (chibi process)))\n"
+            "   (chicken\n"
+            "    (import (posix)))\n"
+            "   (gauche\n"
+            "    (import ))\n"
+            "   (sagittarius\n"
+            "    (import )))\n"
+            "  (begin\n"
+            "    (cond-expand\n"
+            "     (chicken\n"
+            "      (define (SOMETHING args)\n"
+            "        #t))\n"
+            "     (chibi\n"
+            "      (define (SOMETHING args)\n"
+            "        #t))\n"
+            "     (gauche\n"
+            "      (define (SOMETHING args)\n"
+            "        #t))\n"
+            "     (sagittarius\n"
+            "      (define (SOMETHING args)\n"
+            "        #t)))))\n")
+            repo-name package-name)
+    (close-output-port sld-hndl))
+
+  (create-directory (string-append repo-name "/" package-name "/test"))
+
+  (let ((makefile-hndl (open-output-file
+                        (string-append repo-name "/"
+                                       package-name "/test/Makefile"))))
+    (format makefile-hndl
+            (string-append
+             "TEST_DEPS=\"(~A ~A)\"\n"
+             "include ../../../makefiles/test.make\n"
+             "\n"
+             "clean-extra:\n")
+            repo-name package-name)
+    (close-output-port makefile-hndl))
+
+
+  (let ((test-chicken-hndl
+         (open-output-file
+          (string-append repo-name "/" package-name "/test/test-chicken.scm"))))
+    (format test-chicken-hndl
+            (string-append
+             "#! /bin/sh\n"
+             "#| -*- scheme -*-\n"
+             "exec csi -s $0 \"$@\"\n"
+             "|#\n"
+             "\n"
+             "(use r7rs)\n"
+             "(import-for-syntax r7rs)\n"
+             "\n"
+             "(include \"~A/~A.sld\")\n"
+             "(import (~A ~A))\n"
+             "\n"
+             "(include \"test-common.scm\")\n"
+             "\n"
+             "(display (main-program))\n"
+             "(newline)\n")
+            repo-name package-name repo-name package-name)
+    (close-output-port test-chicken-hndl))
+
+  (let ((test-chibi-hndl
+         (open-output-file
+          (string-append repo-name "/" package-name "/test/test-chibi.scm"))))
+    (format test-chibi-hndl
+            (string-append
+             "#! /usr/bin/env chibi-scheme\n"
+             "\n"
+             "(import (scheme base)\n"
+             "        (scheme write)\n"
+             "        (~A ~A))\n"
+             "\n"
+             "\n"
+             "(include \"test-common.scm\")\n"
+             "\n"
+             "(display (main-program))\n"
+             "(newline)\n")
+            repo-name package-name)
+    (close-output-port test-chibi-hndl))
+
+  (let ((test-gauche-hndl
+         (open-output-file
+          (string-append repo-name "/" package-name "/test/test-gauche.scm"))))
+    (format test-gauche-hndl
+            (string-append
+             "#! /bin/sh\n"
+             "#| -*- scheme -*-\n"
+             "exec gosh \\\n"
+             "-e '(push! *load-suffixes* \".sld\")' \\\n"
+             "-e '(push! *load-path* \".\")' \\\n"
+             "-ftest -r7 $0 \"$@\"\n"
+             "|#\n"
+             "\n"
+             "(import (scheme base) (scheme write))\n"
+             "(import (~A ~A))\n"
+             "(include \"test-common.scm\")\n"
+             "(display (main-program))\n"
+             "(newline)\n")
+            repo-name package-name)
+    (close-output-port test-gauche-hndl))
+
+
+  (let ((test-sash-hndl
+         (open-output-file
+          (string-append repo-name "/" package-name "/test/test-sash.scm"))))
+    (format test-sash-hndl
+            (string-append
+             "#! /bin/sh\n"
+             "#| -*- scheme -*-\n"
+             "exec sash -L . -S .sld $0 \"$@\"\n"
+             "|#\n"
+             "\n"
+             "(import (scheme base)\n"
+             "        (scheme write)\n"
+             "        (~A ~A))\n"
+             "\n"
+             "\n"
+             "(include \"test-common.scm\")\n"
+             "\n"
+             "(display (main-program))\n"
+             "(newline)\n")
+            repo-name package-name)
+    (close-output-port test-sash-hndl))
+
+  (let ((test-common-hndl
+         (open-output-file
+          (string-append repo-name "/" package-name "/test/test-common.scm"))))
+    (format test-common-hndl
+            (string-append
+             "(define (main-program)\n"
+             "  #t)\n")
+            package-name)
+    (close-output-port test-common-hndl))
+
+  #t)
+
+
+(define (main-program repo-name-and-package-names)
+  (let ((repo-name (car repo-name-and-package-names))
+        (package-names (cdr repo-name-and-package-names)))
+    (for-each
+     (lambda (package-name)
+       (make-package-skeleton repo-name package-name))
+     package-names)))
+
+
+(main-program (command-line-arguments))

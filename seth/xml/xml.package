@@ -1,0 +1,33 @@
+    (package
+     (url "http://snow2.s3-website-us-east-1.amazonaws.com/xml.tgz")
+     (library
+      (name (seth xml ssax))
+      (path "seth/xml/ssax.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Oleg Kiselyov")
+      (description "XML parser")
+      (license public-domain)
+      (depends
+       (snow snowlib)
+       (snow extio)
+       (snow assert)
+       (snow srfi-13-strings)
+       ))
+
+     (library
+      (name (seth xml sxpath))
+      (path "seth/xml/sxpath.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors)
+      (description "XML parser")
+      (license public-domain)
+      (depends
+       (snow extio)
+       (snow assert)
+       (snow srfi-13-strings)
+       (snow input-parse)
+       )))
