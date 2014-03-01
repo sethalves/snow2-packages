@@ -25,7 +25,7 @@
             (chibi char-set)
             (chibi char-set ascii)
             (chibi optional)
-            (only (chibi) call-with-output-string)
+            ;; (only (chibi) call-with-output-string)
             (only (srfi 1) concatenate every fold append-reverse)))
    (chicken
     ;; (import uri-generic)
@@ -66,27 +66,6 @@
                 (else
                  (loop (cdr strs)
                        (cons sep (cons (car strs) parts)))))))
-
-      (cond-expand
-       (chicken)
-       (gauche
-        (define (with-output-to-string thunk)
-          (let ((s (open-output-string)))
-            (let ((save-output-port (current-output-port)))
-              (current-output-port s)
-              (thunk)
-              (current-output-port save-output-port)
-              (let ((result (get-output-string s)))
-                (close-output-port s)
-                result)))))
-       (else
-        (define (with-output-to-string thunk)
-          (call-with-output-string
-           (lambda (out)
-             (let ((old-out (current-output-port)))
-               (current-output-port out)
-               (thunk)
-               (current-output-port old-out)))))))
 
 
 ;;

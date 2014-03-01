@@ -52,7 +52,7 @@
         (lambda (exn) #t)
         (lambda ()
           (begin test-body ...)
-          (snow-assert #f)))))))
+          (snow-error #f)))))))
 
 
 (define (test-end name)
@@ -62,8 +62,7 @@
 
 
 (cond-expand
- ((or gauche sagittarius)
-  (define sprintf format)
+ ((or chibi gauche sagittarius)
   (define (conc . args)
     (apply string-append (map display-to-string args))))
  (else))
@@ -507,15 +506,15 @@
                     (uex   (uri-reference (third p))))
                 (let* ((from (uri-relative-from urabs ubase))
                        (to    (uri-relative-to from ubase)))
-                  (test (apply sprintf "~s * ~s -> ~s" p) uex from)
-                  (test (apply sprintf "~s * ~s -> ~s" p) urabs to)
+                  (test (apply format "~s * ~s -> ~s" p) uex from)
+                  (test (apply format "~s * ~s -> ~s" p) urabs to)
                   (unless (uri-fragment urabs)
                     (let ((uabs  (absolute-uri (second p))))
-                      (test (sprintf "~s = ~s" uabs urabs) urabs uabs)))
+                      (test (format "~s = ~s" uabs urabs) urabs uabs)))
                   ))
               (for-each
                (lambda (s)
-                 (test (sprintf "~s = ~s" s (uri->string (uri-reference s)))
+                 (test (format "~s = ~s" s (uri->string (uri-reference s)))
                        s (uri->string (uri-reference s))))
                p))
             path-cases))
@@ -526,11 +525,11 @@
                     (urabs  (uri-reference (second p)))
                     (uex   (uri-reference (third p))))
                 (let* ((to    (uri-relative-to urabs ubase)))
-                  (test (apply sprintf "~s * ~s -> ~s" p) uex to)
+                  (test (apply format "~s * ~s -> ~s" p) uex to)
                   ))
               (for-each
                (lambda (s)
-                 (test (sprintf "~s = ~s" s (uri->string (uri-reference s)))
+                 (test (format "~s = ~s" s (uri->string (uri-reference s)))
                        s (uri->string (uri-reference s))))
                p))
             rfc-cases))
@@ -541,7 +540,7 @@
                     (urabs  (uri-reference (second p)))
                     (uex   (uri-reference (third p))))
                 (let* ((to    (uri-relative-to urabs ubase)))
-                  (test (apply sprintf "~s * ~s -> ~s" p) uex to)
+                  (test (apply format "~s * ~s -> ~s" p) uex to)
                   )))
             extra-cases))
 
@@ -551,7 +550,7 @@
                     (urabs  (uri-reference (second p)))
                     (uex   (uri-reference (third p))))
                 (let* ((to    (uri-relative-from urabs ubase)))
-                  (test (apply sprintf "~s * ~s -> ~s" p) uex to)
+                  (test (apply format "~s * ~s -> ~s" p) uex to)
                   )))
             reverse-extra-cases))
 
@@ -560,14 +559,14 @@
   (for-each (lambda (p)
               (let ((expected (second p))
                     (encoded (uri-encode-string (first p))))
-                  (test (sprintf "~s -> ~s" (first p) expected) expected encoded)))
+                  (test (format "~s -> ~s" (first p) expected) expected encoded)))
             encode/decode-cases))
 
 (test-group "uri-decode-string test"
   (for-each (lambda (p)
               (let ((expected (first p))
                     (decoded (uri-decode-string (second p))))
-                  (test (sprintf "~s -> ~s" (second p) expected) expected decoded)))
+                  (test (format "~s -> ~s" (second p) expected) expected decoded)))
             encode/decode-cases))
 
 
@@ -575,7 +574,7 @@
   (for-each (lambda (p)
               (let ((case-normalized (uri-normalize-case (uri-reference (first p))))
                     (expected (second p)))
-                  (test (sprintf "~s -> ~s" (first p) (second p)) expected (uri->string case-normalized (lambda (user pass) (conc user ":" pass))))))
+                  (test (format "~s -> ~s" (first p) (second p)) expected (uri->string case-normalized (lambda (user pass) (conc user ":" pass))))))
             normalize-case-cases))
 
 
@@ -589,9 +588,9 @@
                                           (first u)
                                           (third u)))
                                  (uri (uri-reference (first u))))
-                             (test (sprintf "~s decoded as ~s" in internal)
+                             (test (format "~s decoded as ~s" in internal)
                                    internal ((cadr p) uri))
-                             (test (sprintf "~s encoded to ~s" internal out)
+                             (test (format "~s encoded to ~s" internal out)
                                    out (uri->string uri
                                                     (lambda (u p)
                                                       (if p (conc u ":" p) u))))))
@@ -600,29 +599,29 @@
 
 (test-group "absolute/relative distinction"
   (for-each (lambda (s)
-              (test-assert (sprintf "~s is a relative ref" s)
+              (test-assert (format "~s is a relative ref" s)
                            (relative-ref? (uri-reference s)))
-              (test-assert (sprintf "~s is not an URI" s)
+              (test-assert (format "~s is not an URI" s)
                            (not (uri? (uri-reference s))))
-              (test-assert (sprintf "~s is not an absolute URI" s)
+              (test-assert (format "~s is not an absolute URI" s)
                            (not (absolute-uri? (uri-reference s))))
               (test-error (absolute-uri s)))
             relative-refs)
   (for-each (lambda (s)
-              (test-assert (sprintf "~s is not a relative ref" s)
+              (test-assert (format "~s is not a relative ref" s)
                            (not (relative-ref? (uri-reference s))))
-              (test-assert (sprintf "~s is an URI" s)
+              (test-assert (format "~s is an URI" s)
                            (uri? (uri-reference s)))
-              (test-assert (sprintf "~s is an absolute URI" s)
+              (test-assert (format "~s is an absolute URI" s)
                            (absolute-uri? (uri-reference s)))
               (test (uri-reference s) (absolute-uri s)))
             absolute-uris)
   (for-each (lambda (s)
-              (test-assert (sprintf "~s is not a relative ref" s)
+              (test-assert (format "~s is not a relative ref" s)
                            (not (relative-ref? (uri-reference s))))
-              (test-assert (sprintf "~s is an URI" s)
+              (test-assert (format "~s is an URI" s)
                            (uri? (uri-reference s)))
-              (test-assert (sprintf "~s is not an absolute URI" s)
+              (test-assert (format "~s is not an absolute URI" s)
                            (not (absolute-uri? (uri-reference s))))
               ;; Should this give an error in the fragment case?
               (test-error (absolute-uri s)))
@@ -631,22 +630,22 @@
 
 (test-group "absolute/relative path distinction"
   (for-each (lambda (s)
-              (test-assert (sprintf "~s is not a relative path" s)
+              (test-assert (format "~s is not a relative path" s)
                            (not (uri-path-relative? (uri-reference s))))
-              (test-assert (sprintf "~s is an absolute path" s)
+              (test-assert (format "~s is an absolute path" s)
                            (uri-path-absolute? (uri-reference s))))
             absolute-paths)
   (for-each (lambda (s)
-              (test-assert (sprintf "~s is a relative path" s)
+              (test-assert (format "~s is a relative path" s)
                            (uri-path-relative? (uri-reference s)))
-              (test-assert (sprintf "~s is not an absolute path" s)
+              (test-assert (format "~s is not an absolute path" s)
                            (not (uri-path-absolute? (uri-reference s)))))
             relative-paths))
 
 
 (test-group "Invalid URI-references"
   (for-each (lambda (s)
-              (test (sprintf "~s is not a valid uri-reference" s)
+              (test (format "~s is not a valid uri-reference" s)
                     #f
                     (uri-reference s)))
             invalid-refs))
@@ -691,7 +690,7 @@
               (let* ((input (cdr u))
                      (oexp (first u))
                      (oact (apply make-uri input)))
-                (test (sprintf "~s -> ~s" input oexp)
+                (test (format "~s -> ~s" input oexp)
                       oexp (uri->string oact))))
             make-cases))
 
