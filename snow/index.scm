@@ -194,6 +194,18 @@
       (description "srfi-13-strings")
       (license lgpl/v2.1)))
   (package
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-29-format.tgz")
+    (library
+      (name (snow srfi-29-format))
+      (path "snow/srfi-29-format.sld")
+      (version "1.0")
+      (homepage "http://srfi.schemers.org/srfi-29/srfi-29.html")
+      (maintainers)
+      (authors )
+      (description "srfi-29-format")
+      (depends (snow snowlib))
+      (license mit)))
+  (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-60-integers-as-bits.tgz")
     (library
       (name (snow srfi-60-integers-as-bits))
