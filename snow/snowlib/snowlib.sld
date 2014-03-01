@@ -541,10 +541,10 @@
 
     (define (snow-error msg . args)
 
-      (display "*** SNOW ERROR -- ")
-      (display msg)
-      (for-each (lambda (x) (display " ") (write x)) args)
-      (newline)
+      ;; (display "*** SNOW ERROR -- ")
+      ;; (display msg)
+      ;; (for-each (lambda (x) (display " ") (write x)) args)
+      ;; (newline)
 
       (snow-raise (make-snow-error-condition msg args)))
 
