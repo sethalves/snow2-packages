@@ -1,5 +1,5 @@
 (define-library (seth http)
-  (export http call-with-request-body download-file)
+  (export call-with-request-body download-file)
   (import (scheme base))
   (import (snow snowlib))
   (cond-expand
@@ -29,44 +29,44 @@
   (import (seth mime))
   (begin
 
-    (define (http:header-as-integer headers name default)
-      (cond ((assq-ref headers name default) => string->number)
-            (else #f)))
+    ;; (define (http:header-as-integer headers name default)
+    ;;   (cond ((assq-ref headers name default) => string->number)
+    ;;         (else #f)))
 
 
-    (define http:header-as-string assq-ref)
+    ;; (define http:header-as-string assq-ref)
 
 
-    (define (http verb uri writer reader user-headers)
-      ;;
-      ;; verb should be a symbol like 'GET
-      ;; uri should be a string
-      ;; writer can be a string or input-port or (writer output-port) or #f
-      ;; reader can be #f or a output-port or (reader input-port headers)
-      ;; headers can be #f or an alist or (headers headers-alist)
-      ;; --
-      ;; if reader is #f or a port, return value is response body.
-      ;; if reader is a procedure, return value is that of reader
-      ;;
-      ;; if writer is a port or procedure and content-length isn't
-      ;; among the user-headers, chunked encoding will be used in
-      ;; the request.
-      ;;
+    ;; (define (http verb uri writer reader user-headers)
+    ;;   ;;
+    ;;   ;; verb should be a symbol like 'GET
+    ;;   ;; uri should be a string
+    ;;   ;; writer can be a string or input-port or (writer output-port) or #f
+    ;;   ;; reader can be #f or a output-port or (reader input-port headers)
+    ;;   ;; headers can be #f or an alist or (headers headers-alist)
+    ;;   ;; --
+    ;;   ;; if reader is #f or a port, return value is response body.
+    ;;   ;; if reader is a procedure, return value is that of reader
+    ;;   ;;
+    ;;   ;; if writer is a port or procedure and content-length isn't
+    ;;   ;; among the user-headers, chunked encoding will be used in
+    ;;   ;; the request.
+    ;;   ;;
 
-      (let* ((sock (open-network-client `((host ,hostname) (port 80))))
-             (write-port (socket:outbound-write-port sock))
-             (read-port (bin->textual (socket:inbound-read-port sock))))
+    ;;   (let* ((sock (open-network-client `((host ,hostname) (port 80))))
+    ;;          (write-port (socket:outbound-write-port sock))
+    ;;          (read-port (bin->textual (socket:inbound-read-port sock))))
 
-        (format write-port "GET ~A HTTP/1.1\r\n" path-part)
-        (mime-write-headers `((host ,hostname)) write-port)
-        (display "\r\n" write-port)
+    ;;     (format write-port "GET ~A HTTP/1.1\r\n" path-part)
+    ;;     (mime-write-headers `((host ,hostname)) write-port)
+    ;;     (display "\r\n" write-port)
 
-        (let* ((first-line (read-line read-port))
-               (headers (mime-headers->list read-port))
-               (content-length
-                (http:header-as-integer headers 'content-length 0)))
-          (let ((body (read-n content-length read-port)))
-            (values 200 "" body)))))
+    ;;     (let* ((first-line (read-line read-port))
+    ;;            (headers (mime-headers->list read-port))
+    ;;            (content-length
+    ;;             (http:header-as-integer headers 'content-length 0)))
+    ;;       (let ((body (read-n content-length read-port)))
+    ;;         (values 200 "" body)))))
 
 
 
@@ -230,6 +230,12 @@
      (sagittarius
       ;; http://ktakashi.github.io/sagittarius-ref.html#rfc.uri
 
+      (define (http:header-as-integer headers name default)
+        (cond ((assq-ref headers name default) => string->number)
+              (else #f)))
+
+      (define http:header-as-string assq-ref)
+
       (define (bin->textual port)
         (transcoded-port port (make-transcoder
                                (latin-1-codec)
@@ -240,14 +246,15 @@
                (write-port (socket:outbound-write-port sock))
                (read-port (bin->textual (socket:inbound-read-port sock))))
 
-          (format write-port "GET ~A HTTP/1.1\r\n" path-part)
-          (mime-write-headers `((host ,hostname)) write-port)
+          (display (format "GET ~A HTTP/1.1\r\n" path-part) write-port)
+          (mime-write-headers `((host . ,hostname)) write-port)
           (display "\r\n" write-port)
 
           (let* ((first-line (read-line read-port))
                  (headers (mime-headers->list read-port))
                  (content-length
                   (http:header-as-integer headers 'content-length 0)))
+
             (let ((body (read-n content-length read-port)))
               (values 200 "" body)))))
 

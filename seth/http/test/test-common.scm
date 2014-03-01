@@ -1,6 +1,8 @@
 (define (main-program)
   (let ((result0 #f)
-        (result1 #f))
+        (result1 #f)
+        (result2 #f)
+        )
 
     (call-with-request-body
      "http://headache.hungry.com/~seth/ok"
@@ -32,4 +34,17 @@
       ;; (delete-file "test-download")
       )
 
-    (and result0 result1)))
+
+    (let ((index-scm (call-with-request-body
+                      "http://snow2.s3-website-us-east-1.amazonaws.com/"
+                      read)))
+      (cond ((and (list? index-scm)
+                  (eq? (car index-scm) 'repository))
+             (set! result2 #t))
+            (else
+             (write index-scm)
+             (newline))
+            ))
+
+
+    (and result0 result1 result2)))
