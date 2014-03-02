@@ -1,5 +1,6 @@
 (define-library (seth mime)
-  (export assq-ref mime-header-fold mime-headers->list
+  (export assq-ref assq-set
+          mime-header-fold mime-headers->list
           mime-parse-content-type mime-decode-header
           mime-message-fold mime-message->sxml mime-write-headers)
   (import (scheme base)
@@ -116,6 +117,24 @@
 
 (define (assq-ref ls key . o)
   (cond ((assq key ls) => cdr) (else (and (pair? o) (car o)))))
+
+(define (assq-set ls key value)
+  (let loop ((ls ls)
+             (result '())
+             (found #f))
+    (cond ((null? ls)
+           (if found
+               (reverse result)
+               (reverse (cons (cons key value) result))))
+          (found
+           ;; only change the first instance we find.
+           (loop (cdr ls) (cons (car ls) result) found))
+          (else
+           (let ((ls-key (caar ls))
+                 (ls-value (cdr (car ls))))
+             (if (eq? ls-key key)
+                 (loop (cdr ls) (cons (cons ls-key value) result) #t)
+                 (loop (cdr ls) (cons (car ls) result) found)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; simple matching instead of regexps

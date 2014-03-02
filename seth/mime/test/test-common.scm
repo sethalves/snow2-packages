@@ -1,5 +1,5 @@
-(define (main-program)
 
+(define (test-0)
   (let ((in (open-input-string
              (string-append
               "Date: Sun, 23 Feb 2014 17:27:20 GMT\r\n"
@@ -15,3 +15,22 @@
     (newline)
 
     #t))
+
+
+(define (test-1)
+  (and
+   (equal? (assq-set '((a . "ok") (b . "fuh") (c . 5)) 'd "blee")
+           '((a . "ok") (b . "fuh") (c . 5) (d . "blee")))
+   (equal? (assq-set '((a . "ok") (b . "fuh") (c . 5)) 'c "blee")
+           '((a . "ok") (b . "fuh") (c . "blee")))
+   (equal? (assq-set '() 'c "blee")
+           '((c . "blee")))
+   (equal? (assq-set '((a . "ok") (b . "fuh") (c . 5)) 'a "blee")
+           '((a . "blee") (b . "fuh") (c . 5)))
+
+   ))
+
+
+(define (main-program)
+  (and (test-0)
+       (test-1)))
