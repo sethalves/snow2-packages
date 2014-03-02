@@ -70,6 +70,40 @@
      (else))
 
 
+
+    ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+    ;; association lists
+
+    ;;> \procedure{(assq-ref ls key [default])}
+    ;;> Returns the \scheme{cdr} of the cell in \var{ls} whose
+    ;;> \scheme{car} is \scheme{eq?} to \var{key}, or \var{default}
+    ;;> if not found.  Useful for retrieving values associated with
+    ;;> MIME headers.
+
+    (define (assq-ref ls key . o)
+      (cond ((assq key ls) => cdr) (else (and (pair? o) (car o)))))
+
+    (define (assq-set ls key value)
+      (let loop ((ls ls)
+                 (result '())
+                 (found #f))
+        (cond ((null? ls)
+               (if found
+                   (reverse result)
+                   (reverse (cons (cons key value) result))))
+              (found
+               ;; only change the first instance we find.
+               (loop (cdr ls) (cons (car ls) result) found))
+              (else
+               (let ((ls-key (caar ls))
+                     (ls-value (cdr (car ls))))
+                 (if (eq? ls-key key)
+                     (loop (cdr ls) (cons (cons ls-key value) result) #t)
+                     (loop (cdr ls) (cons (car ls) result) found)))))))
+
+
+
+
     (cond-expand
      ((or chibi))
      (else
@@ -105,36 +139,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 (define mime-line-length-limit 4096)
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; association lists
-
-;;> \procedure{(assq-ref ls key [default])}
-;;> Returns the \scheme{cdr} of the cell in \var{ls} whose
-;;> \scheme{car} is \scheme{eq?} to \var{key}, or \var{default}
-;;> if not found.  Useful for retrieving values associated with
-;;> MIME headers.
-
-(define (assq-ref ls key . o)
-  (cond ((assq key ls) => cdr) (else (and (pair? o) (car o)))))
-
-(define (assq-set ls key value)
-  (let loop ((ls ls)
-             (result '())
-             (found #f))
-    (cond ((null? ls)
-           (if found
-               (reverse result)
-               (reverse (cons (cons key value) result))))
-          (found
-           ;; only change the first instance we find.
-           (loop (cdr ls) (cons (car ls) result) found))
-          (else
-           (let ((ls-key (caar ls))
-                 (ls-value (cdr (car ls))))
-             (if (eq? ls-key key)
-                 (loop (cdr ls) (cons (cons ls-key value) result) #t)
-                 (loop (cdr ls) (cons (car ls) result) found)))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; simple matching instead of regexps
