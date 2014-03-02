@@ -1,176 +1,225 @@
 (define-library (seth http)
-  (export call-with-request-body download-file)
-  (import (scheme base))
-  (import (snow snowlib))
+  (export http
+          call-with-request-body
+          download-file
+          http-header-as-integer
+          http-header-as-string)
+  (import (scheme base)
+          (scheme read)
+          (scheme write)
+          (scheme char))
   (cond-expand
    (chibi
-    (import (chibi io) (chibi process) (scheme file) (chibi net http))
-    (import (snow srfi-13-strings)))
+    (import (chibi io)
+            (chibi process)
+            (scheme file)
+            (chibi net http)))
    (chicken (import (chicken)
                     (ports) ;; for make-input-port
                     (extras) (posix)
                     (http-client)
-                    (uri-common)
+                    ;; (uri-common)
                     (intarweb)))
-   (gauche (import (rfc uri) (rfc http) (seth port-extras)))
+   (gauche (import (rfc uri) (rfc http)))
    (sagittarius
-    (import (scheme write) (rfc uri) (srfi 1) (srfi 13) (srfi 14))
-    (import (only (rnrs)
-                  transcoded-port
-                  make-transcoder
-                  ;; utf-8-codec
-                  latin-1-codec
-                  eol-style)
-            (only (sagittarius) format))
-    (import (seth port-extras)
-            (snow bytevector)
-            (seth network-socket)))
+    (import (scheme write)
+            ;; (rfc uri)
+            (match)
+            (srfi 1)
+            (srfi 13)
+            (srfi 14)))
    )
-  (import (seth mime))
+  (import (snow snowlib)
+          (snow bytevector)
+          (snow srfi-29-format)
+          (snow srfi-13-strings)
+          (snow extio)
+          (seth mime)
+          (seth string-read-write)
+          (seth uri)
+          (seth port-extras)
+          (seth network-socket)
+          )
   (begin
 
-    ;; (define (http:header-as-integer headers name default)
-    ;;   (cond ((assq-ref headers name default) => string->number)
-    ;;         (else #f)))
 
 
-    ;; (define http:header-as-string assq-ref)
+    (define (http-header-as-integer headers name default)
+      (cond ((assq-ref headers name default)
+             => (lambda (v)
+                  (cond ((number? v) v)
+                        ((string? v) (string->number v))
+                        (else (snow-error "http-header-as-integer error")))))
+            (else #f)))
 
 
-    ;; (define (http verb uri writer reader user-headers)
-    ;;   ;;
-    ;;   ;; verb should be a symbol like 'GET
-    ;;   ;; uri should be a string
-    ;;   ;; writer can be a string or input-port or (writer output-port) or #f
-    ;;   ;; reader can be #f or a output-port or (reader input-port headers)
-    ;;   ;; headers can be #f or an alist or (headers headers-alist)
-    ;;   ;; --
-    ;;   ;; if reader is #f or a port, return value is response body.
-    ;;   ;; if reader is a procedure, return value is that of reader
-    ;;   ;;
-    ;;   ;; if writer is a port or procedure and content-length isn't
-    ;;   ;; among the user-headers, chunked encoding will be used in
-    ;;   ;; the request.
-    ;;   ;;
+    (define (http-header-as-string headers name default)
+      (cond ((assq-ref headers name default) => ->string)
+            (else #f)))
 
-    ;;   (let* ((sock (open-network-client `((host ,hostname) (port 80))))
-    ;;          (write-port (socket:outbound-write-port sock))
-    ;;          (read-port (bin->textual (socket:inbound-read-port sock))))
 
-    ;;     (format write-port "GET ~A HTTP/1.1\r\n" path-part)
-    ;;     (mime-write-headers `((host ,hostname)) write-port)
-    ;;     (display "\r\n" write-port)
+    (define (path->string path)
+      (string-append
+       "/" (string-join
+            (map uri-encode-string (map ->string (cdr path))) "/")))
 
-    ;;     (let* ((first-line (read-line read-port))
-    ;;            (headers (mime-headers->list read-port))
-    ;;            (content-length
-    ;;             (http:header-as-integer headers 'content-length 0)))
-    ;;       (let ((body (read-n content-length read-port)))
-    ;;         (values 200 "" body)))))
 
+    (define (http verb uri writer reader . maybe-user-headers+finalizer)
+      ;;
+      ;; verb should be a symbol like 'GET
+      ;; uri should be a string or a uri record
+      ;; writer can be a string or input-port or #f
+      ;; reader can be #f or a output-port or (reader input-port headers)
+      ;; headers can be #f or an alist or (headers headers-alist)
+      ;; --
+      ;; if reader is #f return value is
+      ;;     (values status-code headers response-body)
+      ;; if reader is a procedure, return value is that of reader.
+      ;;    reader will be called like this:
+      ;;    (reader status-code headers response-body-port)
+      ;;
+      ;; if writer is a port or procedure and content-length isn't
+      ;; among the user-headers, chunked encoding will be used in
+      ;; the request.
+      ;;
+      ;; if optional headers are passed, they should be an alist
+      ;; with symbols for keys.
+      ;;
+      ;; the optional header-finalizer procedure should accept an
+      ;; alist of headers (which shouldn't be modified) and return
+      ;; an alist of headers.
+      ;;
+      (define (get-outbound-port-and-length headers)
+        (let ((user-content-length
+               (http-header-as-integer headers 'content-length #f)))
+          ;; XXX should check content-encoding here, in case
+          ;; the writer has multi-byte characters
+          (cond
+
+           ;; writer is #f
+           ((not writer) (values #f 0))
+
+           ;; writer is a string
+           ((string? writer)
+            (if (and user-content-length
+                     (not (= user-content-length
+                             (string-length writer))))
+                (snow-error "http -- writer string length mismatch"))
+            (values (open-input-string writer)
+                    (string-length writer)))
+
+           ;; writer is a port
+           ((input-port? writer)
+            (values writer user-content-length))
+
+           ;; something unexpected
+           (else
+            (snow-error "http -- invalid writer")))))
+
+
+      (define (send-body src-port dst-port content-length)
+        ;; XXX content-encoding?
+        (cond ((not content-length)
+               ;; XXX chunked encoding
+               (snow-error "http -- request chunked encoding, write me!"))
+              (else
+               (let loop ((sent 0))
+                 (cond ((= sent content-length) #t)
+                       (else
+                        (let* ((n-to-read (- content-length sent))
+                               (n-to-read (if (> n-to-read 300)
+                                              300 ;; XXX
+                                              n-to-read))
+                               (data (read-string n-to-read src-port)))
+                          (if (eof-object? data)
+                              (snow-error
+                               "http -- not enough request body data"))
+                          (write-string data dst-port)
+                          (loop (+ sent n-to-read))))))))
+        (snow-force-output dst-port)
+        )
+
+
+      ;; figure out usable versions of all the arguments.  if it's a
+      ;; string, parse the url.  supply defaults for unspecified
+      ;; optional arguments.
+      (let* ((verb-str (string-upcase (->string verb)))
+             (uri (cond ((uri-reference? uri) uri)
+                        ((string? uri) (uri-reference uri))
+                        (else
+                         (snow-error "http -- invalid uri" uri))))
+             ;; set up network connection
+             (hostname (uri-host uri))
+             (port (or (uri-port uri)
+                       (cond ((eq? (uri-scheme uri) 'http) 80)
+                             ((eq? (uri-scheme uri) 'https) 443)
+                             (else (snow-error "http -- don't know port")))))
+             (sock (open-network-client `((host ,hostname) (port ,port))))
+             (write-port (socket:outbound-write-port sock))
+             (read-port (socket:inbound-read-port sock))
+             ;; path and headers
+             ;; (path-part (uri-path-list->path (uri-path uri)))
+             ;; (path-part (encode-path (uri-path uri)))
+             ;; (path-part (uri-path-list->path (uri-path uri)))
+             (path-part (path->string (uri-path uri)))
+             (user-headers (if (pair? maybe-user-headers+finalizer)
+                               (car maybe-user-headers+finalizer)
+                               '()))
+             (maybe-user-headers+finalizer
+              (if (pair? maybe-user-headers+finalizer)
+                  (cdr maybe-user-headers+finalizer) '()))
+             (header-finalizer (if (pair? maybe-user-headers+finalizer)
+                                   (car maybe-user-headers+finalizer)
+                                   (lambda (x) x))))
+        ;;
+        ;; make request
+        ;;
+        (let-values (((writer-port content-length)
+                      (get-outbound-port-and-length user-headers)))
+          ;; finish putting together request headers
+          (let* ((host-headers (assq-set user-headers 'host hostname))
+                 (host-cl-headers
+                  (if content-length
+                      (assq-set host-headers 'content-length content-length)
+                      host-headers))
+                 (final-headers (header-finalizer host-cl-headers)))
+            ;; send request and headers
+            (display
+             (format "~a ~a HTTP/1.1\r\n" verb-str path-part)
+             write-port)
+            (mime-write-headers final-headers write-port)
+            (display "\r\n" write-port)
+            ;; send body
+            (send-body writer-port write-port content-length)))
+
+        ;;
+        ;; read response
+        ;;
+        (let* ((first-line (read-line read-port))
+               ;; "HTTP/1.1 200 OK"
+               (status-code 200) ;; XXX
+               (headers (mime-headers->list read-port))
+               (content-length
+                (http-header-as-integer headers 'content-length 0)))
+
+          ;; XXX check for chunked encoding
+          (cond ((not reader)
+                 (let ((response-body (read-n content-length read-port)))
+                   (values status-code headers response-body)))
+                ((procedure? reader)
+                 (reader status-code headers read-port))
+                ((port? reader)
+                 (snow-error "http -- write this!"))
+                (else
+                 (snow-error "http -- unexpected reader type"))))))
 
 
 
     (cond-expand
 
      (chicken
-      ;; this code is adapted from chicken's http-client.scm
-
-      (define (make-delimited-input-port port len)
-        (if (not len)
-            port ;; no need to delimit anything
-            (let ((pos 0))
-              (make-input-port
-               (lambda ()                     ; read-char
-                 (if (= pos len)
-                     (eof-object)
-                     (let ((char (read-char port)))
-                       (set! pos (add1 pos))
-                       char)))
-               (lambda ()                     ; char-ready?
-                 (or (= pos len) (char-ready? port)))
-               (lambda ()                     ; close
-                 (close-input-port port))
-               (lambda ()                     ; peek-char
-                 (if (= pos len)
-                     (eof-object)
-                     (peek-char port)))
-               (lambda (p bytes buf off)      ; read-string!
-                 (let* ((bytes (min bytes (- len pos)))
-                        (bytes-read (read-string! bytes buf port off)))
-                   (set! pos (+ pos bytes-read))
-                   bytes-read))
-               (lambda (p limit)              ; read-line
-                 (if (= pos len)
-                     (eof-object)
-                     (let* ((bytes-left (- len pos))
-                            (limit (min (or limit bytes-left) bytes-left))
-                            (line (read-line port limit)))
-                       (unless (eof-object? line)
-                               (set! pos (+ pos (string-length line))))
-                       line)))))))
-
-      (define discard-remaining-data!
-        (let ((buf (make-string 1024))) ; Doesn't matter, discarded anyway
-          (lambda (response port)
-            ;; If header not available or no response object
-            ;; passed, this reads until EOF
-            (let loop ((len (and response
-                                 (header-value
-                                  'content-length
-                                  (response-headers response)))))
-              (if len
-                  (when (> len 0)
-                        (loop (- len (read-string! len buf port))))
-                  (when (> (read-string! (string-length buf) buf port) 0)
-                        (loop #f)))))))
-
-
-      ;; (define (call-with-request-body url reader)
-      ;;   (call-with-input-request url #f consumer))
-
       (define (call-with-request-body url reader)
-        (let* ((uri (uri-reference url))
-               (req (make-request uri: uri method: 'GET))
-               ;; http://wiki.call-cc.org/eggref/4/intarweb#headers
-               (headers (headers `((x-test "test header"))
-                                 (request-headers req))))
-          (update-request req headers: headers)
-          (call-with-response
-           req
-           ;; send data to webserver
-           (lambda x (void))
-           ;; receive data from webserver
-           (lambda (response)
-             (let* ((rheaders (response-headers response))
-                    (port (make-delimited-input-port
-                           (response-port response)
-                           (header-value 'content-length rheaders)))
-                    (body?
-                     ((response-has-message-body-for-request?) response req)))
-               (if (= 200 (response-class response))
-                   ;; 200 response
-                   (let ((result (and body? reader (reader port))))
-                     (when body? (discard-remaining-data! #f port))
-                     (close-input-port port)
-                     result)
-                   ;; we got an http error response
-                   (let ((err-body (read-string #f port)))
-                     (close-input-port port)
-                     (snow-raise
-                      (make-snow-cond
-                       (case (response-class response)
-                         ((400) '(http-error http-client-error))
-                         ((500) '(http-error http-server-error))
-                         (else '(http-error)))
-                       (vector
-                        (response-code response)
-                        (response-reason response)
-                        (headers->list rheaders)
-                        err-body))))))))))
-
-
-
+        (call-with-input-request url #f reader))
 
       (define (download-file url write-port)
         (call-with-request-body
@@ -182,15 +231,15 @@
              #t)))))
 
      (chibi
-      ;; (define (call-with-request-body url consumer)
-      ;;   (call-with-input-url url consumer))
-
       (define (call-with-request-body url consumer)
-        (let* ((headers '())
-               (p (http-get url headers))
-               (res (consumer p)))
-          (close-input-port p)
-          res))
+        (call-with-input-url url consumer))
+
+      ;; (define (call-with-request-body url consumer)
+      ;;   (let* ((headers '())
+      ;;          (p (http-get url headers))
+      ;;          (res (consumer p)))
+      ;;     (close-input-port p)
+      ;;     res))
 
       (define (download-file url write-port)
         (call-with-input-url
@@ -230,42 +279,45 @@
      (sagittarius
       ;; http://ktakashi.github.io/sagittarius-ref.html#rfc.uri
 
-      (define (http:header-as-integer headers name default)
-        (cond ((assq-ref headers name default) => string->number)
-              (else #f)))
 
-      (define http:header-as-string assq-ref)
+      ;; (define (http-get hostname path-part)
+      ;;   (let* ((sock (open-network-client `((host ,hostname) (port 80))))
+      ;;          (write-port (socket:outbound-write-port sock))
+      ;;          (read-port (bin->textual (socket:inbound-read-port sock))))
 
-      (define (bin->textual port)
-        (transcoded-port port (make-transcoder
-                               (latin-1-codec)
-                               (eol-style none))))
+      ;;     (display (format "GET ~A HTTP/1.1\r\n" path-part) write-port)
+      ;;     (mime-write-headers `((host . ,hostname)) write-port)
+      ;;     (display "\r\n" write-port)
 
-      (define (http-get hostname path-part)
-        (let* ((sock (open-network-client `((host ,hostname) (port 80))))
-               (write-port (socket:outbound-write-port sock))
-               (read-port (bin->textual (socket:inbound-read-port sock))))
+      ;;     (let* ((first-line (read-line read-port))
+      ;;            (headers (mime-headers->list read-port))
+      ;;            (content-length
+      ;;             (http-header-as-integer headers 'content-length 0)))
 
-          (display (format "GET ~A HTTP/1.1\r\n" path-part) write-port)
-          (mime-write-headers `((host . ,hostname)) write-port)
-          (display "\r\n" write-port)
+      ;;       (let ((body (read-n content-length read-port)))
+      ;;         (values 200 "" body)))))
 
-          (let* ((first-line (read-line read-port))
-                 (headers (mime-headers->list read-port))
-                 (content-length
-                  (http:header-as-integer headers 'content-length 0)))
 
-            (let ((body (read-n content-length read-port)))
-              (values 200 "" body)))))
+      ;; (define (call-with-request-body url consumer)
+      ;;   (let-values (((scheme user-info hostname port-number
+      ;;                         path-part query-part fragment-part)
+      ;;                 (uri-parse url)))
+      ;;     (let-values (((status-code headers body)
+      ;;                   (http-get hostname path-part)))
+      ;;       (consumer (open-input-string body)))))
 
 
       (define (call-with-request-body url consumer)
-        (let-values (((scheme user-info hostname port-number
-                              path-part query-part fragment-part)
-                      (uri-parse url)))
-          (let-values (((status-code headers body)
-                        (http-get hostname path-part)))
-            (consumer (open-input-string body)))))
+        (http 'GET url #f
+              (lambda (status-code headers response-body-port)
+
+                ;; XXX
+                (let* ((len (http-header-as-integer headers 'content-length 0))
+                       (data (read-n len response-body-port))
+                       (p (open-input-string data)))
+                  (consumer p))
+
+                )))
 
 
       (define (download-file url write-port)
@@ -286,6 +338,8 @@
 
              (close-output-port write-port)
              #t))))
+
+
 
       ))
 

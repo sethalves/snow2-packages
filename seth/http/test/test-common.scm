@@ -2,6 +2,7 @@
   (let ((result0 #f)
         (result1 #f)
         (result2 #f)
+        (result3 #f)
         )
 
     (call-with-request-body
@@ -47,4 +48,25 @@
             ))
 
 
-    (and result0 result1 result2)))
+    (http 'GET "http://headache.hungry.com/~seth/ok" #f
+          (lambda (status-code headers response-body-port)
+            (let* ((content-length (http-header-as-integer
+                                    headers 'content-length 0))
+                   (body (read-string content-length response-body-port)))
+              ;; (display "headers=")
+              ;; (write headers)
+              ;; (newline)
+              ;; (display "content-length=")
+              ;; (write content-length)
+              ;; (newline)
+              ;; (display "body=")
+              ;; (write body)
+              ;; (newline)
+              (cond ((equal? body "this is a test file\n")
+                     (set! result3 #t))))))
+
+
+    ;; (write (list result0 result1 result2 result3))
+    ;; (newline)
+
+    (and result0 result1 result2 result3)))
