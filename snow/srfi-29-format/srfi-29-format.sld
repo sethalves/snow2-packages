@@ -16,6 +16,23 @@
   (begin
 
 
+    ;; Basic Format Strings
+    ;; http://srfi.schemers.org/srfi-28/srfi-28.html
+
+    ;; Localization (with format)
+    ;; http://srfi.schemers.org/srfi-29/srfi-29.html
+
+    ;; Intermediate Format Strings
+    ;; http://srfi.schemers.org/srfi-48/srfi-48.html
+
+    ;; slib has format
+    ;; http://people.csail.mit.edu/jaffer/slib/Format-Specification.html
+
+    ;; CHICKEN fmt egg
+    ;; http://wiki.call-cc.org/eggref/4/fmt
+
+
+
     (cond-expand
      ((or gauche sagittarius chicken))
      ((or chibi)
