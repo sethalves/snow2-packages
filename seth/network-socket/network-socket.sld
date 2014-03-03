@@ -259,15 +259,23 @@
         (socket-output-port sock))
       (define (socket:inbound-read-port sock)
         (socket-input-port sock)))
+
      (sagittarius
       (define (bin->textual port)
         (transcoded-port port (make-transcoder
                                (latin-1-codec)
-                               (eol-style none))))
+                               (eol-style lf))))
+
       (define (socket:outbound-write-port sock)
-        (socket-output-port sock))
+        (bin->textual (socket-output-port sock)))
+
       (define (socket:inbound-read-port sock)
         (bin->textual (socket-input-port sock))))
+
+
+      ;; (define (socket:inbound-read-port sock)
+      ;;   (socket-input-port sock)))
+
      )
 
     (cond-expand
