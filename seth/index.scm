@@ -52,10 +52,15 @@
       (depends
        (snow snowlib)
        (snow bytevector)
+       (snow srfi-29-format)
        (snow srfi-13-strings)
+       (snow extio)
        (seth mime)
+       (seth string-read-write)
+       (seth uri)
        (seth port-extras)
-       (seth network-socket))))
+       (seth network-socket)
+       )))
   (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/memcache-client.tgz")
     (library
