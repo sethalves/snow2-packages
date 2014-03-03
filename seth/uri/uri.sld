@@ -25,7 +25,6 @@
             (chibi char-set)
             (chibi char-set ascii)
             (chibi optional)
-            ;; (only (chibi) call-with-output-string)
             (only (srfi 1) concatenate every fold append-reverse)))
    (chicken
     ;; (import uri-generic)
