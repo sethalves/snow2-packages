@@ -11,7 +11,6 @@ exec csi -s $0 "$@"
 
 (include "snow/srfi-13-strings.sld")
 (include "snow/bytevector.sld")
-(include "snow/binio.sld")
 (include "seth/string-read-write.sld")
 (include "seth/port-extras.sld")
 (include "seth/base64.sld")

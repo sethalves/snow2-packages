@@ -19,13 +19,12 @@
           stats)
   (import (scheme base) (scheme read) (scheme write))
   (cond-expand
-   (chibi (import (chibi string)))
+   (chibi (import (only (chibi string) string-split)))
    (chicken (import (memcached)))
    (gauche)
    (sagittarius)
    (else))
-  (import (snow binio)
-          (snow bytevector)
+  (import (snow bytevector)
           (snow srfi-13-strings)
           (seth network-socket)
           (seth string-read-write)
@@ -95,9 +94,9 @@
                          (number->string expires) " "
                          (number->string (string-length value-encoded))
                          "\r\n" value-encoded "\r\n")))
-          (binio-write-latin-1-string command wport)
+          (write-string command wport)
           (flush-output-port wport)
-          (let ((response (binio-read-latin-1-line rport)))
+          (let ((response (read-line rport)))
             ;; "STORED\r\n", to indicate success.
             ;; "NOT_STORED\r\n" to indicate the data was not stored, but not
             ;;     because of an error. This normally means that the
@@ -118,10 +117,10 @@
       (define (stats mc-conn)
         (let ((rport (memcache-connection-read-port mc-conn))
               (wport (memcache-connection-write-port mc-conn)))
-          (binio-write-latin-1-string "stats\r\n" wport)
+          (write-string "stats\r\n" wport)
           (flush-output-port wport)
           (let loop ((stats '()))
-            (let ((response (binio-read-latin-1-line rport)))
+            (let ((response (read-line rport)))
               (cond ((equal? response "END") (reverse stats))
                     ((string-prefix? "STAT " response)
                      (let* ((stat (substring response 5
@@ -169,9 +168,9 @@
                          (number->string (string-length value-encoded)) " "
                          cas-unique
                          "\r\n" value-encoded "\r\n")))
-          (binio-write-latin-1-string command wport)
+          (write-string command wport)
           (flush-output-port wport)
-          (let ((response (binio-read-latin-1-line rport)))
+          (let ((response (read-line rport)))
             (cond ((equal? response "STORED") #t)
                   ((equal? response "NOT_STORED") 'not-stored)
                   ((equal? response "EXISTS") 'exists)
@@ -189,9 +188,9 @@
                (wport (memcache-connection-write-port mc-conn))
                (command (string-append command " " key-encoded " "
                                        value-encoded "\r\n")))
-          (binio-write-latin-1-string command wport)
+          (write-string command wport)
           (flush-output-port wport)
-          (let ((response (binio-read-latin-1-line rport)))
+          (let ((response (read-line rport)))
             (cond ((equal? response "NOT_FOUND") #f)
                   (else
                    (string->number response))))))
@@ -211,11 +210,11 @@
                 (string-append "gets " (string-join keys-encoded " ") "\r\n"))
                (rport (memcache-connection-read-port mc-conn))
                (wport (memcache-connection-write-port mc-conn)))
-          (binio-write-latin-1-string command wport)
+          (write-string command wport)
           (flush-output-port wport)
 
           (let loop ((result '()))
-            (let* ((response (binio-read-latin-1-line rport))
+            (let* ((response (read-line rport))
                    (response-parts (cond-expand
                                     (chibi (string-split response #\space))
                                     (else (string-tokenize response))))
@@ -228,10 +227,8 @@
                             (response-flags (list-ref response-parts 2))
                             (response-len (list-ref response-parts 3))
                             (response-cas (list-ref response-parts 4))
-                            (data (latin-1->string
-                                   (read-n-u8
-                                    (string->number response-len) rport)))
-                            (blank (binio-read-latin-1-line rport)))
+                            (data (read-n (string->number response-len) rport))
+                            (blank (read-line rport)))
                        (loop (cons (list (keyd response-key-encoded)
                                          response-flags
                                          (vald data)
@@ -254,9 +251,9 @@
                (command (string-append "delete " key-encoded "\r\n"))
                (rport (memcache-connection-read-port mc-conn))
                (wport (memcache-connection-write-port mc-conn)))
-          (binio-write-latin-1-string command wport)
+          (write-string command wport)
           (flush-output-port wport)
-          (let ((response (binio-read-latin-1-line rport)))
+          (let ((response (read-line rport)))
             (cond ((equal? response "DELETED") #t)
                   ((equal? response "NOT_FOUND") #f)
                   (else
