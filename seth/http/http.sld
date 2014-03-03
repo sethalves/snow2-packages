@@ -279,34 +279,6 @@
      (sagittarius
       ;; http://ktakashi.github.io/sagittarius-ref.html#rfc.uri
 
-
-      ;; (define (http-get hostname path-part)
-      ;;   (let* ((sock (open-network-client `((host ,hostname) (port 80))))
-      ;;          (write-port (socket:outbound-write-port sock))
-      ;;          (read-port (bin->textual (socket:inbound-read-port sock))))
-
-      ;;     (display (format "GET ~A HTTP/1.1\r\n" path-part) write-port)
-      ;;     (mime-write-headers `((host . ,hostname)) write-port)
-      ;;     (display "\r\n" write-port)
-
-      ;;     (let* ((first-line (read-line read-port))
-      ;;            (headers (mime-headers->list read-port))
-      ;;            (content-length
-      ;;             (http-header-as-integer headers 'content-length 0)))
-
-      ;;       (let ((body (read-n content-length read-port)))
-      ;;         (values 200 "" body)))))
-
-
-      ;; (define (call-with-request-body url consumer)
-      ;;   (let-values (((scheme user-info hostname port-number
-      ;;                         path-part query-part fragment-part)
-      ;;                 (uri-parse url)))
-      ;;     (let-values (((status-code headers body)
-      ;;                   (http-get hostname path-part)))
-      ;;       (consumer (open-input-string body)))))
-
-
       (define (call-with-request-body url consumer)
         (http 'GET url #f
               (lambda (status-code headers response-body-port)
