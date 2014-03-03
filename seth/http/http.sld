@@ -58,10 +58,15 @@
             (else #f)))
 
 
-    (define (path->string path)
-      (string-append
-       "/" (string-join
-            (map uri-encode-string (map ->string (cdr path))) "/")))
+    (define (uri->path-string uri)
+      (uri->string
+       (update-uri uri 'scheme #f 'authority #f 'fragment #f)))
+
+
+    ;; (define (path->string path)
+    ;;   (string-append
+    ;;    "/" (string-join
+    ;;         (map uri-encode-string (map ->string (cdr path))) "/")))
 
 
     (define (http verb uri writer reader . maybe-user-headers+finalizer)
@@ -135,9 +140,7 @@
                               (snow-error
                                "http -- not enough request body data"))
                           (write-string data dst-port)
-                          (loop (+ sent n-to-read))))))))
-        (snow-force-output dst-port)
-        )
+                          (loop (+ sent n-to-read)))))))))
 
 
       ;; figure out usable versions of all the arguments.  if it's a
@@ -161,7 +164,7 @@
              ;; (path-part (uri-path-list->path (uri-path uri)))
              ;; (path-part (encode-path (uri-path uri)))
              ;; (path-part (uri-path-list->path (uri-path uri)))
-             (path-part (path->string (uri-path uri)))
+             (path-part (uri->path-string uri))
              (user-headers (if (pair? maybe-user-headers+finalizer)
                                (car maybe-user-headers+finalizer)
                                '()))
@@ -183,14 +186,18 @@
                       (assq-set host-headers 'content-length content-length)
                       host-headers))
                  (final-headers (header-finalizer host-cl-headers)))
-            ;; send request and headers
+
             (display
-             (format "~a ~a HTTP/1.1\r\n" verb-str path-part)
+             (with-output-to-string
+               (lambda ()
+                 ;; send request and headers
+                 (display (format "~a ~a HTTP/1.1\r\n" verb-str path-part))
+                 (mime-write-headers final-headers (current-output-port))
+                 (display "\r\n")))
              write-port)
-            (mime-write-headers final-headers write-port)
-            (display "\r\n" write-port)
             ;; send body
-            (send-body writer-port write-port content-length)))
+            (send-body writer-port write-port content-length)
+            (snow-force-output write-port)))
 
         ;;
         ;; read response
