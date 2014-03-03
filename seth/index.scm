@@ -73,7 +73,6 @@
       (description "memcache-client")
       (license lgpl/v2.1)
       (depends
-       (snow binio)
        (snow bytevector)
        (snow srfi-13-strings)
        (seth network-socket)
