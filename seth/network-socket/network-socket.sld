@@ -264,7 +264,9 @@
       (define (bin->textual port)
         (transcoded-port port (make-transcoder
                                (latin-1-codec)
-                               (eol-style lf))))
+                               ;; (eol-style lf)
+                               (eol-style none)
+                               )))
 
       (define (socket:outbound-write-port sock)
         (bin->textual (socket-output-port sock)))
