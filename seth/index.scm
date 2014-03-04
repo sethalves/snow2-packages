@@ -94,6 +94,7 @@
       (license BSD-style "http://synthcode.com/license.txt")
       (depends
         (snow srfi-13-strings)
+        (snow extio)
         (seth quoted-printable)
         (seth base64)
        )))
