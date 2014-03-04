@@ -22,54 +22,11 @@
    (sagittarius
     (import (rfc mime)
             (snow srfi-13-strings)
+            (snow extio)
             )
     ))
 
   (begin
-    (cond-expand
-     (sagittarius
-      ;; Sagittarius' read-line doesn't accept an upper length.
-      ;; These are from chibi.
-      (define (%read-line n in)
-        (let ((out (open-output-string)))
-          (let lp ()
-            (let ((ch (read-char in)))
-              (cond
-               ((eof-object? ch)
-                (let ((res (get-output-string out)))
-                  (and (not (equal? res "")) res)))
-               (else
-                (write-char ch out)
-                (cond
-                 ((eqv? ch #\newline)
-                  (get-output-string out))
-                 ((eqv? ch #\return)
-                  (if (eqv? #\newline (peek-char in))
-                      (read-char in))
-                  (get-output-string out))
-                 (else
-                  (lp)))))))))
-
-      (define (read-line . o)
-        (let ((in (if (pair? o) (car o) (current-input-port)))
-              (n (if (and (pair? o) (pair? (cdr o))) (car (cdr o)) 8192)))
-          (let ((res (%read-line n in)))
-            (if (not res)
-                (eof-object)
-                (let ((len (string-length res)))
-                  (cond
-                   ((and (> len 0) (eqv? #\newline (string-ref res (- len 1))))
-                    (if (and (> len 1)
-                             (eqv? #\return (string-ref res (- len 2))))
-                        (substring res 0 (- len 2))
-                        (substring res 0 (- len 1))))
-                   ((and (> len 0) (eqv? #\return (string-ref res (- len 1))))
-                    (substring res 0 (- len 1)))
-                   (else
-                    res))))))))
-     (else))
-
-
 
     ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
     ;; association lists
