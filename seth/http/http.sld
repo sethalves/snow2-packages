@@ -319,7 +319,7 @@
 
 
     ;;
-    ;; some wrappers around simple http clients that come with
+    ;; some wrappers around http clients that come with
     ;; the various schemes.
     ;;
 
@@ -342,13 +342,6 @@
      (chibi
       (define (call-with-request-body url consumer)
         (call-with-input-url url consumer))
-
-      ;; (define (call-with-request-body url consumer)
-      ;;   (let* ((headers '())
-      ;;          (p (http-get url headers))
-      ;;          (res (consumer p)))
-      ;;     (close-input-port p)
-      ;;     res))
 
       (define (download-file url write-port)
         (call-with-input-url
@@ -382,47 +375,25 @@
            (let ((data (read-all-u8 inp)))
              (write-bytevector data write-port)
              (close-output-port write-port)
-             #t))))
-      )
+             #t)))))
 
      (sagittarius
-      ;; http://ktakashi.github.io/sagittarius-ref.html#rfc.uri
-
       (define (call-with-request-body url consumer)
         (http 'GET url #f
               (lambda (status-code headers response-body-port)
-
-                ;; XXX
-                (let* ((len (http-header-as-integer headers 'content-length 0))
-                       (data (read-n len response-body-port))
-                       (p (open-input-string data)))
-                  (consumer p))
-
-                )))
-
+                (consumer response-body-port))))
 
       (define (download-file url write-port)
         (call-with-request-body
          url
          (lambda (inp)
-           (let* ((data-s (read-all-chars inp))
-                  (data-bv (string->latin-1 data-s))
-                  )
-
-             ;; (write-bytevector data-bv write-port)
-             (let loop ((i 0))
-               (cond ((= i (bytevector-length data-bv)) #t)
+           (let loop ()
+             (let ((c (read-char inp)))
+               (cond ((eof-object? c)
+                      (close-output-port write-port)
+                      #t)
+                     ((> (char->integer c) 255)
+                      (snow-error "download-file OOPS"))
                      (else
-                      (let ((b (bytevector-u8-ref data-bv i)))
-                        (write-u8 b write-port)
-                        (loop (+ i 1))))))
-
-             (close-output-port write-port)
-             #t))))
-
-
-
-      ))
-
-
-    ))
+                      (write-u8 (char->integer c) write-port)
+                      (loop))))))))))))
