@@ -20,7 +20,10 @@
                     (http-client)
                     ;; (uri-common)
                     (intarweb)))
-   (gauche (import (rfc uri) (rfc http)))
+   (gauche (import (rfc uri)
+                   (rfc http)
+                   (snow gauche-extio-utils)
+                   ))
    (sagittarius
     (import (scheme write)
             ;; (rfc uri)
@@ -63,10 +66,89 @@
        (update-uri uri 'scheme #f 'authority #f 'fragment #f)))
 
 
-    ;; (define (path->string path)
-    ;;   (string-append
-    ;;    "/" (string-join
-    ;;         (map uri-encode-string (map ->string (cdr path))) "/")))
+    (define (make-dechunked-input-port port)
+      (let ((chunk-length 0)
+            (saw-eof #f))
+
+        (define (update-chunk-length)
+          (cond ((> chunk-length 0) #t)
+                (saw-eof #t)
+                (else
+                 (let ((chunk-length-str (read-line port)))
+                   (cond ((eof-object? chunk-length-str)
+                          (set! chunk-length 0)
+                          (set! saw-eof #t))
+                         (else
+                          (set! chunk-length
+                                (string->number chunk-length-str 16))
+                          (if (= chunk-length 0)
+                              (set! saw-eof #t))))))))
+
+        (define (chunked-read-char)
+          (update-chunk-length)
+          (cond (saw-eof (eof-object))
+                (else
+                 (set! chunk-length (- chunk-length 1))
+                 (let ((c (read-char port)))
+                   (if (= 0 chunk-length)
+                       (read-line port))
+                   (update-chunk-length)
+                   c))))
+
+        (define (chunked-char-ready?)
+          (update-chunk-length)
+          (not saw-eof))
+
+        (define (chunked-peek-char)
+          (update-chunk-length)
+          (cond (saw-eof (eof-object))
+                (else
+                 (set! chunk-length (- chunk-length 1))
+                 (peek-char port))))
+
+        (cond-expand
+
+         (chibi
+          (make-custom-input-port
+           (lambda (str start end)
+             (cond (saw-eof (eof-object))
+                   (else
+                    (let ((c (chunked-read-char)))
+                      (cond ((eof-object? c) c)
+                            (else
+                             (string-set! str start c)
+                             1))))))))
+
+         (chicken
+          (make-input-port
+           chunked-read-char ; read-char
+           chunked-char-ready? ; char-ready?
+           (lambda () #t) ; close
+           chunked-peek-char)) ; peek-char
+
+         (gauche
+          (make-virutal-input-port
+            :getc chunked-read-char
+            :ready chunked-char-ready?
+            :close (lambda () #t)))
+
+         (else
+          (let loop ((chars '()))
+            (let ((c (chunked-read-char)))
+              (cond ((eof-object? c)
+                     (open-input-string (list->string (reverse chars))))
+                    (else
+                     (loop (cons c chars))))))
+          ))))
+
+
+    (define (read-status-line read-port)
+      ;; "HTTP/1.1 200 OK"
+      (let* ((first-line (read-line read-port))
+             (parts (string-tokenize first-line)))
+        (cond ((< (length parts) 3) #f)
+              ((not (string-prefix-ci? "http/" (car parts))) #f)
+              (else (string->number (cadr parts))))))
 
 
     (define (http verb uri writer reader . maybe-user-headers+finalizer)
@@ -79,16 +161,16 @@
       ;; --
       ;; if reader is #f return value is
       ;;     (values status-code headers response-body)
-      ;; if reader is a procedure, return value is that of reader.
-      ;;    reader will be called like this:
-      ;;    (reader status-code headers response-body-port)
+      ;; if reader is a procedure, it will be called like this:
+      ;;    (reader status-code response-headers response-body-port)
+      ;;    and return value is that of reader.
       ;;
       ;; if writer is a port or procedure and content-length isn't
       ;; among the user-headers, chunked encoding will be used in
       ;; the request.
       ;;
       ;; if optional headers are passed, they should be an alist
-      ;; with symbols for keys.
+      ;; with lowercase symbols for keys.
       ;;
       ;; the optional header-finalizer procedure should accept an
       ;; alist of headers (which shouldn't be modified) and return
@@ -132,8 +214,8 @@
                  (cond ((= sent content-length) #t)
                        (else
                         (let* ((n-to-read (- content-length sent))
-                               (n-to-read (if (> n-to-read 300)
-                                              300 ;; XXX
+                               (n-to-read (if (> n-to-read 1024)
+                                              1024
                                               n-to-read))
                                (data (read-string n-to-read src-port)))
                           (if (eof-object? data)
@@ -202,24 +284,44 @@
         ;;
         ;; read response
         ;;
-        (let* ((first-line (read-line read-port))
-               ;; "HTTP/1.1 200 OK"
-               (status-code 200) ;; XXX
+        (let* ((status-code (read-status-line read-port))
                (headers (mime-headers->list read-port))
                (content-length
-                (http-header-as-integer headers 'content-length 0)))
-
-          ;; XXX check for chunked encoding
+                (http-header-as-integer headers 'content-length #f))
+               (transfer-encoding
+                (http-header-as-string headers 'transfer-encoding #f))
+               (body-port
+                (cond (content-length
+                       (make-delimited-input-port read-port content-length))
+                      ((equal? transfer-encoding "chunked")
+                       (make-dechunked-input-port read-port))
+                      (else
+                       (snow-raise "http -- no content length or chunked")))))
           (cond ((not reader)
-                 (let ((response-body (read-n content-length read-port)))
-                   (values status-code headers response-body)))
+                 (let* ((response-body
+                         (if content-length
+                             (read-n content-length body-port)
+                             (read-all-chars body-port)))
+                        (expect-eof (read-char body-port)))
+                   (cond ((not (eof-object? expect-eof))
+                          (snow-raise "http -- extra data in response body"))
+                         ((and content-length
+                               (< (string-length response-body) content-length))
+                          (snow-raise "http -- response body too short"))
+                         (else
+                          (values status-code headers response-body)))))
                 ((procedure? reader)
-                 (reader status-code headers read-port))
+                 (reader status-code headers body-port))
                 ((port? reader)
                  (snow-error "http -- write this!"))
                 (else
                  (snow-error "http -- unexpected reader type"))))))
 
+
+    ;;
+    ;; some wrappers around simple http clients that come with
+    ;; the various schemes.
+    ;;
 
 
     (cond-expand

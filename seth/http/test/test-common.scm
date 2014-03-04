@@ -3,6 +3,7 @@
         (result1 #f)
         (result2 #f)
         (result3 #f)
+        (result4 #f)
         )
 
     (call-with-request-body
@@ -65,8 +66,18 @@
               (cond ((equal? body "this is a test file\n")
                      (set! result3 #t))))))
 
+    (let ((url "http://tester.hungry.com/chunked-response-body/"))
+      (let-values (((status headers body) (http 'GET url #f #f)))
+        ;; (write (string-length body))
+        ;; (newline)
+        (set! result4
+              (and
+               (= (string-length body) 966)
+               (equal? (substring body 0 20)
+                       "\n`Twas brillig, and ")))
+        ))
 
-    ;; (write (list result0 result1 result2 result3))
+    ;; (write (list result0 result1 result2 result3 result4))
     ;; (newline)
 
-    (and result0 result1 result2 result3)))
+    (and result0 result1 result2 result3 result4)))
