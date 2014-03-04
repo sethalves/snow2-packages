@@ -1,11 +1,14 @@
 (define-library (snow extio)
   (export snow-read-string
           snow-force-output
-          snow-pretty-print)
+          snow-pretty-print
+          make-delimited-input-port)
   (import (scheme base) (scheme write))
   (cond-expand
    (chibi (import (chibi io)))
-   (chicken (import (only (chicken) flush-output pretty-print)))
+   (chicken (import (only (chicken) flush-output pretty-print)
+                    (only (extras) read-string!)
+                    (ports)))
    (gauche (import (snow gauche-extio-utils)))
    (sagittarius))
   (begin
@@ -125,5 +128,88 @@
                         (car maybe-port))))
           (write obj port)
           (newline port)))))
+
+
+    ;;
+    ;; break off some number of characters from a port and then
+    ;; generate an eof.  the original port will be positioned
+    ;; just after len characters.  reading from original port
+    ;; before the delimited port will mess it all up.
+    ;;
+    (cond-expand
+
+
+     (chicken
+      (define (make-delimited-input-port port len)
+        (let ((index 0)
+              (saw-eof #f))
+          (make-input-port
+           (lambda () ; read-char
+             (cond ((= index len) (eof-object))
+                   (saw-eof (eof-object))
+                   (else
+                    (let ((c (read-char port)))
+                      (cond ((eof-object? c) (set! saw-eof #t))
+                            (else (set! index (+ index 1))))
+                      c))))
+           (lambda () ; char-ready?
+             (cond ((= index len) #f)
+                   (saw-eof #f)
+                   (else (char-ready? port))))
+           (lambda () #t) ; close
+           (lambda () ; peek-char
+             (if (= index len)
+                 (eof-object)
+                 (peek-char port)))))))
+
+     (chibi
+      (define (make-delimited-input-port port len)
+        (let ((index 0)
+              (saw-eof #f))
+          (make-custom-input-port
+           (lambda (str start end)
+             (cond ((= index len) (eof-object))
+                   (saw-eof (eof-object))
+                   (else
+                    (let ((c (read-char port)))
+                      (cond ((eof-object? c) (set! saw-eof #t))
+                            (else (set! index (+ index 1))))
+                      (string-set! str start c)
+                      1))))))))
+
+
+     (gauche
+      (define (make-delimited-input-port port len)
+        (let ((index 0)
+              (saw-eof #f))
+          (make-virutal-input-port
+            ;; :getb (lambda () (read-u8 port))
+            :getc (lambda ()
+                    (cond ((= index len) (eof-object))
+                          (saw-eof (eof-object))
+                          (else
+                           (let ((c (read-char port)))
+                             (cond ((eof-object? c) (set! saw-eof #t))
+                                   (else (set! index (+ index 1))))
+                             c))))
+            :ready (lambda (t-for-char-f-for-byte) (byte-ready? port))
+            :close (lambda () #t)
+            ))))
+
+
+     (else
+      ;; for schemes with no procedural ports (sagittarius)
+      (define (make-delimited-input-port port len)
+        (let ((buf (make-string len)))
+          (let loop ((i 0))
+            (if (= i len)
+                (open-input-string buf)
+                (let ((c (peek-char port)))
+                  (cond ((eof-object? c)
+                         (open-input-string (substring buf 0 i)))
+                        (else
+                         (string-set! buf i (read-char port))
+                         (loop (+ i 1)))))))))))
+
 
     ))
