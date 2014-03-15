@@ -12,6 +12,7 @@
       (depends
        (snow bytevector)
        (snow srfi-13-strings)
+       (snow binio)
        (seth network-socket)
        (seth string-read-write)
        (seth port-extras)

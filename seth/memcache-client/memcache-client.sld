@@ -26,6 +26,7 @@
    (else))
   (import (snow bytevector)
           (snow srfi-13-strings)
+          (snow binio)
           (seth network-socket)
           (seth string-read-write)
           (seth port-extras)
@@ -94,9 +95,9 @@
                          (number->string expires) " "
                          (number->string (string-length value-encoded))
                          "\r\n" value-encoded "\r\n")))
-          (write-string command wport)
+          (write-latin-1-string command wport)
           (flush-output-port wport)
-          (let ((response (read-line rport)))
+          (let ((response (read-latin-1-line rport)))
             ;; "STORED\r\n", to indicate success.
             ;; "NOT_STORED\r\n" to indicate the data was not stored, but not
             ;;     because of an error. This normally means that the
@@ -117,10 +118,10 @@
       (define (stats mc-conn)
         (let ((rport (memcache-connection-read-port mc-conn))
               (wport (memcache-connection-write-port mc-conn)))
-          (write-string "stats\r\n" wport)
+          (write-latin-1-string "stats\r\n" wport)
           (flush-output-port wport)
           (let loop ((stats '()))
-            (let ((response (read-line rport)))
+            (let ((response (read-latin-1-line rport)))
               (cond ((equal? response "END") (reverse stats))
                     ((string-prefix? "STAT " response)
                      (let* ((stat (substring response 5
@@ -168,9 +169,9 @@
                          (number->string (string-length value-encoded)) " "
                          cas-unique
                          "\r\n" value-encoded "\r\n")))
-          (write-string command wport)
+          (write-latin-1-string command wport)
           (flush-output-port wport)
-          (let ((response (read-line rport)))
+          (let ((response (read-latin-1-line rport)))
             (cond ((equal? response "STORED") #t)
                   ((equal? response "NOT_STORED") 'not-stored)
                   ((equal? response "EXISTS") 'exists)
@@ -188,9 +189,9 @@
                (wport (memcache-connection-write-port mc-conn))
                (command (string-append command " " key-encoded " "
                                        value-encoded "\r\n")))
-          (write-string command wport)
+          (write-latin-1-string command wport)
           (flush-output-port wport)
-          (let ((response (read-line rport)))
+          (let ((response (read-latin-1-line rport)))
             (cond ((equal? response "NOT_FOUND") #f)
                   (else
                    (string->number response))))))
@@ -210,11 +211,11 @@
                 (string-append "gets " (string-join keys-encoded " ") "\r\n"))
                (rport (memcache-connection-read-port mc-conn))
                (wport (memcache-connection-write-port mc-conn)))
-          (write-string command wport)
+          (write-latin-1-string command wport)
           (flush-output-port wport)
 
           (let loop ((result '()))
-            (let* ((response (read-line rport))
+            (let* ((response (read-latin-1-line rport))
                    (response-parts (cond-expand
                                     (chibi (string-split response #\space))
                                     (else (string-tokenize response))))
@@ -227,8 +228,11 @@
                             (response-flags (list-ref response-parts 2))
                             (response-len (list-ref response-parts 3))
                             (response-cas (list-ref response-parts 4))
-                            (data (read-n (string->number response-len) rport))
-                            (blank (read-line rport)))
+                            (data-u8 (read-bytevector
+                                      (string->number response-len)
+                                      rport))
+                            (data (latin-1->string data-u8))
+                            (blank (read-latin-1-line rport)))
                        (loop (cons (list (keyd response-key-encoded)
                                          response-flags
                                          (vald data)
@@ -251,9 +255,9 @@
                (command (string-append "delete " key-encoded "\r\n"))
                (rport (memcache-connection-read-port mc-conn))
                (wport (memcache-connection-write-port mc-conn)))
-          (write-string command wport)
+          (write-latin-1-string command wport)
           (flush-output-port wport)
-          (let ((response (read-line rport)))
+          (let ((response (read-latin-1-line rport)))
             (cond ((equal? response "DELETED") #t)
                   ((equal? response "NOT_FOUND") #f)
                   (else
