@@ -5,8 +5,8 @@
           read-all-u8
           read-available-chars
           read-available-u8
-          read-n
-          read-n-u8
+          ;; read-n
+          ;; read-n-u8
           read-0
           consume-whitespace
           read-word
@@ -91,12 +91,13 @@
                                                 peek-u8 read-u8 u8-ready?)))
 
 
-    (define (read-n n port)
-      (read-available-chars port n n))
+    ;; r7rs has read-string
+    ;; (define (read-n n port)
+    ;;   (read-available-chars port n n))
 
-
-    (define (read-n-u8 n port)
-      (read-available-u8 port n n))
+    ;; r7rs has read-bytevector
+    ;; (define (read-n-u8 n port)
+    ;;   (read-available-u8 port n n))
 
 
     (define (read-0 f)
