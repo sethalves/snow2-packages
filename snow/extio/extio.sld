@@ -174,10 +174,13 @@
                    (saw-eof (eof-object))
                    (else
                     (let ((c (read-char port)))
+                    ;; (let ((c (integer->char (read-u8 port))))
                       (cond ((eof-object? c) (set! saw-eof #t))
                             (else (set! index (+ index 1))))
                       (string-set! str start c)
-                      1))))))))
+                      1)))))))
+
+      )
 
 
      (gauche
@@ -219,27 +222,29 @@
       ;; These are from chibi.
       (define (%read-line n in)
         (let ((out (open-output-string)))
-          (let lp ()
-            (let ((ch (read-char in)))
+          (let lp ((i 0))
+            (let ((ch (peek-char in)))
               (cond
                ((eof-object? ch)
                 (let ((res (get-output-string out)))
                   (and (not (equal? res "")) res)))
+               ((eqv? ch #\newline)
+                (read-char in)
+                (get-output-string out))
+               ((eqv? ch #\return)
+                (read-char in)
+                (if (eqv? #\newline (peek-char in))
+                    (read-char in))
+                (get-output-string out))
+               ((and n (>= i n))
+                (get-output-string out))
                (else
-                (write-char ch out)
-                (cond
-                 ((eqv? ch #\newline)
-                  (get-output-string out))
-                 ((eqv? ch #\return)
-                  (if (eqv? #\newline (peek-char in))
-                      (read-char in))
-                  (get-output-string out))
-                 (else
-                  (lp)))))))))
+                (write-char (read-char in) out)
+                (lp (+ i 1))))))))
 
       (define (read-line . o)
         (let ((in (if (pair? o) (car o) (current-input-port)))
-              (n (if (and (pair? o) (pair? (cdr o))) (car (cdr o)) 8192)))
+              (n (if (and (pair? o) (pair? (cdr o))) (car (cdr o)) #f)))
           (let ((res (%read-line n in)))
             (if (not res)
                 (eof-object)
