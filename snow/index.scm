@@ -32,7 +32,9 @@
       (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Binary I/O." i/o snow)
-      (depends (snow bytevector))
+      (depends (snow snowlib)
+               (snow bytevector)
+               (snow binio))
       (license lgpl/v2.1)))
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
@@ -75,7 +77,8 @@
       (maintainers "Seth Alves <alves@hungry.com>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
-      (license lgpl/v2.1)))
+      (license lgpl/v2.1)
+      (depends (snow binio))))
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
     (library

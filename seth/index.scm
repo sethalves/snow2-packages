@@ -75,6 +75,7 @@
       (depends
        (snow bytevector)
        (snow srfi-13-strings)
+       (snow binio)
        (seth network-socket)
        (seth string-read-write)
        (seth port-extras)
@@ -97,6 +98,7 @@
         (snow extio)
         (seth quoted-printable)
         (seth base64)
+        (snow binio)
        )))
   (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/network-socket.tgz")
@@ -121,7 +123,9 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "port-extras")
       (license lgpl/v2.1)
-      (depends (snow bytevector) (seth string-read-write))))
+      (depends (snow bytevector)
+               (snow binio)
+               (seth string-read-write))))
     (package
      (url "http://snow2.s3-website-us-east-1.amazonaws.com/quoted-printable.tgz")
 
