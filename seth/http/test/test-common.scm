@@ -40,6 +40,7 @@
         (result2 #f)
         (result3 #f)
         (result4 #f)
+        (result5 #f)
         )
 
     (call-with-request-body
@@ -72,10 +73,11 @@
       ;; (delete-file "test-download")
       )
 
-
     (let ((index-scm (call-with-request-body
                       "http://snow2.s3-website-us-east-1.amazonaws.com/"
-                      read)))
+                      ;; read
+                      (lambda (p)
+                        (read (binary-port->latin-1-textual-port p))))))
       (cond ((and (list? index-scm)
                   (eq? (car index-scm) 'repository))
              (set! result2 #t))
@@ -87,9 +89,15 @@
 
     (http 'GET "http://headache.hungry.com/~seth/ok" #f
           (lambda (status-code headers response-body-port)
+
+            ;; (display "(binary-port? response-body-port) --> ")
+            ;; (write (binary-port? response-body-port))
+            ;; (newline)
+
             (let* ((content-length (http-header-as-integer
                                     headers 'content-length 0))
-                   (body (read-string content-length response-body-port)))
+                   (body (read-latin-1-string
+                          content-length response-body-port)))
               ;; (display "headers=")
               ;; (write headers)
               ;; (newline)
@@ -113,7 +121,38 @@
                        "\n`Twas brillig, and ")))
         ))
 
-    ;; (write (list result0 result1 result2 result3 result4))
-    ;; (newline)
+    (cond ((file-exists? "test-download")
+           (delete-file "test-download")))
 
-    (and result0 result1 result2 result3 result4)))
+    (let ((outp
+           (cond-expand
+            (sagittarius
+             (open-output-file "test-download" :transcoder #f))
+            (else
+             (open-output-file "test-download")))))
+      (download-file "http://headache.hungry.com/~seth/8bits" outp)
+
+      (let* ((inp (open-binary-input-file "test-download"))
+             (test-data (read-all-latin-1-chars inp)))
+        (cond ((= (string-length test-data) 256)
+               (let loop ((i 0))
+                 (cond ((= i 256) (set! result5 #t))
+                       ((not (= i (char->integer (string-ref test-data i))))
+                        (display "8-bit mismatch at ")
+                        (write i)
+                        (newline))
+                       (else
+                        (loop (+ i 1))))))
+              (else
+               (display "8bit data length=")
+               (write (string-length test-data))
+               (newline)))
+        )
+
+      ;; (delete-file "test-download")
+      )
+
+    (write (list result0 result1 result2 result3 result4 result5))
+    (newline)
+
+    (and result0 result1 result2 result3 result4 result5)))

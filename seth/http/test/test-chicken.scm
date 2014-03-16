@@ -5,6 +5,8 @@ exec csi -s $0 "$@"
 
 (use r7rs)
 (import-for-syntax r7rs)
+(import (scheme base)
+        (scheme file))
 
 (include "snow/snowlib.sld")
 (include "snow/bytevector.sld")
@@ -21,6 +23,8 @@ exec csi -s $0 "$@"
 (include "seth/network-socket.sld")
 (include "seth/uri.sld")
 (include "seth/http.sld")
+(import (snow binio))
+(import (snow extio))
 (import (seth port-extras))
 (import (seth http))
 

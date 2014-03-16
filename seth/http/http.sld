@@ -96,6 +96,11 @@
                    (update-chunk-length)
                    c))))
 
+        (define (chunked-read-u8)
+          (let ((c (chunked-read-char)))
+            (cond ((eof-object? c) c)
+                  (else (char->integer c)))))
+
         (define (chunked-char-ready?)
           (update-chunk-length)
           (not saw-eof))
@@ -129,9 +134,10 @@
 
          (gauche
           (make-virutal-input-port
-            :getc chunked-read-char
-            :ready chunked-char-ready?
-            :close (lambda () #t)))
+           :getb chunked-read-u8
+           :getc chunked-read-char
+           :ready chunked-char-ready?
+           :close (lambda () #t)))
 
          (else
           (let loop ((chars '()))
@@ -244,9 +250,6 @@
              (write-port (socket:outbound-write-port sock))
              (read-port (socket:inbound-read-port sock))
              ;; path and headers
-             ;; (path-part (uri-path-list->path (uri-path uri)))
-             ;; (path-part (encode-path (uri-path uri)))
-             ;; (path-part (uri-path-list->path (uri-path uri)))
              (path-part (uri->path-string uri))
              (user-headers (if (pair? maybe-user-headers+finalizer)
                                (car maybe-user-headers+finalizer)
@@ -327,23 +330,13 @@
 
     (cond-expand
 
-     (chicken
-      (define (call-with-request-body url reader)
-        (call-with-input-request url #f reader))
-
-      ;; (define (download-file url write-port)
-      ;;   (call-with-request-body
-      ;;    url
-      ;;    (lambda (inp)
-      ;;      (let ((data (read-latin-1-string #f inp)))
-      ;;        (write-string data #f write-port)
-      ;;        (close-output-port write-port)
-      ;;        #t))))
-      )
-
      ;; (chibi
      ;;  (define (call-with-request-body url consumer)
      ;;    (call-with-input-url url consumer)))
+
+     (chicken
+      (define (call-with-request-body url reader)
+        (call-with-input-request url #f reader)))
 
      (gauche
       ;; http://practical-scheme.net/gauche/man/gauche-refe_149.html
@@ -359,70 +352,29 @@
                                             (number->string port-number))
                              hostname)
                          path-part)))
-            (consumer (open-input-string body)))))
-
-
-      )
+            (consumer (open-input-string body))))))
 
      (else
       (define (call-with-request-body url consumer)
         (http 'GET url #f
               (lambda (status-code headers response-body-port)
-                (consumer response-body-port))))
-
-      ))
+                (consumer response-body-port))))))
 
 
-    (cond-expand
-     ;; (chibi
-     ;;  (define (download-file url write-port)
-
-     ;;    ;; XXX
-
-     ;;    ;; fails
-     ;;    (http
-     ;;     'GET url #f
-     ;;     (lambda (status-code headers response-body-port)
-
-     ;;    ;; works
-     ;;    ;; (call-with-input-url
-     ;;    ;;  url
-     ;;    ;;  (lambda (response-body-port)
-
-     ;;       (display "port=") (write response-body-port) (newline)
-
-     ;;       (let loop ()
-     ;;         (let ((data (read-latin-1-char response-body-port)))
-     ;;           (cond ((eof-object? data)
-     ;;                  (close-output-port write-port)
-     ;;                  #t)
-     ;;                 (else
-     ;;                  (write-latin-1-char data write-port)
-     ;;                  (loop)))))))))
-     (gauche
-      (define (download-file url write-port)
-        (call-with-request-body
-         url
-         (lambda (inp)
-           (let ((data (read-all-u8 inp)))
-             (write-bytevector data write-port)
-             (close-output-port write-port)
-             #t)))))
-
-     (else
-      (define (download-file url write-port)
-        (http 'GET
-              url #f
-              (lambda (status-code headers response-body-port)
-                (let loop ()
-                  (let ((c (read-latin-1-char response-body-port)))
-                    (cond ((eof-object? c)
-                           (close-output-port write-port)
-                           #t)
-                          ;; ((> (char->integer c) 255)
-                          ;;  (snow-error "download-file OOPS"))
-                          (else
-                           (write-latin-1-char c write-port)
-                           (loop))))))))))
+    (define (download-file url write-port)
+      (http 'GET
+            url #f
+            (lambda (status-code headers response-body-port)
+              (let loop ()
+                (let ((c (read-latin-1-char response-body-port)))
+                  (cond ((eof-object? c)
+                         (close-output-port write-port)
+                         #t)
+                        ((> (char->integer c) 255)
+                         (display "OOPS\n")
+                         (snow-error "download-file OOPS"))
+                        (else
+                         (write-latin-1-char c write-port)
+                         (loop))))))))
 
     ))

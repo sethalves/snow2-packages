@@ -4,7 +4,10 @@
         (scheme read)
         (scheme file)
         (scheme write))
-(import (seth port-extras) (seth http))
+(import (snow binio)
+        (snow extio)
+        (seth port-extras)
+        (seth http))
 
 (include "test-common.scm")
 
