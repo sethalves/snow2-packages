@@ -8,4 +8,5 @@
       (maintainers "Seth Alves <alves@hungry.com>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
-      (license lgpl/v2.1)))
+      (license lgpl/v2.1)
+      (depends (snow binio))))
