@@ -8,5 +8,7 @@
       (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Binary I/O." i/o snow)
-      (depends (snow bytevector))
+      (depends (snow snowlib)
+               (snow bytevector)
+               (snow binio))
       (license lgpl/v2.1)))
