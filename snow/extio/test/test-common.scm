@@ -25,23 +25,34 @@
       (equal? cont-str "oppre")))
 
 
-   (let* ((p (open-input-bytevector (bytevector 0 1 2 3 127 128 129)))
+   (let* ((p (open-input-bytevector (bytevector 0 1 150 3 4 5 6)))
           (p-textual (binary-port->latin-1-textual-port p)))
 
-     ;; (write (= (char->integer (read-char p-textual)) 0)) (newline)
-     ;; (write (= (char->integer (read-char p-textual)) 1)) (newline)
-     ;; (write (= (char->integer (read-char p-textual)) 2)) (newline)
-     ;; (write (= (char->integer (read-char p-textual)) 3)) (newline)
-     ;; (write (= (char->integer (read-char p-textual)) 127)) (newline)
-     ;; (write (= (char->integer (read-char p-textual)) 128)) (newline)
-     ;; #t
-     (and
-      (= (char->integer (read-char p-textual)) 0)
-      (= (char->integer (read-char p-textual)) 1)
-      (= (char->integer (read-char p-textual)) 2)
-      (= (char->integer (read-char p-textual)) 3)
-      (= (char->integer (read-char p-textual)) 127)
-      (= (char->integer (read-char p-textual)) 128))
+     (write (char->integer (read-char p-textual))) (newline)
+     (write (char->integer (read-char p-textual))) (newline)
+     (write (char->integer (read-char p-textual))) (newline)
+     (write (char->integer (read-char p-textual))) (newline)
+     (write (char->integer (read-char p-textual))) (newline)
+     (write (char->integer (read-char p-textual))) (newline)
+     (write (char->integer (read-char p-textual))) (newline)
+     #t
+
+     ;; (and
+     ;;  (= (char->integer (read-char p-textual)) 0)
+     ;;  (= (char->integer (read-char p-textual)) 1)
+     ;;  (= (char->integer (read-char p-textual)) 2)
+     ;;  (= (char->integer (read-char p-textual)) 3)
+     ;;  (= (char->integer (read-char p-textual)) 127)
+     ;;  (= (char->integer (read-char p-textual)) 128))
      )
+
+   (let* ((p (open-input-bytevector (bytevector 10 11 12 13 14 15)))
+          (p-del (make-delimited-input-port p 3)))
+     (and
+      (= (read-u8 p-del) 10)
+      (= (read-u8 p-del) 11)
+      (= (read-u8 p-del) 12)
+      (eof-object? (read-u8 p-del))))
+
 
    ))
