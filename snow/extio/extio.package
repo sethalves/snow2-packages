@@ -9,4 +9,5 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
       (license lgpl/v2.1)
-      (depends (snow binio))))
+      (depends (snow binio)
+               (snow bytevector))))
