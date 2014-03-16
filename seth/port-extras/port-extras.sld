@@ -2,6 +2,7 @@
 
 (define-library (seth port-extras)
   (export read-all-chars
+          read-all-latin-1-chars
           read-all-u8
           read-available-chars
           read-available-u8
@@ -21,6 +22,7 @@
                     (seth string-read-write)))
    ((or gauche sagittarius) (import (scheme char) (snow bytevector)))
    )
+  (import (snow binio))
   (begin
 
 
@@ -55,6 +57,9 @@
 
     (define (read-all-chars f)
       (list->string (read-all-main f read-char)))
+
+    (define (read-all-latin-1-chars f)
+      (list->string (read-all-main f read-latin-1-char)))
 
     (define (read-all-u8 f)
       (u8-list->bytevector (read-all-main f read-u8)))
