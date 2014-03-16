@@ -14,7 +14,9 @@
           binio-open-output-file
           binio-read-subu8vector
           binio-write-subu8vector
+          read-latin-1-string
           write-latin-1-string
+          write-latin-1-char
           read-latin-1-char
           peek-latin-1-char
           read-latin-1-line
@@ -130,6 +132,31 @@
       (let ((bv (string->latin-1 str)))
         (binio-write-subu8vector
          bv 0 (bytevector-length bv) bin-port)))
+
+
+    (define (read-latin-1-string k . maybe-port)
+      (let ((port (if (pair? maybe-port)
+                      (car maybe-port)
+                      (current-input-port)))
+            (result (make-string k)))
+        (let loop ((i 0))
+          (cond ((= i k) result)
+                (else
+                 (let ((c (read-latin-1-string port)))
+                   (cond ((eof-object? c)
+                          (substring result 0 i))
+                         (else
+                          (string-set! result i c)
+                          (loop (+ i 1))))))))))
+
+
+    (define (write-latin-1-char c out)
+      (let ((i (char->integer c)))
+        (cond ((> i 255) (snow-error "write-latin-1-char got unicode"))
+              ((binary-port? out)
+               (write-u8 i out))
+              (else
+               (write-char c out)))))
 
 
     (define (read-latin-1-char in)
