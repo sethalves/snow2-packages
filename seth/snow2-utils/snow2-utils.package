@@ -11,6 +11,7 @@
       (license lgpl/v2.1)
       (depends
        (snow snowlib)
+       (snow extio)
        (snow srfi-13-strings)
        (seth srfi-69-hash-tables)
        (snow filesys)
