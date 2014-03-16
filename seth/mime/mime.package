@@ -15,4 +15,5 @@
         (snow extio)
         (seth quoted-printable)
         (seth base64)
+        (snow binio)
        )))
