@@ -17,6 +17,7 @@
           read-latin-1-string
           write-latin-1-string
           write-latin-1-char
+          latin-1-char-ready?
           read-latin-1-char
           peek-latin-1-char
           read-latin-1-line
@@ -142,7 +143,7 @@
         (let loop ((i 0))
           (cond ((= i k) result)
                 (else
-                 (let ((c (read-latin-1-string port)))
+                 (let ((c (read-latin-1-char port)))
                    (cond ((eof-object? c)
                           (substring result 0 i))
                          (else
@@ -158,6 +159,11 @@
               (else
                (write-char c out)))))
 
+    (define (latin-1-char-ready? in)
+      (cond ((binary-port? in)
+             (u8-ready? in))
+            (else
+             (char-ready? in))))
 
     (define (read-latin-1-char in)
       (cond ((binary-port? in)
