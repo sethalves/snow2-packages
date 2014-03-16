@@ -9,4 +9,6 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "port-extras")
       (license lgpl/v2.1)
-      (depends (snow bytevector) (seth string-read-write))))
+      (depends (snow bytevector)
+               (snow binio)
+               (seth string-read-write))))
