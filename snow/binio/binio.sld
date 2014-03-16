@@ -19,13 +19,16 @@
           peek-latin-1-char
           read-latin-1-line
           )
-  (import (scheme base) (scheme file))
+  (import (scheme base)
+          (scheme write)
+          (scheme file))
   (cond-expand
    (chibi)
    (chicken)
    (gauche (import (binary io)))
    (sagittarius))
-  (import (snow bytevector))
+  (import (snow snowlib)
+          (snow bytevector))
   (begin
 
     (cond-expand
@@ -130,14 +133,30 @@
 
 
     (define (read-latin-1-char in)
-      (let ((i (read-u8 in)))
-        (cond ((eof-object? i) i)
-              (else (integer->char i)))))
+      (cond ((binary-port? in)
+             (let ((i (read-u8 in)))
+               (cond ((eof-object? i) i)
+                     (else (integer->char i)))))
+            (else
+             (let ((c (read-char in)))
+               (cond ((eof-object? c) c)
+                     ((> (char->integer c) 255)
+                      (snow-error "read-latin-1-char got unicode."))
+                     (else c))))))
+
 
     (define (peek-latin-1-char in)
-      (let ((i (peek-u8 in)))
-        (cond ((eof-object? i) i)
-              (else (integer->char i)))))
+      (cond ((binary-port? in)
+             (let ((i (peek-u8 in)))
+               (cond ((eof-object? i) i)
+                     (else (integer->char i)))))
+            (else
+             (let ((c (peek-char in)))
+               (cond ((eof-object? c) c)
+                     ((> (char->integer c) 255)
+                      (snow-error "peek-latin-1-char got unicode."))
+                     (else c))))))
+
 
     ;; These are adapted from chibi's io.scm.
     (define (%read-line n in)
