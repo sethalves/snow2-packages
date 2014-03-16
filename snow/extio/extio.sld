@@ -193,18 +193,34 @@
         (let ((index 0)
               (saw-eof #f))
           (make-virutal-input-port
-            ;; :getb (lambda () (read-u8 port))
-            :getc (lambda ()
-                    (cond ((= index len) (eof-object))
-                          (saw-eof (eof-object))
-                          (else
-                           (let ((c (read-char port)))
-                             (cond ((eof-object? c) (set! saw-eof #t))
-                                   (else (set! index (+ index 1))))
-                             c))))
-            :ready (lambda (t-for-char-f-for-byte) (byte-ready? port))
-            :close (lambda () #t)
-            ))))
+           :getb (lambda ()
+                   (cond ((= index len) (eof-object))
+                         (saw-eof (eof-object))
+                         (else
+                          (let ((c (read-u8 port)))
+                            (cond ((eof-object? c)
+                                   (set! saw-eof #t)
+                                   c)
+                                  (else
+                                   (set! index (+ index 1))
+                                   c))))))
+           :getc (lambda ()
+                   (cond ((= index len) (eof-object))
+                         (saw-eof (eof-object))
+                         (else
+                          (let ((c (read-u8 port)))
+                            (cond ((eof-object? c)
+                                   (set! saw-eof #t)
+                                   c)
+                                  (else
+                                   (set! index (+ index 1))
+                                   (integer->char c)))))))
+           :ready (lambda (t-for-char-f-for-byte)
+                    (if t-for-char-f-for-byte
+                        (char-ready? port)
+                        (u8-ready? port)))
+           :close (lambda () #t)
+           ))))
 
 
      (else
