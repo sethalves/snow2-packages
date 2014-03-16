@@ -78,7 +78,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
       (license lgpl/v2.1)
-      (depends (snow binio))))
+      (depends (snow binio)
+               (snow bytevector))))
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
     (library
