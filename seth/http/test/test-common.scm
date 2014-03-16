@@ -1,4 +1,40 @@
 (define (main-program)
+
+
+  ;; (call-with-request-body
+  ;;  "http://headache.hungry.com:1777/cgi-bin/oversend"
+  ;;  (lambda (body-port)
+  ;;    (let ((body (read-all-chars body-port)))
+  ;;      (display "'")
+  ;;      (display body)
+  ;;      (display "'")
+  ;;      (newline)
+  ;;      )))
+
+
+  ;; (call-with-request-body
+  ;;  "http://headache.hungry.com:1777/cgi-bin/chunked"
+  ;;  (lambda (body-port)
+  ;;    (let ((body (read-all-chars body-port)))
+  ;;      (display "'")
+  ;;      (display body)
+  ;;      (display "'")
+  ;;      (newline)
+  ;;      )))
+
+
+  ;; (call-with-request-body
+  ;;  "http://headache.hungry.com:1777/cgi-bin/binary"
+  ;;  (lambda (body-port)
+  ;;    (let ((body (read-all-latin-1-chars body-port)))
+  ;;      (let loop ((i 0))
+  ;;        (cond ((< i 256)
+  ;;               (write (string-ref body i))
+  ;;               (display " ")
+  ;;               (loop (+ i 1))))))))
+
+
+
   (let ((result0 #f)
         (result1 #f)
         (result2 #f)
@@ -9,7 +45,7 @@
     (call-with-request-body
      "http://headache.hungry.com/~seth/ok"
      (lambda (body-port)
-       (let ((body (read-all-chars body-port)))
+       (let ((body (read-all-latin-1-chars body-port)))
          ;; (display "'")
          ;; (display body)
          ;; (display "'")
@@ -29,7 +65,7 @@
       (download-file "http://headache.hungry.com/~seth/ok" outp)
 
       (let* ((inp (open-input-file "test-download"))
-             (test-data (read-all-chars inp)))
+             (test-data (read-all-latin-1-chars inp)))
         (cond ((equal? test-data "this is a test file\n")
                (set! result1 #t))))
 
