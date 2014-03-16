@@ -13,6 +13,7 @@
                     (ports)))
    (gauche (import (snow gauche-extio-utils)))
    (sagittarius))
+  (import (snow binio))
   (begin
 
     (cond-expand
@@ -173,15 +174,11 @@
              (cond ((= index len) (eof-object))
                    (saw-eof (eof-object))
                    (else
-                    (let ((c (read-char port)))
-                    ;; (let ((c (integer->char (read-u8 port))))
+                    (let ((c (read-latin-1-char port)))
                       (cond ((eof-object? c) (set! saw-eof #t))
                             (else (set! index (+ index 1))))
                       (string-set! str start c)
-                      1)))))))
-
-      )
-
+                      1))))))))
 
      (gauche
       (define (make-delimited-input-port port len)
@@ -209,7 +206,7 @@
           (let loop ((i 0))
             (if (= i len)
                 (open-input-string buf)
-                (let ((c (read-char port)))
+                (let ((c (read-latin-1-char port)))
                   (cond ((eof-object? c)
                          (open-input-string (substring buf 0 i)))
                         (else
