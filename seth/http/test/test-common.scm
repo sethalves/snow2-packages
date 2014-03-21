@@ -26,12 +26,19 @@
   ;; (call-with-request-body
   ;;  "http://headache.hungry.com:1777/cgi-bin/binary"
   ;;  (lambda (body-port)
-  ;;    (let ((body (read-all-latin-1-chars body-port)))
+  ;;    (let ((body (read-string 300
+  ;;                             ;; body-port
+  ;;                             (binary-port->latin-1-textual-port body-port)
+  ;;                             )))
   ;;      (let loop ((i 0))
   ;;        (cond ((< i 256)
   ;;               (write (string-ref body i))
   ;;               (display " ")
-  ;;               (loop (+ i 1))))))))
+  ;;               (loop (+ i 1)))))
+  ;;      (newline)
+  ;;      (display (string-length body))
+
+  ;;      )))
 
 
 
