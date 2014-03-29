@@ -47,4 +47,16 @@
     (bytevector 1 2 3 4 5 6))
 
 
+   (equal? (hex-string->bytes "a745ff12")
+           (bytevector #xa7 #x45 #xff #x12))
+
+   (equal? (hex-string->bytes "")
+           (bytevector))
+
+   (equal? (bytes->hex-string (bytevector #xa7 #x45 #xff #x12))
+           "a745ff12")
+
+   (equal? (bytes->hex-string (bytevector)) "")
+
+
    ))

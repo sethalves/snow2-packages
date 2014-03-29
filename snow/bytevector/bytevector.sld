@@ -35,6 +35,9 @@
 
           reverse-bytevector-list->latin-1-string
           reverse-bytevector-list->bytevector
+
+          hex-string->bytes
+          bytes->hex-string
           )
   (import (scheme base))
   (cond-expand
@@ -215,5 +218,35 @@
                    (bytevector-copy! result new-result-i bv)
                    (loop (cdr bv-lst) new-result-i)))))))
 
+
+
+    ;; XXX is there a standard version of this, someplace?
+    (define (hex-string->bytes hexstr)
+      ;; convert a string like "a745ff12" to a bytevector
+      (let ((result (make-bytevector (/ (string-length hexstr) 2))))
+        (let loop ((hexs (string->list hexstr))
+                   (i 0))
+          (if (< (length hexs) 2)
+              result
+              (let ((ascii (string->number (string (car hexs) (cadr hexs)) 16)))
+                (bytevector-u8-set! result i ascii)
+                (loop (cddr hexs)
+                      (+ i 1)))))))
+
+
+    ;; XXX is there a standard version of this, someplace?
+    (define (bytes->hex-string bv)
+      (let ((result (make-string (* (bytevector-length bv) 2) #\0)))
+        (let loop ((i 0))
+          (cond ((= i (bytevector-length bv))
+                 result)
+                (else
+                 (let ((s (number->string (bytevector-u8-ref bv i) 16)))
+                   (cond ((= (string-length s) 2)
+                          (string-set! result (* i 2) (string-ref s 0))
+                          (string-set! result (+ (* i 2) 1) (string-ref s 1)))
+                         (else
+                          (string-set! result (+ (* i 2) 1) (string-ref s 0))))
+                   (loop (+ i 1))))))))
 
     ))
