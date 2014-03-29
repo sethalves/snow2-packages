@@ -62,6 +62,20 @@
        (seth network-socket)
        )))
   (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/md5.tgz")
+    (library
+      (name (seth md5))
+      (path "seth/md5.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "md5")
+      (license lgpl/v2.1)
+      (depends (snow bytevector)
+               (snow srfi-60-integers-as-bits))
+      ))
+  (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/memcache-client.tgz")
     (library
       (name (seth memcache-client))

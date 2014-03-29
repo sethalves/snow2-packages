@@ -24,7 +24,7 @@ package: clean
 		-zcvf ../$(PKG).tgz $(PKG)
 
 dist: package
-	echo "UPLOADING  --" $(PKG)
+	@ echo "UPLOADING --" $(PKG)
 	(cd .. && ../upload-to-repo $(REPONAME) $(PKG).tgz)
 
 # rsync ../$(PKG).tgz $(REPO)
