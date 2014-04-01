@@ -45,10 +45,41 @@
    (chibi (import (chibi io)))
    (chicken (import (chicken) (srfi 4)))
    (foment (import (scheme char)))
-   (gauche (import (gauche uvector)))
+   (gauche (import (gauche uvector)
+                   (snow gauche-bv-string-utils)
+                   ))
    (sagittarius (import (util bytevector)))
    )
   (begin
+
+    (cond-expand
+
+     (gauche
+      (define (string->latin-1 str)
+        ;; works for regular or incomplete strings
+        (let* ((str-sz (string-size str))
+               (bv (make-bytevector str-sz)))
+          (let loop ((i 0))
+            (cond ((= i str-sz) bv)
+                  (else
+                   (bytevector-u8-set!
+                    bv i (string-byte-ref str i))
+                   (loop (+ i 1)))))))
+      )
+
+     (else
+      (define (string->latin-1 str)
+        ;; XXX this wont work unless it's all ascii.
+        (let* ((lst (map char->integer (string->list str)))
+               (bv (make-bytevector (length lst))))
+          (let loop ((lst lst)
+                     (pos 0))
+            (if (null? lst) bv
+                (begin
+                  (bytevector-u8-set! bv pos (car lst))
+                  (loop (cdr lst) (+ pos 1)))))))
+      ))
+
 
     (cond-expand
 
@@ -62,17 +93,6 @@
                     (reverse lst)
                     (loop (+ i 1)
                           (cons (bytevector-u8-ref bytes i) lst)))))))
-
-      (define (string->latin-1 str)
-        ;; XXX this wont work unless it's all ascii.
-        (let* ((lst (map char->integer (string->list str)))
-               (bv (make-bytevector (length lst))))
-          (let loop ((lst lst)
-                     (pos 0))
-            (if (null? lst) bv
-                (begin
-                  (bytevector-u8-set! bv pos (car lst))
-                  (loop (cdr lst) (+ pos 1)))))))
 
       (define (bytevector->u8-list bv)
         (let loop ((i 0)
