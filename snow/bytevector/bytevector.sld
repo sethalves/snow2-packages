@@ -39,7 +39,8 @@
           hex-string->bytes
           bytes->hex-string
           )
-  (import (scheme base))
+  (import (scheme base)
+          (srfi 1))
   (cond-expand
    (chibi (import (chibi io)))
    (chicken (import (chicken) (srfi 4)))
@@ -173,11 +174,7 @@
 
 
     (define (sum-bytevector-list-sizes bv-lst)
-      (let loop ((bv-lst bv-lst)
-                 (count 0))
-        (cond ((null? bv-lst) count)
-              (else (loop (cdr bv-lst)
-                          (+ count (bytevector-length (car bv-lst))))))))
+      (fold + 0 (map bytevector-length bv-lst)))
 
 
     (define (reverse-bytevector-list->latin-1-string bv-lst)
@@ -206,7 +203,7 @@
 
     (define (reverse-bytevector-list->bytevector bv-lst)
       ;; reverse a list of bytevectors and combine them into
-      ;; a bytevector
+      ;; a single bytevector
       (let* ((data-size (sum-bytevector-list-sizes bv-lst))
              (result (make-bytevector data-size)))
         (let loop ((bv-lst bv-lst)
