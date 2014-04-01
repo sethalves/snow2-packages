@@ -1,5 +1,6 @@
 (define-library (seth md5)
-  (export md5)
+  (export md5
+          md5-port)
   (import (scheme base)
           (snow bytevector)
           (snow srfi-60-integers-as-bits)
@@ -18,9 +19,18 @@
 
      (chicken
 
+      ;; http://wiki.call-cc.org/eggref/4/md5
+      ;; http://wiki.call-cc.org/eggref/4/message-digest
+
       (define (md5 in-bv)
         (hex-string->bytes
-         (message-digest-string (md5-primitive) (utf8->string in-bv)))))
+         (message-digest-string (md5-primitive) (utf8->string in-bv))))
+
+      (define (md5-port p)
+        (hex-string->bytes
+         (message-digest-port (md5-primitive) p)))
+
+      )
 
      (else
 
