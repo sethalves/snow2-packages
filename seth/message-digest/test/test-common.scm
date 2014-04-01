@@ -210,4 +210,12 @@
                       (write actual-digest)
                       (newline))))))))
 
+
+
+  (display "large file...\n")
+  (let ((p (open-input-file "/home/seth/tmp/users.tar.gz")))
+    (write (message-digest-port (md5-primitive) p))
+    (close-input-port p)
+    (newline))
+
   )

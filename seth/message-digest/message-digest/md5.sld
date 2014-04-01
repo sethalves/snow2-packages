@@ -393,6 +393,9 @@
                 )))))
 
         (define (update data n)
+
+          (write `(update data ,n)) (newline)
+
           (define (maybe-process-block)
             (cond ((= buf-i 64)
                    (process-block buf-i)
