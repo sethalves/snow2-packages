@@ -15,6 +15,33 @@ exec csi -s $0 "$@"
     (display "include ../../makefiles/package-toplevel.make\n" makefile-hndl)
     (close-output-port makefile-hndl))
 
+  (let ((packagefile-hndl
+         (open-output-file
+          (string-append
+           repo-name "/" package-name "/" package-name ".package"))))
+    (format packagefile-hndl
+            (string-append
+             "  (package\n"
+             "    (url \"~A/~A.tgz\")\n"
+             "    (library\n"
+             "      (name (~A ~A))\n"
+             "      (path \"~A/~A.sld\")\n"
+             "      (version \"1.0\")\n"
+             "      (homepage \"https://github.com/sethalves\")\n"
+             "      (maintainers \"Seth Alves <seth@hungry.com>\")\n"
+             "      (authors \"Seth Alves <seth@hungry.com>\")\n"
+             "      (description \"~A\")\n"
+             "      (license BSD-style)))\n")
+            (cond ((equal? repo-name "seth")
+                   "http://snow2.s3-website-us-east-1.amazonaws.com")
+                  ((equal? repo-name "snow")
+                   "http://snow-repository.s3-website-us-east-1.amazonaws.com")
+                  (else "XXX"))
+            package-name repo-name package-name repo-name
+            package-name package-name)
+    (close-output-port packagefile-hndl))
+
+
   (let ((sld-hndl (open-output-file
                    (string-append repo-name "/"
                                   package-name "/"
