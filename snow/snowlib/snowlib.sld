@@ -14,6 +14,7 @@
           snow-cleanup-handler-push!
           snow-raise
           snow-error
+          snow-display-error
           snow-expect
           snow-with-exception-catcher
           snow-keyword?
@@ -547,6 +548,23 @@
       ;; (newline)
 
       (snow-raise (make-snow-error-condition msg args)))
+
+
+    (define (snow-display-error err)
+      (cond
+       ((snow-error-condition? err)
+        (display "Error (snow-error-condition) -- " (current-error-port))
+        (display (snow-error-condition-msg err) (current-error-port))
+        (newline (current-error-port)))
+       ((snow-condition? err)
+        (display "Error (snow-condition) -- " (current-error-port))
+        (display (snow-cond-fields err) (current-error-port))
+        (newline (current-error-port)))
+       (else
+        (display "Error -- " (current-error-port))
+        (write err (current-error-port))
+        (newline (current-error-port))))
+      err)
 
 ;;;----------------------------------------------------------------------------
 
