@@ -44,6 +44,7 @@
           (scheme time)
           (snow snowlib)
           (snow bytevector)
+          (snow srfi-60-integers-as-bits)
           (snow bignum)
           (snow genport)
           (snow filesys)
@@ -357,7 +358,14 @@
                                                 (+ offset end))))))))
 
         (define (octal-field-bignum len offset)
-          (string->bignum (octal-field-extract len offset) 8))
+          (cond ((= (bitwise-and (bytevector-u8-ref header offset) #x80) 0)
+                 (string->bignum (octal-field-extract len offset) 8))
+                ;; XXX if first byte is 255 it's negative
+                (else
+                 ;; binary field
+                 (u8vector->bignum
+                  (bytevector-copy header (+ offset 1) (+ offset len))
+                  ))))
 
         (define (octal-field len offset)
           (string->number (octal-field-extract len offset) 8))
@@ -383,18 +391,18 @@
                     #f #f #f #f #f #f #f #f #f
                     #f #f #f #f #f))
                   (else
-                   (let ((name     (string-field 100 0))
-                         (mode     (octal-field 8 100))
-                         (uid      (octal-field 8 108))
-                         (gid      (octal-field 8 116))
-                         (size     (octal-field-bignum 12 124))
-                         (mtime    (octal-field-bignum 12 136))
-                         (chksum   (octal-field 8 148))
-                         (typeflag (byte-field 156))
-                         (linkname (string-field 100 157))
-                         (magicver (string-field 8 257))
-                         (magic    (string-field 6 257))
-                         (version  (string-field 2 263)))
+                   (let* ((name     (string-field 100 0))
+                          (mode     (octal-field 8 100))
+                          (uid      (octal-field 8 108))
+                          (gid      (octal-field 8 116))
+                          (size     (octal-field-bignum 12 124))
+                          (mtime    (octal-field-bignum 12 136))
+                          (chksum   (octal-field 8 148))
+                          (typeflag (byte-field 156))
+                          (linkname (string-field 100 157))
+                          (magicver (string-field 8 257))
+                          (magic    (string-field 6 257))
+                          (version  (string-field 2 263)))
                      (let* ((tar-format
                              (cond ((string=? magicver "ustar  ")
                                     'gnu)
