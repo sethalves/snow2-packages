@@ -145,7 +145,7 @@
 
      (chibi
       (define (snow-raise exc)
-        (raise exc))
+        (error exc))
       (define (snow-with-exception-catcher catcher thunk)
         (guard (condition (else (catcher condition)))
                (thunk))))
