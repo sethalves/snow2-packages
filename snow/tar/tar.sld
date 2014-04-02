@@ -473,31 +473,35 @@
                     (if (not name)
                         #t
                         (let* ((size-bignum (tar-rec-content tar-rec))
-                               (size (bignum->fixnum size-bignum)))
-                          (consumer tar-rec size genport-in)
+                               (size (bignum->fixnum size-bignum))
+                               (d-in (genport->delimted-genport
+                                      genport-in size))
+                               (n (consumer tar-rec size d-in)))
+                          (genport-discard-until-eof d-in)
+                          (if (let ((pad (modulo (- size) 512)))
+                                (not (= pad
+                                        (genport-read-subu8vector
+                                         (make-bytevector pad)
+                                         0
+                                         pad
+                                         genport-in))))
+                              (snow-raise (tar-file-truncated-error)))
                           (loop))))
                   (snow-raise tar-rec)))))
 
 
         (define rev-tar-rec-list '())
 
+        ;; consumer to use if the caller didn't provide one.  it
+        ;; sets the content of each tar-rec and conses it to a list.
         (define (list-consumer tar-rec size genport-in)
-          (let* ((v (make-bytevector size))
-                 (n (genport-read-subu8vector
-                     v 0 size genport-in)))
-            (if (or (not (= n size))
-                    (let ((pad (modulo (- size) 512)))
-                      (not (= pad
-                              (genport-read-subu8vector
-                               (make-bytevector pad)
-                               0
-                               pad
-                               genport-in)))))
-                (snow-raise (tar-file-truncated-error))
-                (begin
-                  (tar-rec-content-set! tar-rec v))))
-          (set! rev-tar-rec-list (cons tar-rec rev-tar-rec-list)))
+          (let ((v (genport-read-u8vector genport-in)))
+            (tar-rec-content-set! tar-rec v)
+            (set! rev-tar-rec-list (cons tar-rec rev-tar-rec-list))
+            (bytevector-length v)))
 
+        ;; finisher to use if caller didn't provide one.  return's
+        ;; a list of tar-recs
         (define (list-finisher)
           (reverse rev-tar-rec-list))
 
