@@ -32,7 +32,8 @@
           genport-close-output-port
           genport-write-subu8vector
           genport-write-u8vector
-          genport-write-file)
+          genport-write-file
+          genport->delimted-genport)
   (import (scheme base))
   (import (scheme file))
   (import (snow bytevector))
@@ -196,6 +197,22 @@
       (let ((genport-out (genport-open-output-file filename)))
         (genport-write-u8vector u8vect genport-out)
         (genport-close-output-port genport-out)))
+
+    (define (genport->delimted-genport base-port size)
+      (let ((pos 0)
+            (base-reader (genport-read base-port)))
+        (make-genport
+         (genport-end base-port)
+         (lambda (u8vect start end genport)
+           (let* ((left-in-delimited (- size pos))
+                  (size-of-read (- end start))
+                  (base-end (+ start (min left-in-delimited size-of-read))))
+             (cond ((= pos size) 0)
+                   (else
+                    (let ((result (base-reader u8vect start base-end genport)))
+                      (set! pos (+ result pos))
+                      result)))))
+         (genport-write base-port))))
 
 ;;;============================================================================
 
