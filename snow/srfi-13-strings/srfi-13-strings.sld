@@ -85,9 +85,12 @@
                                     current-token (string current-char))
                                    s))
                             (else
-                             (loop (cons current-token tokens)
-                                   ""
-                                   s))))))))))
+                             (loop
+                              (cond ((> (string-length current-token) 0)
+                                     (cons current-token tokens))
+                                    (else tokens))
+                              ""
+                              s))))))))))
 
       (define (string-pad str n . char+start+end)
         (let ((pad-char (if (null? char+start+end) #\space
