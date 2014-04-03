@@ -198,6 +198,17 @@
       (description "srfi-13-strings")
       (license lgpl/v2.1)))
   (package
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-19-time.tgz")
+    (library
+      (name (snow srfi-19-time))
+      (path "snow/srfi-19-time.sld")
+      (version "1.0")
+      (homepage "http://srfi.schemers.org/srfi-19/srfi-19.html")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Will Fitzgerald" "Neodesic Corporation")
+      (description "srfi-19-time")
+      (license BSD-style)))
+  (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-29-format.tgz")
     (library
       (name (snow srfi-29-format))
