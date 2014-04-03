@@ -4,12 +4,15 @@
 (define (test-0)
 
   (let* ((now-seconds (seconds-since-epoch))
+         (XXX (begin (display "now-seconds=") (write now-seconds) (newline)))
          (now-time (seconds->time-struct-utc now-seconds))
+         (XXX (begin (display "now-time=") (write now-time) (newline)))
          (date-string
           (string-append
            (number->string (time-struct:year now-time)) "/"
            (number->string (+ (time-struct:month now-time) 1)) "/"
            (number->string (time-struct:month-day now-time))))
+         (XXX (begin (display "date-string=") (write date-string) (newline)))
          )
     (cout "year=" (time-struct:year now-time) "\n")
     (cout "month=" (+ (time-struct:month now-time) 1) "\n")
@@ -76,10 +79,7 @@
 
 
 (define (main-program)
-  (display
-   (and
-    (test-0)
-    ;; (test-1)
-    #t))
-  (newline)
-  #t)
+  (and
+   (test-0)
+   ;; (test-1)
+   #t))

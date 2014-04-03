@@ -24,7 +24,7 @@
   (import (scheme base))
   (cond-expand
    (chibi
-    (import (chibi io)))
+    (import (chibi time) (chibi io)))
    (chicken
     (import (chicken) (posix) (srfi 4)))
    (gauche
@@ -90,17 +90,29 @@
 
 
      (chibi
-      (define seconds-since-epoch
-        #f)
+      (define (seconds-since-epoch)
+        (current-seconds))
       (define (format-time fmt epoch-time)
-        #f)
+        ;; XXX get access to strftime
+        (seconds->string epoch-time))
       (define (seconds->time-struct-utc seconds)
-        #f)
-      )
+        (let ((tm (seconds->time seconds)))
+          (time-struct:new
+           (time-second tm)
+           (time-minute tm)
+           (time-hour tm)
+           (time-day tm)
+           (time-month tm)
+           (+ (time-year tm) 1900)
+           (time-day-of-week tm)
+           (time-day-of-year tm)
+           (time-dst? tm)
+           0 ;; tz offset
+           ))))
 
 
      (sagittarius
-      (define seconds-since-epoch current-second)
+      (define (seconds-since-epoch) (current-second))
       (define (format-time fmt epoch-time)
         (date->string
          (time-utc->date (seconds->time epoch-time))
@@ -111,16 +123,16 @@
                    (else c)))
            (string->list fmt)))))
       (define (seconds->time-struct-utc seconds)
-        #f)
+        (seconds->time secodns)
+        )
       )
 
 
      (gauche
-      (define seconds-since-epoch
-        sys-time
+      (define (seconds-since-epoch)
+        (sys-time)
         ;; sys-gmtime
         )
-
 
       (define (format-time fmt epoch-time)
         (date->string
