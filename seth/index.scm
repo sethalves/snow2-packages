@@ -4,6 +4,23 @@
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/")
     (trust 1.0))
   (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/aws.tgz")
+    (library
+      (name (seth aws s3))
+      (path "seth/aws/s3.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "aws")
+      (depends (snow srfi-19-time)
+               (seth xml ssax)
+               (seth xml sxpath)
+               (seth md5)
+               (seth uri)
+               (seth http))
+      (license BSD-style)))
+  (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/base64.tgz")
     (library
       (name (seth base64))
@@ -277,6 +294,19 @@
        (snow srfi-13-strings)
        )))
   (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/sha-1.tgz")
+    (library
+      (name (seth sha-1))
+      (path "seth/sha-1.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "sha-1")
+      (depends (snow bytevector)
+               (snow srfi-60-integers-as-bits))
+      (license BSD-style)))
+  (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
     (library
       (name (seth snow2-utils))
@@ -367,17 +397,6 @@
       (description "temporary-file")
       (license lgpl/v2.1)
       (depends (seth srfi-27-random))))
-  (package
-    (url "http://snow2.s3-website-us-east-1.amazonaws.com/time.tgz")
-    (library
-      (name (seth time))
-      (path "seth/time.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Seth Alves <seth@hungry.com>")
-      (description "time")
-      (license lgpl/v2.1)))
   (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/uri.tgz")
     (library

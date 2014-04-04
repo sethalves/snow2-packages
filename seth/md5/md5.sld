@@ -9,8 +9,11 @@
     (import (message-digest)
             (md5)))
    (gauche
-    (import (rfc md5)
-            ))
+    (import (rfc md5)))
+   (sagittarius
+    (import (math hash)
+            (snow bytevector))
+    )
    (else
     (import (snow srfi-60-integers-as-bits))))
 
@@ -44,6 +47,28 @@
                    (let ((result (md5-digest)))
                      (current-input-port save-cip)
                      result))))))))
+
+
+     (sagittarius
+      ;; http://ktakashi.github.io/sagittarius-ref.html#G2116
+      (define (md5 src)
+        (let ((in (cond ((string? src)
+                         (open-input-bytevector (string->utf8 src)))
+                        ((bytevector? src)
+                         (open-input-bytevector src))
+                        ((input-port? src) src)
+                        (else (error "unknown digest source: " src))))
+              (out (make-bytevector 16 0)))
+          (let ((md5 (hash-algorithm MD5)))
+            (hash-init! md5)
+            (let loop ()
+              (let ((bv (read-bytevector 1024 in)))
+                (cond ((eof-object? bv)
+                       (hash-done! md5 out)
+                       (bytes->hex-string out))
+                      (else
+                       (hash-process! md5 bv)
+                       (loop)))))))))
 
      (else
 
