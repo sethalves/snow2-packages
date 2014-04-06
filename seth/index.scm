@@ -67,6 +67,22 @@
       (description "gensym")
       (license BSD-style)))
   (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/hmac.tgz")
+    (library
+      (name (seth hmac))
+      (path "seth/hmac.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "hmac")
+      (depends (snow bytevector)
+               (snow srfi-60-integers-as-bits)
+               (snow srfi-13-strings)
+               (seth port-extras)
+               (seth sha-1))
+      (license BSD-style)))
+  (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/http.tgz")
     (library
       (name (seth http))
