@@ -38,6 +38,8 @@
 
           hex-string->bytes
           bytes->hex-string
+
+          bytevector-map
           )
   (import (scheme base)
           (srfi 1))
@@ -265,5 +267,16 @@
                          (else
                           (string-set! result (+ (* i 2) 1) (string-ref s 0))))
                    (loop (+ i 1))))))))
+
+
+    (define (bytevector-map p bv)
+      (let* ((len (bytevector-length bv))
+             (result (make-bytevector len)))
+        (let loop ((i 0))
+          (cond ((= i len) result)
+                (else
+                 (bytevector-u8-set!
+                  result i (p (bytevector-u8-ref bv i)))
+                 (loop (+ i 1)))))))
 
     ))
