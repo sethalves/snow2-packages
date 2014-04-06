@@ -127,6 +127,15 @@
                    (string->char-set "/")))
                  '("a" "b" "c")))
 
+        (t17
+         (and
+          (equal? (string-pad "abc" 5) "  abc")
+          (equal? (string-pad "abc" 2) "abc")
+          (equal? (string-pad-right "abc" 5) "abc  ")
+          (equal? (string-pad-right "abc" 2) "abc")
+          (equal? (string-pad "abcdefg" 5 1 3) "   bc")
+          ))
+
         )
 
     (and t0 t1 t2 t3 t4 t5 t6

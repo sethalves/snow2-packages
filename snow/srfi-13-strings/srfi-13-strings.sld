@@ -7,6 +7,7 @@
   (export
    string-tokenize
    string-pad
+   string-pad-right
    string-map
    string-trim
    string-trim-right
@@ -93,13 +94,44 @@
                               s))))))))))
 
       (define (string-pad str n . char+start+end)
-        (let ((pad-char (if (null? char+start+end) #\space
-                            (car char+start+end))))
+        (let* ((args-len (length char+start+end))
+               (pad-char (if (> args-len 0)
+                             (list-ref char+start+end 0)
+                             #\space))
+               (start (if (> args-len 1)
+                          (list-ref char+start+end 1)
+                          0))
+               (end (if (> args-len 2)
+                        (list-ref char+start+end 2)
+                        (string-length str)))
+               (str (substring str start end)))
+
           (let ((orig-length (string-length str)))
             (if (>= orig-length n) str
                 (string-append
                  (make-string (- n orig-length) pad-char)
                  str)))))
+
+
+      (define (string-pad-right str n . char+start+end)
+        (let* ((args-len (length char+start+end))
+               (pad-char (if (> args-len 0)
+                             (list-ref char+start+end 0)
+                             #\space))
+               (start (if (> args-len 1)
+                          (list-ref char+start+end 1)
+                          0))
+               (end (if (> args-len 2)
+                        (list-ref char+start+end 2)
+                        (string-length str)))
+               (str (substring str start end)))
+
+          (let ((orig-length (string-length str)))
+            (if (>= orig-length n) str
+                (string-append
+                 str
+                 (make-string (- n orig-length) pad-char))))))
+
 
       ;; (define (string-map proc s . maybe-start+end)
       ;;   (list->string (map proc (string->list s))))
