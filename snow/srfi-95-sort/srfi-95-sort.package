@@ -1,0 +1,16 @@
+  (package
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-95-sort.tgz")
+    (library
+      (name (snow srfi-95-sort))
+      (path "snow/srfi-95-sort.sld")
+      (version "1.0")
+      (homepage "http://srfi.schemers.org/srfi-95/srfi-95.html"
+                "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Aubrey Jaffer"
+               "Richard A. O'Keefe"
+               "D.H.D. Warren")
+      (description "Sorting and Merging")
+      (license public-domain)
+      (depends (snow bytevector))
+      ))
