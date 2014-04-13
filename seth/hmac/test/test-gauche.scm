@@ -6,8 +6,10 @@ exec gosh \
 -ftest -r7 $0 "$@"
 |#
 
-(import (scheme base) (scheme write))
-(import (seth hmac))
+(import (scheme base)
+        (scheme write)
+        (snow bytevector)
+        (seth hmac))
 (include "test-common.scm")
 (display (main-program))
 (newline)

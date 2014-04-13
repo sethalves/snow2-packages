@@ -17,27 +17,24 @@
                          (open-input-bytevector src))
                         ((input-port? src) src)
                         (else (error "unknown digest source: " src)))))
-          (message-digest-port (sha1-primitive) in)))
-
-      )
+          (message-digest-port (sha1-primitive) in 'u8vector))))
 
      (gauche
       (define (sha-1 src)
         ;; http://practical-scheme.net/gauche/man/gauche-refe_156.html
-        (bytes->hex-string
-         (string->latin-1
-          (cond ((string? src)
-                 (sha1-digest-string src))
-                (else
-                 (let ((in (cond ((bytevector? src)
-                                  (open-input-bytevector src))
-                                 ((input-port? src) src)
-                                 (else (error "unknown digest source: " src))))
-                       (save-cip (current-input-port)))
-                   (current-input-port in)
-                   (let ((result (sha1-digest)))
-                     (current-input-port save-cip)
-                     result))))))))
+        (string->latin-1
+         (cond ((string? src)
+                (sha1-digest-string src))
+               (else
+                (let ((in (cond ((bytevector? src)
+                                 (open-input-bytevector src))
+                                ((input-port? src) src)
+                                (else (error "unknown digest source: " src))))
+                      (save-cip (current-input-port)))
+                  (current-input-port in)
+                  (let ((result (sha1-digest)))
+                    (current-input-port save-cip)
+                    result)))))))
 
      (sagittarius
       ;; http://ktakashi.github.io/sagittarius-ref.html#G2116
@@ -55,7 +52,7 @@
               (let ((bv (read-bytevector 1024 in)))
                 (cond ((eof-object? bv)
                        (hash-done! sha-1 out)
-                       (bytes->hex-string out))
+                       out)
                       (else
                        (hash-process! sha-1 bv)
                        (loop)))))))))
@@ -227,37 +224,30 @@
                                 (vector-set! W i v)
                                 (W-loop (+ i 1))))))))))
 
-          (bytes->hex-string
-           (let ((result (make-bytevector 20)))
-             (bytevector-u8-set! result 0 (byte-extract sha1-H0 0))
-             (bytevector-u8-set! result 1 (byte-extract sha1-H0 1))
-             (bytevector-u8-set! result 2 (byte-extract sha1-H0 2))
-             (bytevector-u8-set! result 3 (byte-extract sha1-H0 3))
+          (let ((result (make-bytevector 20)))
+            (bytevector-u8-set! result 0 (byte-extract sha1-H0 0))
+            (bytevector-u8-set! result 1 (byte-extract sha1-H0 1))
+            (bytevector-u8-set! result 2 (byte-extract sha1-H0 2))
+            (bytevector-u8-set! result 3 (byte-extract sha1-H0 3))
 
-             (bytevector-u8-set! result 4 (byte-extract sha1-H1 0))
-             (bytevector-u8-set! result 5 (byte-extract sha1-H1 1))
-             (bytevector-u8-set! result 6 (byte-extract sha1-H1 2))
-             (bytevector-u8-set! result 7 (byte-extract sha1-H1 3))
+            (bytevector-u8-set! result 4 (byte-extract sha1-H1 0))
+            (bytevector-u8-set! result 5 (byte-extract sha1-H1 1))
+            (bytevector-u8-set! result 6 (byte-extract sha1-H1 2))
+            (bytevector-u8-set! result 7 (byte-extract sha1-H1 3))
 
-             (bytevector-u8-set! result 8 (byte-extract sha1-H2 0))
-             (bytevector-u8-set! result 9 (byte-extract sha1-H2 1))
-             (bytevector-u8-set! result 10 (byte-extract sha1-H2 2))
-             (bytevector-u8-set! result 11 (byte-extract sha1-H2 3))
+            (bytevector-u8-set! result 8 (byte-extract sha1-H2 0))
+            (bytevector-u8-set! result 9 (byte-extract sha1-H2 1))
+            (bytevector-u8-set! result 10 (byte-extract sha1-H2 2))
+            (bytevector-u8-set! result 11 (byte-extract sha1-H2 3))
 
-             (bytevector-u8-set! result 12 (byte-extract sha1-H3 0))
-             (bytevector-u8-set! result 13 (byte-extract sha1-H3 1))
-             (bytevector-u8-set! result 14 (byte-extract sha1-H3 2))
-             (bytevector-u8-set! result 15 (byte-extract sha1-H3 3))
+            (bytevector-u8-set! result 12 (byte-extract sha1-H3 0))
+            (bytevector-u8-set! result 13 (byte-extract sha1-H3 1))
+            (bytevector-u8-set! result 14 (byte-extract sha1-H3 2))
+            (bytevector-u8-set! result 15 (byte-extract sha1-H3 3))
 
-             (bytevector-u8-set! result 16 (byte-extract sha1-H4 0))
-             (bytevector-u8-set! result 17 (byte-extract sha1-H4 1))
-             (bytevector-u8-set! result 18 (byte-extract sha1-H4 2))
-             (bytevector-u8-set! result 19 (byte-extract sha1-H4 3))
+            (bytevector-u8-set! result 16 (byte-extract sha1-H4 0))
+            (bytevector-u8-set! result 17 (byte-extract sha1-H4 1))
+            (bytevector-u8-set! result 18 (byte-extract sha1-H4 2))
+            (bytevector-u8-set! result 19 (byte-extract sha1-H4 3))
 
-             result))
-
-
-
-          )))
-
-     )))
+            result)))))))

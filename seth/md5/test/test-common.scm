@@ -156,7 +156,7 @@
              (let* ((test (car tests))
                     (text (car test))
                     (expected-digest (cadr test))
-                    (actual-digest (md5 text)))
+                    (actual-digest (bytes->hex-string (md5 text))))
                (cond ((equal? expected-digest actual-digest)
                       (loop (cdr tests)))
                      (else

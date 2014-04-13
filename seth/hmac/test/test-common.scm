@@ -19,7 +19,7 @@
                     (expected (list-ref test 0))
                     (key (list-ref test 1))
                     (message (list-ref test 2))
-                    (calced (hmac-sha1 key message)))
+                    (calced (bytes->hex-string (hmac-sha1 key message))))
                (if (equal? expected calced)
                    (loop (cdr tests))
                    (begin

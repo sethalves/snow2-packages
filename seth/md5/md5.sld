@@ -29,24 +29,23 @@
                          (open-input-bytevector src))
                         ((input-port? src) src)
                         (else (error "unknown digest source: " src)))))
-          (message-digest-port (md5-primitive) in))))
+          (message-digest-port (md5-primitive) in 'u8vector))))
 
      (gauche
       (define (md5 src)
-        (bytes->hex-string
-         (string->latin-1
-          (cond ((string? src)
-                 (md5-digest-string src))
-                (else
-                 (let ((in (cond ((bytevector? src)
-                                  (open-input-bytevector src))
-                                 ((input-port? src) src)
-                                 (else (error "unknown digest source: " src))))
-                       (save-cip (current-input-port)))
-                   (current-input-port in)
-                   (let ((result (md5-digest)))
-                     (current-input-port save-cip)
-                     result))))))))
+        (string->latin-1
+         (cond ((string? src)
+                (md5-digest-string src))
+               (else
+                (let ((in (cond ((bytevector? src)
+                                 (open-input-bytevector src))
+                                ((input-port? src) src)
+                                (else (error "unknown digest source: " src))))
+                      (save-cip (current-input-port)))
+                  (current-input-port in)
+                  (let ((result (md5-digest)))
+                    (current-input-port save-cip)
+                    result)))))))
 
 
      (sagittarius
@@ -65,7 +64,7 @@
               (let ((bv (read-bytevector 1024 in)))
                 (cond ((eof-object? bv)
                        (hash-done! md5 out)
-                       (bytes->hex-string out))
+                       out)
                       (else
                        (hash-process! md5 bv)
                        (loop)))))))))
@@ -429,11 +428,21 @@
               ;;    and end with the high-order byte of D.
               (if (>= n 56)
                   (lp (+ i n) 0)
-                  (string-append
-                   (hex A0) (hex A1)
-                   (hex B0) (hex B1)
-                   (hex C0) (hex C1)
-                   (hex D0) (hex D1))))
+                  ;; (string-append
+                  ;;  (hex A0) (hex A1)
+                  ;;  (hex B0) (hex B1)
+                  ;;  (hex C0) (hex C1)
+                  ;;  (hex D0) (hex D1))
+                  (bytevector (remainder A0 256) (quotient A0 256)
+                              (remainder A1 256) (quotient A1 256)
+                              (remainder B0 256) (quotient B0 256)
+                              (remainder B1 256) (quotient B1 256)
+                              (remainder C0 256) (quotient C0 256)
+                              (remainder C1 256) (quotient C1 256)
+                              (remainder D0 256) (quotient D0 256)
+                              (remainder D1 256) (quotient D1 256)
+                              )
+                  ))
              (else
               (lp (+ i 64) pad)))))))))
 

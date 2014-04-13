@@ -9,6 +9,7 @@ exec csi -s $0 "$@"
 
 (include "snow/bytevector.sld")
 (include "seth/hmac.sld")
+(import (snow bytevector))
 (import (seth hmac))
 
 (include "test-common.scm")

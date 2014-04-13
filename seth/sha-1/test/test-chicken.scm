@@ -6,9 +6,11 @@ exec csi -s $0 "$@"
 (use r7rs)
 (import-for-syntax r7rs)
 (import (scheme base))
-
+(include "snow/bytevector.sld")
 (include "seth/sha-1.sld")
+(import (snow bytevector))
 (import (seth sha-1))
+
 
 (include "test-common.scm")
 

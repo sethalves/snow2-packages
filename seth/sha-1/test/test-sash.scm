@@ -5,6 +5,7 @@ exec sash -L . -S .sld $0 "$@"
 
 (import (scheme base)
         (scheme write)
+        (snow bytevector)
         (seth sha-1))
 
 

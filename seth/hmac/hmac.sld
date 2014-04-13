@@ -25,9 +25,8 @@
 
      (chicken
       (define (hmac-sha1 key message)
-        (bytes->hex-string
-         (string->latin-1
-          ((hmac key (sha1-primitive)) message)))))
+        (string->latin-1
+         ((hmac key (sha1-primitive)) message))))
 
 
      (gauche
@@ -43,13 +42,11 @@
                               (else
                                (error "unknown sha1-hmac message source: "
                                       message)))))
-
-          (bytes->hex-string
-           (string->latin-1
-            (hmac-digest-string
-             (latin-1->string message)
-             :key (latin-1->string key)
-             :hasher <sha1>))))))
+          (string->latin-1
+           (hmac-digest-string
+            (latin-1->string message)
+            :key (latin-1->string key)
+            :hasher <sha1>)))))
 
 
      (sagittarius
@@ -65,8 +62,7 @@
                               (else
                                (error "unknown sha1-hmac message source: "
                                       message)))))
-          (bytes->hex-string
-           (hash HMAC message :key key :hash SHA-1)))))
+          (hash HMAC message :key key :hash SHA-1))))
 
 
      (else
@@ -84,8 +80,7 @@
                                (error "unknown sha1-hmac message source: "
                                       message))))
                (block-size 64)
-               (key_0 (cond ((> (bytevector-length key) block-size)
-                             (hex-string->bytes (sha-1 key)))
+               (key_0 (cond ((> (bytevector-length key) block-size) (sha-1 key))
                             (else key)))
                (key_1 (make-bytevector block-size 0)))
           (bytevector-copy! key_1 0 key_0)
@@ -97,7 +92,4 @@
 
             (sha-1
              (bytevector-append
-              opad
-              (hex-string->bytes
-               (sha-1 (bytevector-append ipad message))))))))))))
-
+              opad (sha-1 (bytevector-append ipad message)))))))))))

@@ -2,6 +2,7 @@
 
 (import (scheme base)
         (scheme write)
+        (snow bytevector)
         (seth hmac))
 
 
