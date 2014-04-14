@@ -213,4 +213,8 @@
   (newline)
   (run-s19-tests #t)
 
+  (display "current-seconds=")
+  (write (current-seconds))
+  (newline)
+
   #t)

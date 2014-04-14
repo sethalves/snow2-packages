@@ -2,6 +2,7 @@
 
 (import (scheme base)
         (scheme write)
+        (only (chibi time) current-seconds)
         (snow srfi-19-time))
 
 

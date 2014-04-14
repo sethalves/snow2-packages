@@ -103,6 +103,7 @@
             (scheme read)
             (scheme write)
             (scheme file)
+            (scheme time)
             (chibi time)
             ))
    (else
@@ -132,9 +133,7 @@
         )
       (define (current-process-milliseconds)
         0 ;; XXX
-        )
-      (define (current-milliseconds)
-        (* (current-seconds) 1000)))
+        ))
 
      (else))
 
@@ -423,8 +422,7 @@
 ;; 
 
 (define (tm:get-time-of-day)
-  (values (current-seconds)
-	  (abs (remainder (current-milliseconds) 1000))))
+  (values (exact (floor (current-second))) 0))
 
 (define (tm:current-time-utc)
   (receive (seconds ms) (tm:get-time-of-day)
@@ -804,7 +802,7 @@
 	 (m (quotient (+ (* 5 e) 2) 153))
 	 (y (+ (* 100 b) d -4800 (quotient m 10))))
     (values ; seconds date month year
-     (* (- jdn days) tm:sid)
+     (exact (floor (* (- jdn days) tm:sid)))
      (+ e (- (quotient (+ (* 153 m) 2) 5)) 1)
      (+ m 3 (* -12 (quotient m 10)))
      (if (>= 0 y) (- y 1) y))
@@ -816,7 +814,7 @@
 ;; This should be written to be OS specific.
 
 (define (tm:local-tz-offset)
-  (date-time-zone-offset (seconds->date (current-seconds))))
+  (date-time-zone-offset (seconds->date (floor (current-second)))))
 
 ;; special thing -- ignores nanos
 (define (tm:time->julian-day-number seconds tz-offset)
