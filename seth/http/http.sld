@@ -1,5 +1,6 @@
 (define-library (seth http)
   (export http
+          log-http-to-stderr
           call-with-request-body
           download-file
           http-header-as-integer
@@ -47,19 +48,21 @@
   (begin
 
 
+    (define log-http-to-stderr (make-parameter #f))
+
 
     (define (http-header-as-integer headers name default)
       (cond ((assq-ref headers name default)
              => (lambda (v)
                   (cond ((number? v) v)
                         ((string? v) (string->number v))
-                        (else (snow-error "http-header-as-integer error")))))
-            (else #f)))
+                        (else (snow-error "http-header-as-integer error" v)))))
+            (else default)))
 
 
     (define (http-header-as-string headers name default)
       (cond ((assq-ref headers name default) => ->string)
-            (else #f)))
+            (else default)))
 
 
     (define (uri->path-string uri)
@@ -89,17 +92,29 @@
           (update-chunk-length)
           (cond (saw-eof (eof-object))
                 (else
-                 (set! chunk-length (- chunk-length 1))
-                 (let ((c (read-latin-1-char port)))
-                   (if (= 0 chunk-length)
-                       (read-latin-1-line port))
+                 (let ((c (read-char port)))
+                   (set! chunk-length (- chunk-length 1))
+                   (cond ((= 0 chunk-length)
+                          (read-latin-1-line port)))
                    (update-chunk-length)
                    c))))
 
+
         (define (chunked-read-u8)
-          (let ((c (chunked-read-char)))
-            (cond ((eof-object? c) c)
-                  (else (char->integer c)))))
+          (update-chunk-length)
+          (cond (saw-eof (eof-object))
+                (else
+                 (let ((c (read-u8 port)))
+                   (set! chunk-length (- chunk-length 1))
+                   (cond ((= 0 chunk-length)
+                          (read-latin-1-line port)))
+                   (update-chunk-length)
+                   c))))
+
+        ;; (define (chunked-read-u8)
+        ;;   (let ((c (chunked-read-char)))
+        ;;     (cond ((eof-object? c) c)
+        ;;           (else (char->integer c)))))
 
         (define (chunked-char-ready?)
           (update-chunk-length)
@@ -109,7 +124,7 @@
           (update-chunk-length)
           (cond (saw-eof (eof-object))
                 (else
-                 (set! chunk-length (- chunk-length 1))
+                 ;; (set! chunk-length (- chunk-length 1))
                  (peek-latin-1-char port))))
 
         (cond-expand
@@ -155,6 +170,9 @@
       ;; "HTTP/1.1 200 OK"
       (let* ((first-line (read-latin-1-line read-port))
              (parts (string-tokenize first-line)))
+        (cond ((log-http-to-stderr)
+               (display first-line (current-error-port))
+               (newline (current-error-port))))
         (cond ((< (length parts) 3) #f)
               ((not (string-prefix-ci? "http/" (car parts))) #f)
               (else (string->number (cadr parts))))))
@@ -265,6 +283,7 @@
         ;;
         ;; make request
         ;;
+
         (let-values (((writer-port content-length)
                       (get-outbound-port-and-length user-headers)))
           ;; finish putting together request headers
@@ -275,14 +294,23 @@
                       host-headers))
                  (final-headers (header-finalizer host-cl-headers)))
 
+            (cond ((log-http-to-stderr)
+                   (display
+                    (format "~a ~a HTTP/1.1\r\n" verb-str path-part)
+                    (current-error-port))
+                   (mime-write-headers final-headers (current-error-port))
+                   (display "\r\n" (current-error-port))))
+
+            ;; send request and headers
             (display
+             ;; try to avoid sending 3 separate header packets
              (with-output-to-string
                (lambda ()
-                 ;; send request and headers
                  (display (format "~a ~a HTTP/1.1\r\n" verb-str path-part))
                  (mime-write-headers final-headers (current-output-port))
                  (display "\r\n")))
              write-port)
+
             ;; send body
             (send-body writer-port write-port content-length)
             (snow-force-output write-port)))
@@ -290,8 +318,12 @@
         ;;
         ;; read response
         ;;
+
         (let* ((status-code (read-status-line read-port))
                (headers (mime-headers->list read-port))
+
+               ;; (XXX (begin (display "headers=") (write headers) (newline)))
+
                (content-length
                 (http-header-as-integer headers 'content-length #f))
                (transfer-encoding
@@ -303,6 +335,10 @@
                        (make-dechunked-input-port read-port))
                       (else
                        (snow-raise "http -- no content length or chunked")))))
+
+          (cond ((log-http-to-stderr)
+                 (mime-write-headers headers (current-error-port))))
+
           (cond ((not reader)
                  (let* ((response-body
                          (if content-length
