@@ -13,6 +13,13 @@
 
 (define (main-program)
 
+
+  (write
+   (base64:encode (bytevector 23 8 169 183 53 178 226 182 206
+                              55 9 178 8 229 174 63 114 94 222 127)))
+  (newline)
+
+
   (and
    (equal? (base64:encode-string "okay okay okay") "b2theSBva2F5IG9rYXk=")
    (base64-test-str "" '())
