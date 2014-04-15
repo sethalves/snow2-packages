@@ -6,22 +6,23 @@
    )
   (import (scheme base)
           (scheme write)
-          (snow srfi-13-strings)
           (seth uri)
           (seth aws common)
           )
   (begin
 
+    ;; http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html
+
     (define s3-authority "s3.amazonaws.com")
+    (define s3-namespace "http://s3.amazonaws.com/doc/2006-03-01/")
 
 
     (define (make-s3-uri bucket key)
-      (let ((path (if key (string-tokenize key char-set:uri-unreserved) '())))
-        (make-uri
-         'scheme 'http
-         'host (if bucket (string-append bucket "." s3-authority) s3-authority)
-         'port 80
-         'path (cons '/ path))))
+      (make-uri
+       'scheme 'http
+       'host (if bucket (string-append bucket "." s3-authority) s3-authority)
+       'port 80
+       'path (make-path key)))
 
 
     (define (make-s3-resource bucket path)
@@ -39,7 +40,7 @@
        '(x:ListAllMyBucketsResult x:Buckets x:Bucket x:Name *text*) ;; sxpath
        "" ;; body
        "GET" ;; verb
-       '((x . "http://s3.amazonaws.com/doc/2006-03-01/")) ;; ns
+       '((x . ,s3-namespace)) ;; ns
        #f ;; no-xml
        #f ;; no-auth
        "application/x-www-form-urlencoded" ;; content-type
@@ -56,7 +57,7 @@
        '(x:ListBucketResult x:Contents x:Key *text*) ;; sxpath
        "" ;; body
        "GET" ;; verb
-       '((x . "http://s3.amazonaws.com/doc/2006-03-01/")) ;; ns
+       '((x . ,s3-namespace)) ;; ns
        #f ;; no-xml
        #f ;; no-auth
        "application/x-www-form-urlencoded" ;; content-type
@@ -73,7 +74,7 @@
        '(x:ListBucketResult x:Contents x:Key *text*) ;; sxpath
        "" ;; body
        "GET" ;; verb
-       '((x . "http://s3.amazonaws.com/doc/2006-03-01/")) ;; ns
+       '((x . ,s3-namespace)) ;; ns
        #t ;; no-xml
        #f ;; no-auth
        "application/x-www-form-urlencoded" ;; content-type

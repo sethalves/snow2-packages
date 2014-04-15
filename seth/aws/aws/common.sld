@@ -4,6 +4,7 @@
           credentials?
           credentials-access-key-id
           credentials-secret-access-key
+          make-path
           perform-aws-request
           )
 
@@ -13,6 +14,7 @@
           (scheme file)
           (srfi 1)
           (snow bytevector)
+          (snow srfi-13-strings)
           (snow srfi-95-sort)
           (snow srfi-29-format)
           (snow srfi-19-time)
@@ -46,6 +48,14 @@
          (substring creds-line0 15 (string-length creds-line0))
          (substring creds-line1 13 (string-length creds-line1)))))
 
+
+    (define (make-path key)
+      (cons '/
+            (cond ((not key) '())
+                  ((string? key)
+                   (string-tokenize key char-set:uri-unreserved))
+                  ((and (pair? key) (eq? (car key) '/)) (cdr key))
+                  (else key))))
 
 
     (define (sig-date date) (date->string date "~a, ~d ~b ~Y ~T GMT"))
