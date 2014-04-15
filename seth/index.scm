@@ -18,6 +18,7 @@
            (snow srfi-13-strings)
            (snow srfi-95-sort)
            (snow srfi-29-format)
+           (snow extio)
            (seth xml ssax)
            (seth xml sxpath)
            (seth md5)
@@ -75,6 +76,31 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "cout")
       (license lgpl/v2.1)))
+(package
+ (url "http://snow2.s3-website-us-east-1.amazonaws.com/crypt.tgz")
+ (library
+  (name (seth crypt md5))
+  (path "seth/crypt/md5.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Alex Shinn")
+  (description "md5")
+  (depends (snow bytevector)
+           (snow srfi-60-integers-as-bits))
+  (license BSD-style))
+ (library
+  (name (seth crypt sha-1))
+  (path "seth/crypt/sha-1.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "sha-1")
+  (depends (snow bytevector)
+           (snow srfi-60-integers-as-bits))
+  (license BSD-style))
+ )
   (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/gensym.tgz")
     (library
@@ -125,19 +151,6 @@
        (seth port-extras)
        (seth network-socket)
        )))
-  (package
-    (url "http://snow2.s3-website-us-east-1.amazonaws.com/md5.tgz")
-    (library
-      (name (seth md5))
-      (path "seth/md5.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Alex Shinn")
-      (description "md5")
-      (depends (snow bytevector)
-               (snow srfi-60-integers-as-bits))
-      (license BSD-style)))
   (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/memcache-client.tgz")
     (library
@@ -329,19 +342,6 @@
        (snow srfi-60-integers-as-bits)
        (snow srfi-13-strings)
        )))
-  (package
-    (url "http://snow2.s3-website-us-east-1.amazonaws.com/sha-1.tgz")
-    (library
-      (name (seth sha-1))
-      (path "seth/sha-1.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Seth Alves <seth@hungry.com>")
-      (description "sha-1")
-      (depends (snow bytevector)
-               (snow srfi-60-integers-as-bits))
-      (license BSD-style)))
   (package
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
     (library
