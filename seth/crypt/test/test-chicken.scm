@@ -12,9 +12,11 @@ exec csi -s $0 "$@"
 (include "snow/bytevector.sld")
 (include "seth/crypt/sha-1.sld")
 (include "seth/crypt/md5.sld")
+(include "seth/crypt/hmac.sld")
 (import (snow bytevector)
         (seth crypt sha-1)
-        (seth crypt md5))
+        (seth crypt md5)
+        (seth crypt hmac))
 
 (include "test-common.scm")
 

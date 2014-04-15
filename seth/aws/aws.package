@@ -16,7 +16,7 @@
            (snow extio)
            (seth xml ssax)
            (seth xml sxpath)
-           (seth md5)
+           (seth crypt md5)
            (seth hmac)
            (seth uri)
            (seth http)
