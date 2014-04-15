@@ -2,6 +2,11 @@
 
   (let ((credentials (read-credentials "credentials")))
     (write (list-buckets credentials))
-    (newline))
+    (newline)
+
+    (write (list-bucket credentials "gloebit-deb-repo"))
+    (newline)
+
+    )
 
   #t)
