@@ -7,6 +7,10 @@
     (write (list-bucket credentials "gloebit-deb-repo"))
     (newline)
 
+    (write (get-object credentials "gloebit-deb-repo"
+                       "repo/oauth2client/index.html"))
+    (newline)
+
     )
 
   #t)

@@ -91,8 +91,8 @@
 
 
     (define (perform-aws-request credentials
-                                 bucket
-                                 path
+                                 uri
+                                 resource
                                  sx-path
                                  body
                                  verb
@@ -109,23 +109,20 @@
                       (make-aws-authorization
                        credentials
                        verb ;; verb
-                       (string-append "/"
-                                      (if bucket (string-append bucket "/") "")
-                                      (if path path "")) ;; resource
+
+                       ;; resource
+;                       (string-append "/"
+;                                      (if bucket (string-append bucket "/") "")
+;                                      (if path path ""))
+                       resource
+
                        (sig-date now) ;; date
                        (if acl (list (cons "X-Amz-Acl" acl)) '()) ;; amz-headers
                        #f ;; content-md5
                        content-type))))
           `(authorization . ,value)))
 
-      (let* ((uri (uri-reference
-                   (string-append
-                    "http"
-                    ;; (if (https) "s" "") "://"
-                    "://"
-                    (if bucket (string-append bucket ".") "")
-                    "s3.amazonaws.com" (if path (string-append "/" path) ""))))
-             (now (current-date 0))
+      (let* ((now (current-date 0))
              (headers `((date . ,(date->string now "~a, ~d ~b ~Y ~T GMT"))
                         ,@(if acl `((x-amz-acl . ,acl)) '())
                         (content-type . ,(string->symbol content-type))
@@ -134,8 +131,8 @@
              )
 
         (display "verb=") (write verb) (newline)
-        (display "bucket=") (write bucket) (newline)
-        (display "path=") (write path) (newline)
+;        (display "bucket=") (write bucket) (newline)
+;        (display "path=") (write path) (newline)
         (display "uri=") (write (uri->string uri)) (newline)
         (display "now=") (write now) (newline)
         (display "headers=") (write headers) (newline)
