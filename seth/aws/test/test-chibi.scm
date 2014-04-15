@@ -4,7 +4,7 @@
         (scheme write)
         (snow bytevector)
         (prefix (seth base64) base64-)
-        (seth hmac)
+        (seth crypt hmac-sha-1)
         (seth crypt sha-1)
         (seth aws common)
         (seth aws s3))

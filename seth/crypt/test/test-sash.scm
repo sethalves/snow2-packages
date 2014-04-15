@@ -8,7 +8,7 @@ exec sash -L . -S .sld $0 "$@"
         (snow bytevector)
         (seth crypt sha-1)
         (seth crypt md5)
-        (seth crypt hmac))
+        (seth crypt hmac-sha-1))
 (include "test-common.scm")
 (display (main-program))
 (newline)

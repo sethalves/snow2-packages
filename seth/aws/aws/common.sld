@@ -22,7 +22,7 @@
           (seth xml ssax)
           (seth xml sxpath)
           (seth http)
-          (seth hmac)
+          (seth crypt hmac-sha-1)
           (seth port-extras)
           (seth uri)
           (prefix (seth base64) base64-)
@@ -96,8 +96,8 @@
 
         (latin-1->string
          (base64-encode
-          (hmac-sha1 (credentials-secret-access-key credentials)
-                     can-string)))))
+          (hmac-sha-1 (credentials-secret-access-key credentials)
+                      can-string)))))
 
 
     (define (perform-aws-request credentials

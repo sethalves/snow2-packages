@@ -3,8 +3,8 @@
 ;; https://github.com/ThomasHintz/chicken-scheme-hmac
 
 
-(define-library (seth crypt hmac)
-  (export hmac-sha1)
+(define-library (seth crypt hmac-sha-1)
+  (export hmac-sha-1)
   (import (scheme base))
   (cond-expand
    (chibi
@@ -24,23 +24,23 @@
     (cond-expand
 
      (chicken
-      (define (hmac-sha1 key message)
+      (define (hmac-sha-1 key message)
         (string->latin-1
          ((hmac key (sha1-primitive)) message))))
 
 
      (gauche
-      (define (hmac-sha1 key message)
+      (define (hmac-sha-1 key message)
         (let* ((key (cond ((bytevector? key) key)
                           ((string? key) (string->utf8 key))
                           ((port? key) (read-all-u8 key))
                           (else
-                           (error "unknown sha1-hmac key source: " key))))
+                           (error "unknown hmac-sha-1 key source: " key))))
                (message (cond ((bytevector? message) message)
                               ((string? message) (string->utf8 message))
                               ((port? message) (read-all-u8 message))
                               (else
-                               (error "unknown sha1-hmac message source: "
+                               (error "unknown hmac-sha-1 message source: "
                                       message)))))
           (string->latin-1
            (hmac-digest-string
@@ -50,34 +50,34 @@
 
 
      (sagittarius
-      (define (hmac-sha1 key message)
+      (define (hmac-sha-1 key message)
         (let* ((key (cond ((bytevector? key) key)
                           ((string? key) (string->utf8 key))
                           ((port? key) (read-all-u8 key))
                           (else
-                           (error "unknown sha1-hmac key source: " key))))
+                           (error "unknown hmac-sha-1 key source: " key))))
                (message (cond ((bytevector? message) message)
                               ((string? message) (string->utf8 message))
                               ((port? message) (read-all-u8 message))
                               (else
-                               (error "unknown sha1-hmac message source: "
+                               (error "unknown hmac-sha-1 message source: "
                                       message)))))
           (hash HMAC message :key key :hash SHA-1))))
 
 
      (else
       ;; based on hmac CHICKEN egg by Thomas Hintz
-      (define (hmac-sha1 key message)
+      (define (hmac-sha-1 key message)
         (let* ((key (cond ((bytevector? key) key)
                           ((string? key) (string->utf8 key))
                           ((port? key) (read-all-u8 key))
                           (else
-                           (error "unknown sha1-hmac key source: " key))))
+                           (error "unknown hmac-sha-1 key source: " key))))
                (message (cond ((bytevector? message) message)
                               ((string? message) (string->utf8 message))
                               ((port? message) (read-all-u8 message))
                               (else
-                               (error "unknown sha1-hmac message source: "
+                               (error "unknown hmac-sha-1 message source: "
                                       message))))
                (block-size 64)
                (key_0 (cond ((> (bytevector-length key) block-size) (sha-1 key))
