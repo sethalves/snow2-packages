@@ -1,6 +1,7 @@
 (define-library (seth http)
   (export http
           log-http-to-stderr
+          response-status-class
           call-with-request-body
           download-file
           http-header-as-integer
@@ -18,7 +19,7 @@
    (chicken (import (chicken)
                     (ports) ;; for make-input-port
                     (extras) (posix)
-                    (http-client)
+                    (only (http-client) call-with-input-request)
                     (uri-generic)
                     (intarweb)))
    (gauche (import (rfc uri)
@@ -47,8 +48,14 @@
           )
   (begin
 
+    ;; http://www.w3.org/Protocols/rfc2616/rfc2616-sec9.html
 
     (define log-http-to-stderr (make-parameter #f))
+
+
+    (define (response-status-class code)
+      ;; inspired by chicken's intarweb's response-class
+      (- code (modulo code 100)))
 
 
     (define (http-header-as-integer headers name default)
@@ -79,6 +86,8 @@
                 (saw-eof #t)
                 (else
                  (let ((chunk-length-str (read-latin-1-line port)))
+                   ;; (cond ((log-http-to-stderr)
+                   ;;        (display chunk-length-str (current-error-port))))
                    (cond ((eof-object? chunk-length-str)
                           (set! chunk-length 0)
                           (set! saw-eof #t))
@@ -329,7 +338,9 @@
                (transfer-encoding
                 (http-header-as-string headers 'transfer-encoding #f))
                (body-port
-                (cond (content-length
+                (cond ((equal? verb-str "HEAD")
+                       (open-input-bytevector (make-bytevector 0)))
+                      (content-length
                        (make-delimited-input-port read-port content-length))
                       ((equal? transfer-encoding "chunked")
                        (make-dechunked-input-port read-port))
