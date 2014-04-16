@@ -1286,7 +1286,7 @@
                     (expected (list-ref test 0))
                     (key (list-ref test 1))
                     (message (list-ref test 2))
-                    (calced (bytes->hex-string (hmac-sha1 key message))))
+                    (calced (bytes->hex-string (hmac-sha-1 key message))))
                (if (equal? expected calced)
                    (loop (cdr tests))
                    (begin
@@ -1298,8 +1298,78 @@
   )
 
 
+(define (test-sha-224)
+  (let ((tests
+         ;; tests from chibi
+         '((""
+            "d14a028c2a3a2bc9476102bb288234c415a2b01f828ea62ac5b3e42f")
+           ("abc"
+            "23097d223405d8228642a477bda255b32aadbce4bda0b3f7e36c9da7")
+           ("The quick brown fox jumps over the lazy dog"
+            "730e109bd7a8a32b1cb9d9a09aa2325d2430587ddbc0c38bad911525")
+           ;; wikipedia
+           ("The quick brown fox jumps over the lazy dog."
+            "619cba8e8e05826e9b8c519c0a5c68f4fb653e8a3d8aa04bb2c8cd4c")
+           )))
+
+    (let loop ((tests tests))
+      (cond ((null? tests) #t)
+            (else
+             (let* ((tst (car tests))
+                    (str (car tst))
+                    (expected-hash (cadr tst))
+                    (computed-hash (bytes->hex-string (sha-224 str))))
+               (cond ((equal? expected-hash computed-hash)
+                      (display "sha-224 of ")
+                      (write str)
+                      (display " --> ok\n")
+                      (loop (cdr tests)))
+                     (else
+                      (display "sha-224 failed:\n")
+                      (display "     str: ") (write str) (newline)
+                      (display "expected: ") (write expected-hash) (newline)
+                      (display "computed: ") (write computed-hash) (newline)
+                      #f))))))))
+
+
+(define (test-sha-256)
+  (let ((tests
+         ;; tests from chibi
+         '((""
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855")
+           ("abc"
+            "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad")
+           ("The quick brown fox jumps over the lazy dog"
+            "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592")
+           ;; test from chicken
+           ("abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
+            "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1")
+
+           )))
+    (let loop ((tests tests))
+      (cond ((null? tests) #t)
+            (else
+             (let* ((tst (car tests))
+                    (str (car tst))
+                    (expected-hash (cadr tst))
+                    (computed-hash (bytes->hex-string (sha-256 str))))
+               (cond ((equal? expected-hash computed-hash)
+                      (display "sha-256 of ")
+                      (write str)
+                      (display " --> ok\n")
+                      (loop (cdr tests)))
+                     (else
+                      (display "sha-256 failed:\n")
+                      (display "     str: ") (write str) (newline)
+                      (display "expected: ") (write expected-hash) (newline)
+                      (display "computed: ") (write computed-hash) (newline)
+                      #f))))))))
+
+
 (define (main-program)
   (and (test-md5)
        (test-sha-1)
        (test-hmac-sha-1)
+;       (test-sha-224)
+       (test-sha-256)
        ))

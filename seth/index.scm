@@ -100,6 +100,17 @@
            (snow srfi-60-integers-as-bits))
   (license BSD-style))
  (library
+  (name (seth crypt sha-2))
+  (path "seth/crypt/sha-2.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Alex Shinn")
+  (description "sha-2")
+  (depends (snow bytevector)
+           (snow srfi-60-integers-as-bits))
+  (license BSD-style))
+ (library
   (name (seth crypt hmac-sha-1))
   (path "seth/crypt/hmac-sha-1.sld")
   (version "1.0")

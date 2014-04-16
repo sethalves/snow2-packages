@@ -40,7 +40,7 @@
        '(x:ListAllMyBucketsResult x:Buckets x:Bucket x:Name *text*) ;; sxpath
        "" ;; body
        "GET" ;; verb
-       '((x . ,s3-namespace)) ;; ns
+       `((x . ,s3-namespace)) ;; ns
        #f ;; no-xml
        #f ;; no-auth
        "application/x-www-form-urlencoded" ;; content-type
@@ -57,7 +57,7 @@
        '(x:ListBucketResult x:Contents x:Key *text*) ;; sxpath
        "" ;; body
        "GET" ;; verb
-       '((x . ,s3-namespace)) ;; ns
+       `((x . ,s3-namespace)) ;; ns
        #f ;; no-xml
        #f ;; no-auth
        "application/x-www-form-urlencoded" ;; content-type
@@ -74,7 +74,7 @@
        '(x:ListBucketResult x:Contents x:Key *text*) ;; sxpath
        "" ;; body
        "GET" ;; verb
-       '((x . ,s3-namespace)) ;; ns
+       `((x . ,s3-namespace)) ;; ns
        #t ;; no-xml
        #f ;; no-auth
        "application/x-www-form-urlencoded" ;; content-type
