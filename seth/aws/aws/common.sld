@@ -30,7 +30,7 @@
 
   (begin
 
-    (log-http-to-stderr #t)
+    ;; (log-http-to-stderr #t)
 
     (define-record-type <credentials>
       (make-credentials access-key-id secret-access-key)
@@ -140,13 +140,21 @@
                         ))
              )
 
-        (display "verb=") (write verb) (newline)
-;        (display "bucket=") (write bucket) (newline)
-;        (display "path=") (write path) (newline)
-        (display "uri=") (write (uri->string uri)) (newline)
-        (display "now=") (write now) (newline)
-        (display "headers=") (write headers) (newline)
-        (display "body=") (write body) (newline)
+        ;; (display "verb=" (current-error-port))
+        ;; (write verb (current-error-port))
+        ;; (newline (current-error-port))
+        ;; (display "uri=" (current-error-port))
+        ;; (write (uri->string uri) (current-error-port))
+        ;; (newline (current-error-port))
+        ;; (display "now=" (current-error-port))
+        ;; (write now (current-error-port))
+        ;; (newline (current-error-port))
+        ;; (display "headers=" (current-error-port))
+        ;; (write headers (current-error-port))
+        ;; (newline (current-error-port))
+        ;; (display "body=" (current-error-port))
+        ;; (write body (current-error-port))
+        ;; (newline (current-error-port))
 
 
         (http verb uri body
@@ -161,12 +169,19 @@
                 ;; (display "response body=")
                 ;; (write (utf8->string (read-all-u8 body-port)))
                 ;; (newline)
-                (cond (no-xml (read-all-u8 body-port))
-                      (else
-                       ((sxpath sx-path)
-                        (ssax:xml->sxml
-                         (binary-port->latin-1-textual-port body-port)
-                         ns)))))
+                (let ((status-class (response-status-class status-code)))
+                  (cond ((and (= status-class 200) no-xml)
+                         (values status-code headers (read-all-u8 body-port)))
+                        ((= status-class 200)
+                         (values status-code
+                                 headers
+                                 ((sxpath sx-path)
+                                  (ssax:xml->sxml
+                                   (binary-port->latin-1-textual-port body-port)
+                                   ns))))
+                        (else
+                         (values status-code headers
+                                 (read-all-u8 body-port))))))
               headers
               (lambda (headers)
                 (cond (no-auth headers)

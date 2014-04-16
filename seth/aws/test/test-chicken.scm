@@ -31,7 +31,9 @@ exec csi -s $0 "$@"
 (include "seth/http.sld")
 (include "seth/aws/common.sld")
 (include "seth/aws/s3.sld")
-(import (seth aws common)
+(import (snow srfi-13-strings)
+        (only (seth http) log-http-to-stderr)
+        (seth aws common)
         (seth aws s3))
 
 (include "test-common.scm")
