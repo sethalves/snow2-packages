@@ -1354,9 +1354,9 @@
                     (expected-hash (cadr tst))
                     (computed-hash (bytes->hex-string (sha-256 str))))
                (cond ((equal? expected-hash computed-hash)
-                      (display "sha-256 of ")
-                      (write str)
-                      (display " --> ok\n")
+                      ;; (display "sha-256 of ")
+                      ;; (write str)
+                      ;; (display " --> ok\n")
                       (loop (cdr tests)))
                      (else
                       (display "sha-256 failed:\n")
