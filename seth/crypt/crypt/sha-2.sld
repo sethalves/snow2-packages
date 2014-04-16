@@ -2,10 +2,7 @@
   (export sha-224
           sha-256)
 
-  (import (scheme base)
-          ;; (scheme write)
-          ;; (snow srfi-13-strings)
-          )
+  (import (scheme base))
   (cond-expand
    (chibi
     (import (snow bytevector)
@@ -25,6 +22,7 @@
 
   (begin
 
+    ;; http://csrc.nist.gov/groups/STM/cavp/documents/shs/sha256-384-512.pdf
 
     (cond-expand
      (chicken
