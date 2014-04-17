@@ -338,7 +338,9 @@
                (transfer-encoding
                 (http-header-as-string headers 'transfer-encoding #f))
                (body-port
-                (cond ((equal? verb-str "HEAD")
+                (cond ((or (equal? verb-str "HEAD")
+                           (= status-code 204) ;; No Content
+                           )
                        (open-input-bytevector (make-bytevector 0)))
                       (content-length
                        (make-delimited-input-port read-port content-length))
