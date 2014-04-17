@@ -4,8 +4,8 @@
    list-objects
 
    bucket-exists?
-;   create-bucket!
-;   delete-bucket!
+   create-bucket!
+   delete-bucket!
    get-object
 ;   put-object!
 ;   delete-object!
@@ -21,13 +21,18 @@
    )
   (import (scheme base)
           (scheme write)
+          (snow extio)
           (seth uri)
+          (seth port-extras)
+          (seth xml ssax)
+          (seth xml sxpath)
           (only (seth http) response-status-class)
           (seth aws common)
           )
   (begin
 
     ;; http://docs.aws.amazon.com/AmazonS3/latest/API/APIRest.html
+    ;; http://docs.aws.amazon.com/AmazonS3/latest/API/RESTServiceGET.html
 
     (define s3-authority "s3.amazonaws.com")
     (define s3-namespace "http://s3.amazonaws.com/doc/2006-03-01/")
@@ -54,11 +59,42 @@
              credentials ;; credentials
              (make-s3-uri bucket #f)
              (make-s3-resource bucket #f)
-             '() ;; sxpath
              "" ;; body
              "HEAD" ;; verb
-             `((x . ,s3-namespace)) ;; ns
-             #t ;; no-xml
+             #f ;; no-auth
+             "application/x-www-form-urlencoded" ;; content-type
+             0 ;; content-length
+             #f ;; acl
+             )))
+        (= (response-status-class status-code) 200)))
+
+
+    (define (create-bucket! credentials bucket)
+      (let-values
+          (((status-code headers data)
+            (perform-aws-request
+             credentials ;; credentials
+             (make-s3-uri bucket #f)
+             (make-s3-resource bucket #f)
+             "" ;; body
+             "PUT" ;; verb
+             #f ;; no-auth
+             "application/x-www-form-urlencoded" ;; content-type
+             0 ;; content-length
+             #f ;; acl
+             )))
+        (= (response-status-class status-code) 200)))
+
+
+    (define (delete-bucket! credentials bucket)
+      (let-values
+          (((status-code headers data)
+            (perform-aws-request
+             credentials ;; credentials
+             (make-s3-uri bucket #f)
+             (make-s3-resource bucket #f)
+             "" ;; body
+             "DELETE" ;; verb
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
@@ -74,18 +110,22 @@
              credentials ;; credentials
              (make-s3-uri #f #f)
              (make-s3-resource #f #f)
-             ;; sxpath
-             '(x:ListAllMyBucketsResult x:Buckets x:Bucket x:Name *text*)
              "" ;; body
              "GET" ;; verb
-             `((x . ,s3-namespace)) ;; ns
-             #f ;; no-xml
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
              #f ;; acl
              )))
-        (cond ((= (response-status-class status-code) 200) data)
+        (cond ((= (response-status-class status-code) 200)
+
+               ((sxpath
+                 '(x:ListAllMyBucketsResult x:Buckets x:Bucket x:Name *text*))
+                (ssax:xml->sxml
+                 (binary-port->latin-1-textual-port data)
+                 `((x . ,s3-namespace))))
+
+               )
               (else #f))))
 
 
@@ -96,17 +136,22 @@
              credentials
              (make-s3-uri bucket #f)
              (make-s3-resource bucket #f)
-             '(x:ListBucketResult x:Contents x:Key *text*) ;; sxpath
              "" ;; body
              "GET" ;; verb
-             `((x . ,s3-namespace)) ;; ns
-             #f ;; no-xml
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
              #f ;; acl
              )))
-        (cond ((= (response-status-class status-code) 200) data)
+        (cond ((= (response-status-class status-code) 200)
+
+               ((sxpath
+                 '(x:ListBucketResult x:Contents x:Key *text*))
+                (ssax:xml->sxml
+                 (binary-port->latin-1-textual-port data)
+                 `((x . ,s3-namespace))))
+
+               )
               (else #f))))
 
 
@@ -117,17 +162,14 @@
              credentials
              (make-s3-uri bucket key)
              (make-s3-resource bucket key)
-             '(x:ListBucketResult x:Contents x:Key *text*) ;; sxpath
              "" ;; body
              "GET" ;; verb
-             `((x . ,s3-namespace)) ;; ns
-             #t ;; no-xml
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
              #f ;; acl
              )))
-        (cond ((= (response-status-class status-code) 200) data)
+        (cond ((= (response-status-class status-code) 200) (read-all-u8 data))
               (else #f))))
 
     ))

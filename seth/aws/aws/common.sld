@@ -30,7 +30,8 @@
 
   (begin
 
-    ;; (log-http-to-stderr #t)
+    ;; http://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html
+
 
     (define-record-type <credentials>
       (make-credentials access-key-id secret-access-key)
@@ -103,11 +104,8 @@
     (define (perform-aws-request credentials
                                  uri
                                  resource
-                                 sx-path
                                  body
                                  verb
-                                 ns
-                                 no-xml
                                  no-auth
                                  content-type
                                  content-length
@@ -170,18 +168,22 @@
                 ;; (write (utf8->string (read-all-u8 body-port)))
                 ;; (newline)
                 (let ((status-class (response-status-class status-code)))
-                  (cond ((and (= status-class 200) no-xml)
-                         (values status-code headers (read-all-u8 body-port)))
-                        ((= status-class 200)
-                         (values status-code
-                                 headers
-                                 ((sxpath sx-path)
-                                  (ssax:xml->sxml
-                                   (binary-port->latin-1-textual-port body-port)
-                                   ns))))
-                        (else
-                         (values status-code headers
-                                 (read-all-u8 body-port))))))
+
+                  (values status-code headers body-port)
+
+                  ;; (cond ((and (= status-class 200) no-xml)
+                  ;;        (values status-code headers body-port))
+                  ;;       ((= status-class 200)
+                  ;;        (values status-code
+                  ;;                headers
+                  ;;                ((sxpath sx-path)
+                  ;;                 (ssax:xml->sxml
+                  ;;                  (binary-port->latin-1-textual-port body-port)
+                  ;;                  ns))))
+                  ;;       (else
+                  ;;        (values status-code headers body-port)))
+
+                  ))
               headers
               (lambda (headers)
                 (cond (no-auth headers)
