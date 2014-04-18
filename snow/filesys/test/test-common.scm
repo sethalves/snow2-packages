@@ -66,4 +66,6 @@
    (snow-filename-relative? "../ok/fuh")
    (not (snow-filename-relative? "/ok/fuh"))
 
-   ))
+   (equal? (snow-file-size "../Makefile") 46)
+
+   #t))
