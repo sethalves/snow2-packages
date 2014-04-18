@@ -109,7 +109,7 @@
                                  no-auth
                                  content-type
                                  content-length
-                                 acl)
+                                 amz-headers)
 
       (define (aws-auth-header now)
         (let ((value (string-append
@@ -117,22 +117,17 @@
                       (make-aws-authorization
                        credentials
                        verb ;; verb
-
-                       ;; resource
-;                       (string-append "/"
-;                                      (if bucket (string-append bucket "/") "")
-;                                      (if path path ""))
                        resource
-
                        (sig-date now) ;; date
-                       (if acl (list (cons "X-Amz-Acl" acl)) '()) ;; amz-headers
+                       amz-headers ;; amz-headers
                        #f ;; content-md5
                        content-type))))
           `(authorization . ,value)))
 
       (let* ((now (current-date 0))
+             ;; (amz-headers (if acl `((x-amz-acl . ,acl)) '()))
              (headers `((date . ,(date->string now "~a, ~d ~b ~Y ~T GMT"))
-                        ,@(if acl `((x-amz-acl . ,acl)) '())
+                        ,@amz-headers
                         (content-type . ,(string->symbol content-type))
                         (content-length . ,content-length)
                         ))

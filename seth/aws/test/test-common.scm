@@ -25,4 +25,14 @@
        (create-bucket! credentials "seth-aws-s3-test")
        (bucket-exists? credentials "seth-aws-s3-test"))
 
+     (begin
+       (put-object! credentials "seth-aws-s3-test" "a-string" "abc")
+       (equal? (get-object credentials "seth-aws-s3-test" "a-string")
+               (string->utf8 "abc")))
+
+
+     (begin
+       (delete-object! credentials "seth-aws-s3-test" "a-string")
+       (not (get-object credentials "seth-aws-s3-test" "a-string")))
+
      #t)))

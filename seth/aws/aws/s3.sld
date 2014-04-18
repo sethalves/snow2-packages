@@ -2,25 +2,16 @@
   (export
    list-buckets
    list-objects
-
    bucket-exists?
    create-bucket!
    delete-bucket!
    get-object
-;   put-object!
-;   delete-object!
-
-;   put-string!
-;   put-sexp!
-;   put-file!
-;   get-string
-;   get-sexp
-;   get-file
-
-
+   put-object!
+   delete-object!
    )
   (import (scheme base)
           (scheme write)
+          (snow snowlib)
           (snow extio)
           (seth uri)
           (seth port-extras)
@@ -64,7 +55,7 @@
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
-             #f ;; acl
+             '() ;; amz-headers
              )))
         (= (response-status-class status-code) 200)))
 
@@ -81,7 +72,7 @@
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
-             #f ;; acl
+             '() ;; amz-headers
              )))
         (= (response-status-class status-code) 200)))
 
@@ -98,7 +89,7 @@
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
-             #f ;; acl
+             '() ;; amz-headers
              )))
         (= (response-status-class status-code) 200)))
 
@@ -115,7 +106,7 @@
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
-             #f ;; acl
+             '() ;; amz-headers
              )))
         (cond ((= (response-status-class status-code) 200)
 
@@ -141,7 +132,7 @@
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
-             #f ;; acl
+             '() ;; amz-headers
              )))
         (cond ((= (response-status-class status-code) 200)
 
@@ -167,7 +158,71 @@
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
-             #f ;; acl
+             '() ;; amz-headers
+             )))
+        (cond ((= (response-status-class status-code) 200) (read-all-u8 data))
+              (else #f))))
+
+
+    (define (get-body-and-size body content-length)
+      (cond (content-length (values body content-length))
+            ((bytevector? body) (values body (bytevector-length body)))
+            ((string? body)
+             (let ((data (string->utf8 body)))
+               (values data (bytevector-length data))))
+            ((and (input-port? body) (binary-port? body))
+             (let ((data (read-all-u8 body)))
+               (values data (bytevector-length data))))
+            ((input-port? body)
+             (let ((data (string->utf8 (read-all-chars body))))
+               (values data (bytevector-length data))))
+            (else
+             (snow-error "aws s3 put-object! unusable body type" body))))
+
+
+    (define (put-object! credentials bucket key body .
+                         maybe-length+type+acl)
+      (let ((content-length (if (> (length maybe-length+type+acl) 0)
+                                (list-ref maybe-length+type+acl 0)
+                                #f))
+            (content-type (if (> (length maybe-length+type+acl) 1)
+                              (list-ref maybe-length+type+acl 1)
+                              "application/octet-stream"))
+            (acl (if (> (length maybe-length+type+acl) 2)
+                     (list-ref maybe-length+type+acl 2)
+                     #f)))
+        (let*-values
+            (((body content-length) (get-body-and-size body content-length))
+             ((status-code headers data)
+              (perform-aws-request
+               credentials
+               (make-s3-uri bucket key)
+               (make-s3-resource bucket key)
+               body ;; body
+               "PUT" ;; verb
+               #f ;; no-auth
+               content-type ;; content-type
+               content-length ;; content-length
+               (if acl `((x-amz-acl . ,acl)) '()) ;; amz-headers
+               )))
+          (cond ((= (response-status-class status-code) 200)
+                 (read-all-u8 data))
+                (else #f)))))
+
+
+    (define (delete-object! credentials bucket key)
+      (let-values
+          (((status-code headers data)
+            (perform-aws-request
+             credentials
+             (make-s3-uri bucket key)
+             (make-s3-resource bucket key)
+             "" ;; body
+             "DELETE" ;; verb
+             #f ;; no-auth
+             "application/x-www-form-urlencoded" ;; content-type
+             0 ;; content-length
+             '() ;; amz-headers
              )))
         (cond ((= (response-status-class status-code) 200) (read-all-u8 data))
               (else #f))))
