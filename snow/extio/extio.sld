@@ -4,6 +4,7 @@
           snow-pretty-print
           make-delimited-input-port
           binary-port->latin-1-textual-port
+          textual-port->utf8-binary-port
           read-line
           )
   (import (scheme base) (scheme write))
@@ -331,7 +332,6 @@
 
     (cond-expand
 
-
      (chicken
       (define (binary-port->latin-1-textual-port port)
         (let ((saw-eof #f))
@@ -391,5 +391,96 @@
                    (loop (cons seg segments)))))))
 
       ))
+
+
+
+    (cond-expand
+
+     (chicken
+      (define (textual-port->utf8-binary-port port)
+        (make-input-port
+         (lambda () ; read-char
+           (read-char port))
+         (lambda () ; char-ready?
+           (char-ready? port))
+         (lambda () #t) ; close
+         (lambda () ; peek-char
+           (peek-char port)))))
+
+     (chibi
+      (define (textual-port->utf8-binary-port port)
+        (let ((buffer '()))
+          (define (get-next-byte)
+            (cond ((null? buffer)
+                   (let ((c (read-char port)))
+                     (cond ((eof-object? c) c)
+                           (else
+                            (let ((bytes (bytevector->u8-list
+                                          (string->utf8
+                                           (string c)))))
+                              (set! buffer (cdr bytes))
+                              (car bytes))))))
+                  (else
+                   (let ((b (car buffer)))
+                     (set! buffer (cdr buffer))
+                     b))))
+
+          (make-custom-binary-input-port
+           (lambda (bv start end)
+             (let ((len (- end start)))
+               (let loop ((i 0))
+                 (cond ((= i len) i)
+                       (else
+                        (let ((b (get-next-byte)))
+                          (cond ((eof-object? b) i)
+                                (else
+                                 (bytevector-u8-set! bv (+ start i) b)
+                                 (loop (+ i 1))))))))))))))
+
+     (gauche
+      (define (textual-port->utf8-binary-port port)
+        (let ((saw-eof #f)
+              (buffer '()))
+          (make-virutal-input-port
+           :getb (lambda ()
+                   (cond (saw-eof (eof-object))
+                         ((not (null? buffer))
+                          (let ((b (car buffer)))
+                            (set! buffer (cdr buffer))
+                            b))
+                         (else
+                          (let* ((c (read-char port))
+                                 (data (bytevector->u8-list
+                                        (string->utf8 (string c))))
+                                 (b-first (car data))
+                                 (b-rest (cdr data)))
+                            (set! buffer b-rest)
+                            b-first))))
+           ;;:getc (lambda () #f)
+           :ready (lambda (t-for-char-f-for-byte)
+                    (cond (saw-eof #f)
+                          ((not (null? buffer)) #t)
+                          (else
+                           (char-ready? port))))
+           :close (lambda () #t)))))
+
+
+     (else
+      ;; for schemes with no procedural ports (sagittarius)
+      (define (textual-port->utf8-binary-port port)
+        (let loop ((segments '()))
+          (let ((seg (read-string 1024 port)))
+            (cond ((eof-object? seg)
+                   (open-input-bytevector
+                    (reverse-bytevector-list->bytevector segments)))
+                  (else
+                   (loop (cons (string->utf8 seg) segments)))))))))
+
+
+
+
+
+
+
 
     ))
