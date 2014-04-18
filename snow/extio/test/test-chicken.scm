@@ -10,7 +10,10 @@ exec csi -s $0 "$@"
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "snow/extio.sld")
-(import (snow extio))
+(import (scheme base)
+        (scheme read)
+        (snow bytevector)
+        (snow extio))
 
 (include "test-common.scm")
 
