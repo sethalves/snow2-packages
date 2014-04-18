@@ -215,8 +215,6 @@
       (define (get-outbound-port-and-length headers)
         (let ((user-content-length
                (http-header-as-integer headers 'content-length #f)))
-          ;; XXX should check content-encoding here, in case
-          ;; the writer has multi-byte characters
           (cond
 
            ;; writer is #f
@@ -224,16 +222,30 @@
 
            ;; writer is a string
            ((string? writer)
+            (let ((writer (string->utf8 writer)))
+              (if (and user-content-length
+                       (not (= user-content-length
+                               (bytevector-length writer))))
+                  (snow-error "http -- writer string length mismatch"))
+              (values (open-input-bytevector writer)
+                      (bytevector-length writer))))
+
+           ((bytevector? writer)
             (if (and user-content-length
                      (not (= user-content-length
-                             (string-length writer))))
-                (snow-error "http -- writer string length mismatch"))
-            (values (open-input-string writer)
-                    (string-length writer)))
+                             (bytevector-length writer))))
+                (snow-error "http -- writer bytevector length mismatch"))
+            (values (open-input-bytevector writer)
+                    (bytevector-length writer)))
 
-           ;; writer is a port
-           ((input-port? writer)
+           ;; writer is a binary port
+           ((and (input-port? writer) (binary-port? writer))
             (values writer user-content-length))
+
+           ;; writer is a textual port
+           ((and (input-port? writer))
+            (values (textual-port->utf8-binary-port writer)
+                    user-content-length))
 
            ;; something unexpected
            (else
@@ -253,11 +265,11 @@
                                (n-to-read (if (> n-to-read 1024)
                                               1024
                                               n-to-read))
-                               (data (read-latin-1-string n-to-read src-port)))
+                               (data (read-bytevector n-to-read src-port)))
                           (if (eof-object? data)
                               (snow-error
                                "http -- not enough request body data"))
-                          (write-string data dst-port)
+                          (write-bytevector data dst-port)
                           (loop (+ sent n-to-read)))))))))
 
 
