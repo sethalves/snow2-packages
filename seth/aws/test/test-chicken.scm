@@ -33,6 +33,7 @@ exec csi -s $0 "$@"
 (include "seth/aws/s3.sld")
 (import (snow srfi-13-strings)
         (only (seth http) log-http-to-stderr)
+        (seth crypt md5)
         (seth aws common)
         (seth aws s3))
 

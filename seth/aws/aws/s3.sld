@@ -6,12 +6,15 @@
    create-bucket!
    delete-bucket!
    get-object
+   get-object-md5
    put-object!
    delete-object!
    )
   (import (scheme base)
           (scheme write)
           (snow snowlib)
+          (snow bytevector)
+          (snow srfi-13-strings)
           (snow extio)
           (seth uri)
           (seth port-extras)
@@ -161,6 +164,30 @@
              '() ;; amz-headers
              )))
         (cond ((= (response-status-class status-code) 200) (read-all-u8 data))
+              (else #f))))
+
+
+    (define (get-object-md5 credentials bucket key)
+      (let-values
+          (((status-code headers data)
+            (perform-aws-request
+             credentials
+             (make-s3-uri bucket key)
+             (make-s3-resource bucket key)
+             "" ;; body
+             "GET" ;; verb
+             #f ;; no-auth
+             "application/x-www-form-urlencoded" ;; content-type
+             0 ;; content-length
+             '() ;; amz-headers
+             )))
+        (cond ((= (response-status-class status-code) 200)
+               (read-all-u8 data)
+               ;; (etag . "\"900150983cd24fb0d6963f7d28e17f72\"")
+               (hex-string->bytes
+                (string-trim-both
+                 (cdr (assq 'etag headers))
+                 #\")))
               (else #f))))
 
 

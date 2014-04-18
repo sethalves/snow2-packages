@@ -30,6 +30,8 @@
        (equal? (get-object credentials "seth-aws-s3-test" "a-string")
                (string->utf8 "abc")))
 
+     (equal? (get-object-md5 credentials "seth-aws-s3-test" "a-string")
+             (md5 "abc"))
 
      (begin
        (delete-object! credentials "seth-aws-s3-test" "a-string")
