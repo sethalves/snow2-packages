@@ -24,33 +24,6 @@
       (eof-object? r-str-1)
       (equal? cont-str "oppre")))
 
-
-   (let* ((p (open-input-bytevector (bytevector 0 1 150 3 4 5 6)))
-          (p-textual (binary-port->latin-1-textual-port p)))
-
-     ;; (write (char->integer (read-char p-textual))) (newline)
-     ;; (write (char->integer (read-char p-textual))) (newline)
-     ;; (write (char->integer (read-char p-textual))) (newline)
-     ;; (write (char->integer (read-char p-textual))) (newline)
-     ;; (write (char->integer (read-char p-textual))) (newline)
-     ;; (write (char->integer (read-char p-textual))) (newline)
-     ;; (write (char->integer (read-char p-textual))) (newline)
-     ;; #t
-
-     ;; fails on chibi
-
-     (and
-      (= (char->integer (read-char p-textual)) 0)
-      (= (char->integer (read-char p-textual)) 1)
-      (= (char->integer (read-char p-textual)) 150)
-      (= (char->integer (read-char p-textual)) 3)
-      (= (char->integer (read-char p-textual)) 4)
-      (= (char->integer (read-char p-textual)) 5)
-      (= (char->integer (read-char p-textual)) 6))
-
-     #t
-     )
-
    (let* ((p (open-input-bytevector (bytevector 10 11 12 13 14 15)))
           (p-del (make-delimited-input-port p 3)))
      (and
@@ -58,6 +31,40 @@
       (= (read-u8 p-del) 11)
       (= (read-u8 p-del) 12)
       (eof-object? (read-u8 p-del))))
+
+
+   (snow-with-exception-catcher
+    (lambda (exn)
+      ;; (write exn (current-error-port))
+      (snow-display-error exn)
+      (newline)
+      )
+     (lambda ()
+
+   (let* ((data-str (string-append
+                     "blah blah blah"
+                     (string (integer->char #x40a)
+                             (integer->char #x40b)
+                             (integer->char #x40c))
+                     (string (integer->char #x1F700)
+                             (integer->char #x1F701)
+                             (integer->char #x1F702))))
+          (data-bv (string->utf8 data-str))
+          (p-bin (open-input-bytevector data-bv))
+          (p-txt (binary-port->textual-port p-bin))
+          (new-str (read-string 20 p-txt)))
+
+     (display "data-str=")
+     (write data-str)
+     (newline)
+     (display " new-str=")
+     (write new-str)
+     (newline)
+
+     (equal? data-str new-str))
+
+   ))
+
 
 
    (let* ((data-str (string-append
@@ -85,7 +92,7 @@
                              (integer->char #x1F702))
                      ))
           (p-txt (open-input-string data-str))
-          (p-bin (textual-port->utf8-binary-port p-txt))
+          (p-bin (textual-port->binary-port p-txt))
           (data-bv (read-bytevector 767 p-bin))
           ;; (data-str-from-bv (utf8->string data-bv))
           (data-str-bv (string->utf8 data-str))
@@ -97,7 +104,4 @@
      (equal? data-bv data-str-bv)
      )
 
-   #t
-
-
-   ))
+   #t))

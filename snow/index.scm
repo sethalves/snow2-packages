@@ -79,7 +79,8 @@
       (description "Extended I/O." i/o snow)
       (license lgpl/v2.1)
       (depends (snow binio)
-               (snow bytevector))))
+               (snow bytevector)
+               (snow srfi-60-integers-as-bits))))
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
     (library

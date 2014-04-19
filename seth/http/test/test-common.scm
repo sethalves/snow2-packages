@@ -28,7 +28,7 @@
   ;;  (lambda (body-port)
   ;;    (let ((body (read-string 300
   ;;                             ;; body-port
-  ;;                             (binary-port->latin-1-textual-port body-port)
+  ;;                             (binary-port->textual-port body-port)
   ;;                             )))
   ;;      (let loop ((i 0))
   ;;        (cond ((< i 256)
@@ -84,7 +84,7 @@
                       "http://snow2.s3-website-us-east-1.amazonaws.com/"
                       ;; read
                       (lambda (p)
-                        (read (binary-port->latin-1-textual-port p))))))
+                        (read (binary-port->textual-port p))))))
       (cond ((and (list? index-scm)
                   (eq? (car index-scm) 'repository))
              (set! result2 #t))

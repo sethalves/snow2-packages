@@ -8,6 +8,7 @@ exec csi -s $0 "$@"
 
 (include "snow/snowlib.sld")
 (include "snow/bytevector.sld")
+(include "snow/srfi-60-integers-as-bits.sld")
 (include "snow/binio.sld")
 (include "snow/extio.sld")
 (import (scheme base)

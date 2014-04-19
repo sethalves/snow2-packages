@@ -244,7 +244,7 @@
 
            ;; writer is a textual port
            ((and (input-port? writer))
-            (values (textual-port->utf8-binary-port writer)
+            (values (textual-port->binary-port writer)
                     user-content-length))
 
            ;; something unexpected

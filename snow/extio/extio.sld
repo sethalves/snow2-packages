@@ -3,11 +3,12 @@
           snow-force-output
           snow-pretty-print
           make-delimited-input-port
-          binary-port->latin-1-textual-port
-          textual-port->utf8-binary-port
+          binary-port->textual-port
+          textual-port->binary-port
           read-line
           )
-  (import (scheme base) (scheme write))
+  (import (scheme base)
+          (scheme write))
   (cond-expand
    (chibi (import (chibi io)))
    (chicken (import (only (chicken) flush-output pretty-print)
@@ -15,8 +16,11 @@
                     (ports)))
    (gauche (import (snow gauche-extio-utils)))
    (sagittarius))
-  (import (snow binio)
-          (snow bytevector))
+  (import (snow snowlib)
+          (snow binio)
+          (snow bytevector)
+          (snow srfi-60-integers-as-bits)
+          )
   (begin
 
     (cond-expand
@@ -328,68 +332,205 @@
 
 
 
+    (define (utf8->char bv i len)
+      ;; http://en.wikipedia.org/wiki/Utf8
+      (define (check-following-bytes n)
+        (do ((x 0 (+ x 1)))
+            ((= x n))
+          (if (not (= (bitwise-and (bytevector-u8-ref bv (+ i x 1)) #xc0) #x80))
+              (snow-error "invalid utf8" bv i len))))
+      (if (= i len)
+          (values #f 0)
+          (let ((b0 (bytevector-u8-ref bv i))
+                (available (- len i)))
+            (cond
+             ;; 0xxxxxxx
+             ((= (bitwise-and b0 #x80) #x00) (values (integer->char b0) 1))
+             ((not (= (bitwise-and b0 #xc0) #xc0))
+              (snow-error "invalid utf8" bv i len))
+             ((= (bitwise-and b0 #xfe) #xfe)
+              (snow-error "invalid utf8" bv i len))
+             ;; 110xxxxx 10xxxxxx
+             ((and (> available 1) (= (bitwise-and b0 #xe0) #xc0))
+              (check-following-bytes 1)
+              (values
+               (integer->char
+                (bitwise-ior
+                 (arithmetic-shift (bitwise-and b0 #x1f) 6)
+                 (bitwise-and (bytevector-u8-ref bv (+ i 1)) #x3f)))
+               2))
+             ;; 1110xxxx 10xxxxxx 10xxxxxx
+             ((and (> available 2) (= (bitwise-and b0 #xf0) #xe0))
+              (check-following-bytes 2)
+              (values
+               (integer->char
+                (bitwise-ior
+                 (arithmetic-shift (bitwise-and b0 #x0f) 12)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 1)) #x3f) 6)
+                 (bitwise-and (bytevector-u8-ref bv (+ i 2)) #x3f)))
+               3))
+             ;; 11110xxx 10xxxxxx 10xxxxxx 10xxxxxx
+             ((and (> available 3) (= (bitwise-and b0 #xf8) #xf0))
+              (check-following-bytes 3)
+              (values
+               (integer->char
+                (bitwise-ior
+                 (arithmetic-shift (bitwise-and b0 #x07) 18)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 1)) #x3f) 12)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 2)) #x3f) 6)
+                 (bitwise-and (bytevector-u8-ref bv (+ i 3)) #x3f)))
+               4))
+             ;; 111110xx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+             ((and (> available 4) (= (bitwise-and b0 #xfc) #xf8))
+              (check-following-bytes 4)
+              (values
+               (integer->char
+                (bitwise-ior
+                 (arithmetic-shift (bitwise-and b0 #x03) 24)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 1)) #x3f) 18)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 2)) #x3f) 12)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 3)) #x3f) 6)
+                 (bitwise-and (bytevector-u8-ref bv (+ i 4)) #x3f)))
+               5))
+             ;; 1111110x 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx 10xxxxxx
+             ((and (> available 5) (= (bitwise-and b0 #xfe) #xfc))
+              (check-following-bytes 5)
+              (values
+               (integer->char
+                (bitwise-ior
+                 (arithmetic-shift (bitwise-and b0 #x01) 30)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 1)) #x3f) 24)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 2)) #x3f) 18)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 3)) #x3f) 12)
+                 (arithmetic-shift
+                  (bitwise-and (bytevector-u8-ref bv (+ i 4)) #x3f) 6)
+                 (bitwise-and (bytevector-u8-ref bv (+ i 5)) #x3f)))
+               6))
+             (else (values #f 0))))))
+
+
 
 
     (cond-expand
 
      (chicken
-      (define (binary-port->latin-1-textual-port port)
-        (let ((saw-eof #f))
-          (make-input-port
-           (lambda () ; read-char
-             (cond (saw-eof (eof-object))
-                   (else
-                    (read-latin-1-char port))))
-           (lambda () ; char-ready?
-             (cond (saw-eof #f)
-                   (else (latin-1-char-ready? port))))
-           (lambda () #t) ; close
-           (lambda () ; peek-char
-             (peek-latin-1-char port))))))
+      (define (binary-port->textual-port port) port))
 
 
      (chibi
-      ;; XXX this is currently failing on high-bit characters.
-      (define (binary-port->latin-1-textual-port port)
-        (make-custom-input-port
-         (lambda (str start end)
-           (let ((seg (read-bytevector (- end start) port)))
-             (cond ((eof-object? seg) 0)
-                   (else
-                    (let ((s (latin-1->string seg)))
-                      (let loop ((i 0))
-                        (and (< i (string-length s))
-                             (begin
-                               (string-set! str (+ i start) (string-ref s i))
-                               (loop (+ i 1)))))
-                      (bytevector-length seg)))))))))
+      (define (binary-port->textual-port port)
+        (let ((buffer (make-bytevector 6))
+              (buffer-len 0))
+          (make-custom-input-port
+           (lambda (str start end)
+             (let loop ((char-count 0)
+                        (byte-count 0))
+
+               (newline)
+               (display "start=") (write start) (newline)
+               (display "end=") (write end) (newline)
+               (display "buffer=") (write buffer) (newline)
+               (display "buffer-len=") (write buffer-len) (newline)
+               (display "char-count=") (write char-count) (newline)
+               (display "byte-count=") (write byte-count) (newline)
+
+               (if (>= (+ start char-count) end)
+                   (begin
+                     (display "reached limit, returning ")
+                     byte-count)
+                   (let ((b (read-u8 port)))
+                     (cond ((eof-object? b)
+                            (if (= buffer-len 0)
+                                (begin
+                                  (display "got eof, returning ")
+                                  (write byte-count)
+                                  (newline)
+                                  byte-count)
+                                (snow-error "trailing utf8 bytes")))
+                           ((>= buffer-len 6)
+                            (snow-error "utf8 buffer overflow"))
+                           (else
+                            (bytevector-u8-set! buffer buffer-len b)
+                            (set! buffer-len (+ buffer-len 1))
+                            (let-values (((c bytes-used)
+                                          (utf8->char buffer 0 buffer-len)))
+                              (cond (c
+                                     (display "c=") (write c) (newline)
+                                     (if (not (= buffer-len bytes-used))
+                                         (snow-error "utf8 what?"))
+                                     ;; (string-set! str (+ start char-count) c)
+
+                                     (do ((x 0 (+ x 1)))
+                                         ((= x bytes-used))
+                                       (bytevector-u8-set!
+                                        str
+                                        (+ start byte-count x)
+                                        ;; (integer->char
+                                         (bytevector-u8-ref buffer x))
+                                       ;;)
+                                       )
+
+                                     (set! buffer-len 0)
+                                     (display "looping...\n")
+                                     (loop (+ char-count 1)
+                                           (+ byte-count bytes-used)))
+                                    (else
+                                     (loop char-count byte-count))))))))))))))
+
+
 
      (gauche
-      (define (binary-port->latin-1-textual-port port)
-        (let ((saw-eof #f))
+      (define (binary-port->textual-port port)
+        (let ((buffer (make-bytevector 6))
+              (buffer-len 0))
           (make-virutal-input-port
-            ;; :getb (lambda () (read-u8 port))
-            :getc (lambda ()
-                    (cond (saw-eof (eof-object))
-                          (else
-                           (let ((c (read-latin-1-char port)))
-                             (cond ((eof-object? c) (set! saw-eof #t)))
-                             c))))
-            :ready (lambda (t-for-char-f-for-byte) (latin-1-char-ready? port))
-            :close (lambda () #t)))))
-
+           ;; :getb (lambda () (read-u8 port))
+           :getc
+           (lambda ()
+             (let loop ((char-count 0)
+                        (byte-count 0))
+               (let ((b (read-u8 port)))
+                 (cond ((eof-object? b)
+                        (if (= buffer-len 0) b
+                            (snow-error "trailing utf8 bytes")))
+                       ((>= buffer-len 6)
+                        (snow-error "utf8 buffer overflow"))
+                       (else
+                        (bytevector-u8-set! buffer buffer-len b)
+                        (set! buffer-len (+ buffer-len 1))
+                        (let-values (((c bytes-used)
+                                      (utf8->char buffer 0 buffer-len)))
+                          (cond (c
+                                 (if (not (= buffer-len bytes-used))
+                                     (snow-error "utf8 what?"))
+                                 (set! buffer-len 0)
+                                 c)
+                                (else (loop char-count byte-count)))))))))
+           :ready (lambda (t-for-char-f-for-byte)
+                    (u8-ready? port) ;; XXX this isn't right
+                    )
+           :close (lambda () #t)))))
 
      (else
       ;; for schemes with no procedural ports (sagittarius)
-      (define (binary-port->latin-1-textual-port port)
+      (define (binary-port->textual-port port)
         (let loop ((segments '()))
           (let ((seg (read-bytevector 1024 port)))
             (cond ((eof-object? seg)
                    (open-input-string
-                    (reverse-bytevector-list->latin-1-string segments)))
+                    (utf8->string
+                     (reverse-bytevector-list->bytevector segments))))
                   (else
                    (loop (cons seg segments)))))))
-
       ))
 
 
@@ -397,7 +538,7 @@
     (cond-expand
 
      (chicken
-      (define (textual-port->utf8-binary-port port)
+      (define (textual-port->binary-port port)
         (make-input-port
          (lambda () ; read-char
            (read-char port))
@@ -408,7 +549,7 @@
            (peek-char port)))))
 
      (chibi
-      (define (textual-port->utf8-binary-port port)
+      (define (textual-port->binary-port port)
         (let ((buffer '()))
           (define (get-next-byte)
             (cond ((null? buffer)
@@ -438,7 +579,7 @@
                                  (loop (+ i 1))))))))))))))
 
      (gauche
-      (define (textual-port->utf8-binary-port port)
+      (define (textual-port->binary-port port)
         (let ((saw-eof #f)
               (buffer '()))
           (make-virutal-input-port
@@ -467,7 +608,7 @@
 
      (else
       ;; for schemes with no procedural ports (sagittarius)
-      (define (textual-port->utf8-binary-port port)
+      (define (textual-port->binary-port port)
         (let loop ((segments '()))
           (let ((seg (read-string 1024 port)))
             (cond ((eof-object? seg)
@@ -475,12 +616,6 @@
                     (reverse-bytevector-list->bytevector segments)))
                   (else
                    (loop (cons (string->utf8 seg) segments)))))))))
-
-
-
-
-
-
 
 
     ))

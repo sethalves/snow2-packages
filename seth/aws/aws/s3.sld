@@ -32,6 +32,11 @@
     (define s3-namespace "http://s3.amazonaws.com/doc/2006-03-01/")
 
 
+    (define (s3-error who p)
+      (let ((data (read-all-u8 p)))
+        (snow-error who (utf8->string data))))
+
+
     (define (make-s3-uri bucket key)
       (make-uri
        'scheme 'http
@@ -43,7 +48,12 @@
     (define (make-s3-resource bucket path)
       (string-append "/"
                      (if bucket (string-append bucket "/") "")
-                     (if path path "")))
+                     ;; (if path path "")
+                     (cond ((not path) "")
+                           ((string-prefix? "/" path)
+                            (substring path 1 (string-length path)))
+                           (else path))
+                     ))
 
 
     (define (bucket-exists? credentials bucket)
@@ -116,11 +126,12 @@
                ((sxpath
                  '(x:ListAllMyBucketsResult x:Buckets x:Bucket x:Name *text*))
                 (ssax:xml->sxml
-                 (binary-port->latin-1-textual-port data)
+                 (binary-port->textual-port data)
                  `((x . ,s3-namespace))))
 
                )
-              (else #f))))
+              (else (s3-error "list-buckets" data)
+                    #f))))
 
 
     (define (list-objects credentials bucket)
@@ -142,11 +153,12 @@
                ((sxpath
                  '(x:ListBucketResult x:Contents x:Key *text*))
                 (ssax:xml->sxml
-                 (binary-port->latin-1-textual-port data)
+                 (binary-port->textual-port data)
                  `((x . ,s3-namespace))))
 
                )
-              (else #f))))
+              (else (s3-error "list-objects" data)
+                    #f))))
 
 
     (define (get-object credentials bucket key)
@@ -164,7 +176,9 @@
              '() ;; amz-headers
              )))
         (cond ((= (response-status-class status-code) 200) (read-all-u8 data))
-              (else #f))))
+              (else
+               ;; (s3-error "get-object" data)
+               #f))))
 
 
     (define (get-object-md5 credentials bucket key)
@@ -175,7 +189,7 @@
              (make-s3-uri bucket key)
              (make-s3-resource bucket key)
              "" ;; body
-             "GET" ;; verb
+             "HEAD" ;; verb
              #f ;; no-auth
              "application/x-www-form-urlencoded" ;; content-type
              0 ;; content-length
@@ -188,7 +202,9 @@
                 (string-trim-both
                  (cdr (assq 'etag headers))
                  #\")))
-              (else #f))))
+              (else
+               ;; (s3-error "get-object-md5" data)
+               #f))))
 
 
     (define (get-body-and-size body content-length)
@@ -234,7 +250,8 @@
                )))
           (cond ((= (response-status-class status-code) 200)
                  (read-all-u8 data))
-                (else #f)))))
+                (else (s3-error "put-object!" data)
+                      #f)))))
 
 
     (define (delete-object! credentials bucket key)
@@ -252,6 +269,7 @@
              '() ;; amz-headers
              )))
         (cond ((= (response-status-class status-code) 200) (read-all-u8 data))
-              (else #f))))
+              (else (s3-error "delete-object!" data)
+                    #f))))
 
     ))

@@ -1,4 +1,4 @@
-(define (main-program)
+(define (run-tests)
 
   (log-http-to-stderr #f)
 
@@ -38,3 +38,13 @@
        (not (get-object credentials "seth-aws-s3-test" "a-string")))
 
      #t)))
+
+
+(define (main-program)
+  (snow-with-exception-catcher
+   (lambda (exn)
+     (snow-display-error exn)
+     (newline)
+     )
+   (lambda ()
+     (run-tests))))

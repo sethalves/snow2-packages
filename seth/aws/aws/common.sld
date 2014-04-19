@@ -133,11 +133,15 @@
                         ))
              )
 
+        ;; (newline (current-error-port))
         ;; (display "verb=" (current-error-port))
         ;; (write verb (current-error-port))
         ;; (newline (current-error-port))
         ;; (display "uri=" (current-error-port))
         ;; (write (uri->string uri) (current-error-port))
+        ;; (newline (current-error-port))
+        ;; (display "resource=" (current-error-port))
+        ;; (write resource (current-error-port))
         ;; (newline (current-error-port))
         ;; (display "now=" (current-error-port))
         ;; (write now (current-error-port))
@@ -163,22 +167,7 @@
                 ;; (write (utf8->string (read-all-u8 body-port)))
                 ;; (newline)
                 (let ((status-class (response-status-class status-code)))
-
-                  (values status-code headers body-port)
-
-                  ;; (cond ((and (= status-class 200) no-xml)
-                  ;;        (values status-code headers body-port))
-                  ;;       ((= status-class 200)
-                  ;;        (values status-code
-                  ;;                headers
-                  ;;                ((sxpath sx-path)
-                  ;;                 (ssax:xml->sxml
-                  ;;                  (binary-port->latin-1-textual-port body-port)
-                  ;;                  ns))))
-                  ;;       (else
-                  ;;        (values status-code headers body-port)))
-
-                  ))
+                  (values status-code headers body-port)))
               headers
               (lambda (headers)
                 (cond (no-auth headers)
