@@ -426,65 +426,65 @@
       (define (binary-port->textual-port port) port))
 
 
-     (chibi
-      (define (binary-port->textual-port port)
-        (let ((buffer (make-bytevector 6))
-              (buffer-len 0))
-          (make-custom-input-port
-           (lambda (str start end)
-             (let loop ((char-count 0)
-                        (byte-count 0))
+     ;; (chibi
+     ;;  (define (binary-port->textual-port port)
+     ;;    (let ((buffer (make-bytevector 6))
+     ;;          (buffer-len 0))
+     ;;      (make-custom-input-port
+     ;;       (lambda (str start end)
+     ;;         (let loop ((char-count 0)
+     ;;                    (byte-count 0))
 
-               (newline)
-               (display "start=") (write start) (newline)
-               (display "end=") (write end) (newline)
-               (display "buffer=") (write buffer) (newline)
-               (display "buffer-len=") (write buffer-len) (newline)
-               (display "char-count=") (write char-count) (newline)
-               (display "byte-count=") (write byte-count) (newline)
+     ;;           (newline)
+     ;;           (display "start=") (write start) (newline)
+     ;;           (display "end=") (write end) (newline)
+     ;;           (display "buffer=") (write buffer) (newline)
+     ;;           (display "buffer-len=") (write buffer-len) (newline)
+     ;;           (display "char-count=") (write char-count) (newline)
+     ;;           (display "byte-count=") (write byte-count) (newline)
 
-               (if (>= (+ start char-count) end)
-                   (begin
-                     (display "reached limit, returning ")
-                     byte-count)
-                   (let ((b (read-u8 port)))
-                     (cond ((eof-object? b)
-                            (if (= buffer-len 0)
-                                (begin
-                                  (display "got eof, returning ")
-                                  (write byte-count)
-                                  (newline)
-                                  byte-count)
-                                (snow-error "trailing utf8 bytes")))
-                           ((>= buffer-len 6)
-                            (snow-error "utf8 buffer overflow"))
-                           (else
-                            (bytevector-u8-set! buffer buffer-len b)
-                            (set! buffer-len (+ buffer-len 1))
-                            (let-values (((c bytes-used)
-                                          (utf8->char buffer 0 buffer-len)))
-                              (cond (c
-                                     (display "c=") (write c) (newline)
-                                     (if (not (= buffer-len bytes-used))
-                                         (snow-error "utf8 what?"))
-                                     ;; (string-set! str (+ start char-count) c)
+     ;;           (if (>= (+ start char-count) end)
+     ;;               (begin
+     ;;                 (display "reached limit, returning ")
+     ;;                 byte-count)
+     ;;               (let ((b (read-u8 port)))
+     ;;                 (cond ((eof-object? b)
+     ;;                        (if (= buffer-len 0)
+     ;;                            (begin
+     ;;                              (display "got eof, returning ")
+     ;;                              (write byte-count)
+     ;;                              (newline)
+     ;;                              byte-count)
+     ;;                            (snow-error "trailing utf8 bytes")))
+     ;;                       ((>= buffer-len 6)
+     ;;                        (snow-error "utf8 buffer overflow"))
+     ;;                       (else
+     ;;                        (bytevector-u8-set! buffer buffer-len b)
+     ;;                        (set! buffer-len (+ buffer-len 1))
+     ;;                        (let-values (((c bytes-used)
+     ;;                                      (utf8->char buffer 0 buffer-len)))
+     ;;                          (cond (c
+     ;;                                 (display "c=") (write c) (newline)
+     ;;                                 (if (not (= buffer-len bytes-used))
+     ;;                                     (snow-error "utf8 what?"))
+     ;;                                 ;; (string-set! str (+ start char-count) c)
 
-                                     (do ((x 0 (+ x 1)))
-                                         ((= x bytes-used))
-                                       (bytevector-u8-set!
-                                        str
-                                        (+ start byte-count x)
-                                        ;; (integer->char
-                                         (bytevector-u8-ref buffer x))
-                                       ;;)
-                                       )
+     ;;                                 (do ((x 0 (+ x 1)))
+     ;;                                     ((= x bytes-used))
+     ;;                                   (bytevector-u8-set!
+     ;;                                    str
+     ;;                                    (+ start byte-count x)
+     ;;                                    ;; (integer->char
+     ;;                                     (bytevector-u8-ref buffer x))
+     ;;                                   ;;)
+     ;;                                   )
 
-                                     (set! buffer-len 0)
-                                     (display "looping...\n")
-                                     (loop (+ char-count 1)
-                                           (+ byte-count bytes-used)))
-                                    (else
-                                     (loop char-count byte-count))))))))))))))
+     ;;                                 (set! buffer-len 0)
+     ;;                                 (display "looping...\n")
+     ;;                                 (loop (+ char-count 1)
+     ;;                                       (+ byte-count bytes-used)))
+     ;;                                (else
+     ;;                                 (loop char-count byte-count))))))))))))))
 
 
 
@@ -548,35 +548,35 @@
          (lambda () ; peek-char
            (peek-char port)))))
 
-     ;; (chibi
-     ;;  (define (textual-port->binary-port port)
-     ;;    (let ((buffer '()))
-     ;;      (define (get-next-byte)
-     ;;        (cond ((null? buffer)
-     ;;               (let ((c (read-char port)))
-     ;;                 (cond ((eof-object? c) c)
-     ;;                       (else
-     ;;                        (let ((bytes (bytevector->u8-list
-     ;;                                      (string->utf8
-     ;;                                       (string c)))))
-     ;;                          (set! buffer (cdr bytes))
-     ;;                          (car bytes))))))
-     ;;              (else
-     ;;               (let ((b (car buffer)))
-     ;;                 (set! buffer (cdr buffer))
-     ;;                 b))))
+     (chibi
+      (define (textual-port->binary-port port)
+        (let ((buffer '()))
+          (define (get-next-byte)
+            (cond ((null? buffer)
+                   (let ((c (read-char port)))
+                     (cond ((eof-object? c) c)
+                           (else
+                            (let ((bytes (bytevector->u8-list
+                                          (string->utf8
+                                           (string c)))))
+                              (set! buffer (cdr bytes))
+                              (car bytes))))))
+                  (else
+                   (let ((b (car buffer)))
+                     (set! buffer (cdr buffer))
+                     b))))
 
-     ;;      (make-custom-binary-input-port
-     ;;       (lambda (bv start end)
-     ;;         (let ((len (- end start)))
-     ;;           (let loop ((i 0))
-     ;;             (cond ((= i len) i)
-     ;;                   (else
-     ;;                    (let ((b (get-next-byte)))
-     ;;                      (cond ((eof-object? b) i)
-     ;;                            (else
-     ;;                             (bytevector-u8-set! bv (+ start i) b)
-     ;;                             (loop (+ i 1))))))))))))))
+          (make-custom-binary-input-port
+           (lambda (bv start end)
+             (let ((len (- end start)))
+               (let loop ((i 0))
+                 (cond ((= i len) i)
+                       (else
+                        (let ((b (get-next-byte)))
+                          (cond ((eof-object? b) i)
+                                (else
+                                 (bytevector-u8-set! bv (+ start i) b)
+                                 (loop (+ i 1))))))))))))))
 
      (gauche
       (define (textual-port->binary-port port)

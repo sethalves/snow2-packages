@@ -78,7 +78,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
       (license lgpl/v2.1)
-      (depends (snow binio)
+      (depends (snow snowlib)
+               (snow binio)
                (snow bytevector)
                (snow srfi-60-integers-as-bits))))
   (package
