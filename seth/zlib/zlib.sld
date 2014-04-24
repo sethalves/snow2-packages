@@ -1,9 +1,10 @@
 (define-library (seth zlib)
   (export
+   ;; these handle rfc-1951, not rfc-1950
    ;; output-port->deflating-genport
    input-port->deflating-port
    input-port->inflating-port
-          )
+   )
   (import (scheme base))
   (cond-expand
    (chibi (import (snow genport)
@@ -13,22 +14,19 @@
                     (z3)
                     (snow bytevector)
                     (snow genport)
-                    (seth port-extras)
-                    ))
+                    (seth port-extras)))
    (gauche
-    ;; (import (rfc zlib))
-    (import (snow genport)
-            (snow zlib))
-    )
+    (import (rfc zlib)
+            (seth port-extras)))
    (sagittarius
-    ;; (import (rfc zlib))
-    (import (snow genport)
-            (snow zlib))
-    ))
+    (import (rfc zlib))
+    (import (seth port-extras))))
   (begin
     (cond-expand
 
      (chicken
+
+      ;; http://wiki.call-cc.org/eggref/4/z3
 
       ;; (define (reverse-string-list->string str-lst)
       ;;   ;; reverse a list of strings and combine them into
@@ -69,15 +67,27 @@
           (open-input-string (z3:decode-buffer str)))))
 
 
-     ;; Gauche and Sagittarius provide code that handles zlib file
-     ;; format (rfc 1950 -- deflate with a header and checksum) rather
-     ;; than inflate/deflate (rfc 1951)
 
-     ;; (gauche
-     ;;  (define (output-port->deflating-genport outp)
-     ;;    (open-deflating-port outp))
-     ;;  (define (input-port->inflating-port inp)
-     ;;    (open-inflating-port inp)))
+     (gauche
+     ;; http://practical-scheme.net/gauche/man/gauche-refe_158.html#Operations-on-inflating_002fdeflating-ports
+      ;; (define (output-port->deflating-genport outp)
+      ;;  (open-deflating-port outp))
+
+      (define (input-port->deflating-port inp)
+        (let* ((bv-plain (read-all-u8 inp))
+               (out (open-output-bytevector))
+               (def-port (open-deflating-port
+                          out
+                          :window-bits -15
+                          :compression-level Z_BEST_COMPRESSION)))
+          (write-bytevector bv-plain def-port)
+          (close-output-port def-port)
+          (open-input-bytevector (get-output-bytevector out))))
+
+      (define (input-port->inflating-port inp)
+        (open-inflating-port inp :window-bits -15)
+        )
+      )
 
      ;; (sagittarius
      ;;  (define (output-port->deflating-genport outp)
@@ -85,6 +95,23 @@
      ;;  (define (input-port->inflating-port inp)
      ;;    (open-inflating-input-port inp)))
 
+
+     (sagittarius
+      ;; http://ktakashi.github.io/sagittarius-ref.html#rfc.zlib
+      (define (input-port->deflating-port inp)
+        (let* ((bv-plain (read-all-u8 inp))
+               (out (open-output-bytevector))
+               (def-port (open-deflating-output-port
+                          out
+                          :window-bits -15
+                          :compression-level Z_BEST_COMPRESSION)))
+          (write-bytevector bv-plain def-port)
+          (close-output-port def-port)
+          (open-input-bytevector (get-output-bytevector out))))
+
+      (define (input-port->inflating-port inp)
+        (open-inflating-input-port inp :window-bits -15)
+        ))
 
      (else
 
