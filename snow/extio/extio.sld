@@ -8,13 +8,16 @@
           read-line
           snow-port-position
           snow-set-port-position!
+          snow-set-port-position-from-current!
+          snow-set-port-position-from-end!
           )
   (import (scheme base)
           (scheme write))
   (cond-expand
    (chibi (import (chibi io)))
    (chicken (import (only (chicken) flush-output pretty-print)
-                    (only (posix) file-position set-file-position!)
+                    (only (posix) file-position set-file-position!
+                          seek/cur seek/end)
                     (ports)))
    (gauche (import (snow gauche-extio-utils)))
    (sagittarius (import (only (rnrs) port-position set-port-position!))))
@@ -610,6 +613,7 @@
 
      (else
       ;; for schemes with no procedural ports (sagittarius)
+      ;; XXX sagittarius has make-custom-binary-input-port make-custom-textual-input-port etc
       (define (textual-port->binary-port port)
         (let loop ((segments '()))
           (let ((seg (read-string 1024 port)))
@@ -622,74 +626,46 @@
 
     (define (snow-port-position p)
       (cond-expand
-
-       (chibi
-        ;; file-position set-file-position! seek/set seek/cur seek/end
-        (file-position p))
-
-       (chicken
-        (file-position p))
-
-       (sagittarius
-        (port-position p))
-
-       (gauche
-        (port-tell p)
-        ;; (port-seek port 0 SEEK_CUR)
-        )
-
-       ))
+       (chibi (file-position p))
+       (chicken (file-position p))
+       (gauche (port-tell p))
+       (sagittarius (port-position p))))
 
 
     (define (snow-set-port-position! port pos)
       (cond-expand
+       (chibi (set-file-position! port pos seek/set))
+       (chicken (set-file-position! port pos))
+       (gauche (port-seek port pos SEEK_SET))
+       (sagittarius (set-port-position! port pos))))
 
-       (chibi
-        ;; seek/cur seek/end
-        (set-file-position! port pos seek/set))
+    (define (snow-set-port-position-from-current! port offset)
+      (cond-expand
+       (chibi (set-file-position! port offset seek/cur))
+       (chicken (set-file-position! port offset seek/cur))
+       (gauche (port-seek port offset SEEK_CUR))
+       (sagittarius (set-port-position!
+                     port (+ (port-position port) offset)))))
 
-       (chicken
-        (set-file-position! port pos))
-
-       (sagittarius
-        (set-port-position! port pos))
-
-       (gauche
-        (port-seek port pos SEEK_SET)
-        )
-
-       ))
-
-
-    ;; (cond-expand
-    ;;  ((or bigloo gambit racket)
-    ;;   (define seek/set 'SEEK_SET)
-    ;;   (define seek/delta 'SEEK_CUR)
-    ;;   (define seek/end 'SEEK_END))
-    ;;  ((or gauche guile)
-    ;;   (define seek/set SEEK_SET)
-    ;;   (define seek/delta SEEK_CUR)
-    ;;   (define seek/end SEEK_END))
-    ;;  (chicken
-    ;;   (define seek/delta seek/cur))
-    ;;  (else))
-
-    ;; (cond-expand
-    ;;  (chicken
-    ;;   (define (seek port pos how)
-    ;;     (cond
-    ;;      ((eqv? how seek/set)
-    ;;       (set! (file-position port) pos))
-    ;;      ((eqv? how seek/delta)
-    ;;       (set! (file-position port) (+ (file-position port) pos)))
-    ;;      ((eqv? how seek/end)
-    ;;       (let* ((file-name (port-name port))
-    ;;              (file-length (file-size file-name)))
-    ;;         (set! (file-position port) (+ file-length pos)))))))
-
-    ;;  (gauche
-    ;;   (define seek port-seek))
-
-    ;;  )
+    (define (snow-set-port-position-from-end! port offset)
+      (let ((offset (if (< offset 0) offset (- offset))))
+        (cond-expand
+         (chibi (set-file-position! port offset seek/end))
+         (chicken (set-file-position! port offset seek/end))
+         (gauche (port-seek port offset SEEK_END))
+         (sagittarius
+          ;; XXX is there a better way?
+          (cond ((textual-port? port)
+                 (let loop ()
+                   (let ((c (read-char port)))
+                     (if (eof-object? c) #t
+                         (loop)))))
+                (else
+                 (let loop ()
+                   (let ((c (read-u8 port)))
+                     (if (eof-object? c) #t
+                         (loop))))))
+          (set-port-position!
+           port (+ (port-position port) offset))))))
 
     ))

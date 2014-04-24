@@ -7,6 +7,8 @@
           port-tell
           port-seek
           SEEK_SET
+          SEEK_CUR
+          SEEK_END
           )
   ;; (use gauche.net)
 
