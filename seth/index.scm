@@ -1,6 +1,6 @@
 (repository
   (sibling
-    (name "Snow Base Repository")
+    (name "Seth Repository")
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/")
     (trust 1.0))
 (package
@@ -536,7 +536,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "zlib")
       (license BSD-style)
-      (depends (snow zlib)
+      (depends (snow genport)
+               (snow zlib)
                )
       ))
 )

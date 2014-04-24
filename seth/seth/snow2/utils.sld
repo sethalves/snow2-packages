@@ -8,7 +8,9 @@
           get-snow2-repo-name
           find-package-with-library
           find-packages-with-libraries
-          gather-depends)
+          gather-depends
+          package-from-sexp
+          get-library-manifest)
 
   (import (scheme base)
           (scheme read)
@@ -291,7 +293,7 @@
              (let* ((index-path (snow-make-filename
                                  (uri->string repository-url)
                                  "index.scm"))
-                    (in-port (open-input-file index-path))
+                    (in-port (open-binary-input-file index-path))
                     (repository (read-repository in-port)))
                (set-snow2-repository-local! repository #t)
                (set-snow2-repository-url! repository repository-url)
@@ -325,6 +327,12 @@
                             (get-repositories-and-siblings
                              repositories (cdr repository-urls))))))))))
 
+
+
+    (define (get-library-manifest lib)
+      ;; return a list of source files for a package
+      (list
+       (snow2-library-path lib)))
 
 
 

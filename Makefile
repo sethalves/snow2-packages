@@ -12,51 +12,53 @@ clean: seth-clean snow-clean
 
 #####################################
 
-SETH_PACKAGES=$(shell \
-ls seth | while read I; \
-do \
-	if [ -f seth/$$I/$$I.package ]; \
-	then \
-		echo $$I; \
-	fi; \
-done)
+# SETH_PACKAGES=$(shell \
+# ls seth/packages | while read I; \
+# do \
+# 	echo `basename $$I .package` \
+# done)
 
 seth-all:
-	for PKG in $(SETH_PACKAGES) ; do \
-		(cd seth/$$PKG && make all); \
-	done
+#	for PKG in $(SETH_PACKAGES) ; do \
+#		(cd seth/$$PKG && make all); \
+#	done
 
 
 seth-package: seth-index
-	for PKG in $(SETH_PACKAGES) ; do \
-		(cd seth/$$PKG && make package); \
-	done
+
+
+#	for PKG in $(SETH_PACKAGES) ; do \
+#		(cd seth/$$PKG && make package); \
+#	done
 
 
 seth-dist: seth-index
-	for PKG in $(SETH_PACKAGES) ; do \
-		(cd seth/$$PKG && make dist); \
-	done
-	(cd seth && ../upload-to-repo seth index.scm)
+
+#	for PKG in $(SETH_PACKAGES) ; do \
+#		(cd seth/$$PKG && make dist); \
+#	done
+#	(cd seth && ../upload-to-repo seth index.scm)
 
 
 seth-clean:
-	rm -f *~ */*~
-	for PKG in $(SETH_PACKAGES) ; do \
-		(cd seth/$$PKG && make clean); \
+	rm -f *~ */*~ */*/*~ */*/*/*~
+	ls seth/tests | while read I ; do \
+		(cd seth/tests/$$I && make clean) \
 	done
+
+#	for PKG in $(SETH_PACKAGES) ; do \
+#		(cd seth/$$PKG && make clean); \
+#	done
 
 
 seth-index:
 	rm -f seth/index.scm
 	echo '(repository' >> seth/index.scm; \
 	echo '  (sibling' >> seth/index.scm; \
-	echo '    (name "Snow Base Repository")' >> seth/index.scm; \
+	echo '    (name "Seth Repository")' >> seth/index.scm; \
 	echo '    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/")' >> seth/index.scm; \
 	echo '    (trust 1.0))' >> seth/index.scm; \
-	for PKG in $(SETH_PACKAGES) ; do \
-		cat seth/$$PKG/$$PKG.package >> seth/index.scm; \
-	done; \
+	cat seth/packages/*.package >> seth/index.scm
 	echo ')'  >> seth/index.scm
 
 
