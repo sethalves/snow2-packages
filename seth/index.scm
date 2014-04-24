@@ -525,4 +525,18 @@
        (snow srfi-13-strings)
        (snow input-parse)
        )))
+  (package
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/zlib.tgz")
+    (library
+      (name (seth zlib))
+      (path "seth/zlib.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "zlib")
+      (license BSD-style)
+      (depends (snow zlib)
+               )
+      ))
 )
