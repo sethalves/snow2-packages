@@ -4,6 +4,9 @@
   (use gauche.vport)
   (export snow-force-output
           make-virutal-input-port
+          port-tell
+          port-seek
+          SEEK_SET
           )
   ;; (use gauche.net)
 

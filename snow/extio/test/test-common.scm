@@ -33,13 +33,13 @@
       (eof-object? (read-u8 p-del))))
 
 
-   (snow-with-exception-catcher
-    (lambda (exn)
-      ;; (write exn (current-error-port))
-      (snow-display-error exn)
-      (newline)
-      )
-     (lambda ()
+;   (snow-with-exception-catcher
+;    (lambda (exn)
+;      ;; (write exn (current-error-port))
+;      (snow-display-error exn)
+;      (newline)
+;      )
+;     (lambda ()
 
    (let* ((data-str (string-append
                      "blah blah blah"
@@ -54,16 +54,16 @@
           (p-txt (binary-port->textual-port p-bin))
           (new-str (read-string 20 p-txt)))
 
-     (display "data-str=")
-     (write data-str)
-     (newline)
-     (display " new-str=")
-     (write new-str)
-     (newline)
+     ;; (display "data-str=")
+     ;; (write data-str)
+     ;; (newline)
+     ;; (display " new-str=")
+     ;; (write new-str)
+     ;; (newline)
 
      (equal? data-str new-str))
 
-   ))
+;   ))
 
 
 
@@ -98,10 +98,40 @@
           (data-str-bv (string->utf8 data-str))
           )
      ;; (equal? data-str data-str-from-bv)
-     (write data-bv) (newline) (newline)
-     (write data-str-bv) (newline)
+     ;; (write data-bv) (newline) (newline)
+     ;; (write data-str-bv) (newline)
 
      (equal? data-bv data-str-bv)
      )
+
+
+   (let* ((p (open-binary-input-file "Makefile"))
+          (t0 (snow-port-position p)))
+     (read-u8 p)
+     (let ((t1 (snow-port-position p)))
+       (read-u8 p)
+       (let ((t2 (snow-port-position p)))
+         (close-input-port p)
+         (and (= t0 0)
+              (= t1 1)
+              (= t2 2)))))
+
+
+   (let* ((p (open-binary-input-file "Makefile"))
+          (t0 (snow-port-position p)))
+     (snow-set-port-position! p 15)
+     (let ((t1 (snow-port-position p)))
+       (read-u8 p)
+       (snow-set-port-position! p 5)
+       (let ((t2 (snow-port-position p)))
+         (snow-set-port-position! p 0)
+         (let ((t3 (snow-port-position p)))
+           (close-input-port p)
+           ;; (display (list t0 t1 t2 t3)) (newline)
+           (and (= t0 0)
+                (= t1 15)
+                (= t2 5)
+                (= t3 0)
+                )))))
 
    #t))

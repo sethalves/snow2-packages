@@ -13,6 +13,7 @@ exec csi -s $0 "$@"
 (include "snow/extio.sld")
 (import (scheme base)
         (scheme read)
+        (scheme file)
         (snow bytevector)
         (snow extio))
 
