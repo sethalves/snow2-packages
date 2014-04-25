@@ -246,7 +246,7 @@
                #f ;; no-auth
                content-type ;; content-type
                content-length ;; content-length
-               (if acl `((x-amz-acl . ,acl)) '()) ;; amz-headers
+               (if acl `(("x-amz-acl" . ,acl)) '()) ;; amz-headers
                )))
           (cond ((= (response-status-class status-code) 200)
                  (read-all-u8 data))
