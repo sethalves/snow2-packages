@@ -6,6 +6,8 @@
           credentials-secret-access-key
           make-path
           perform-aws-request
+          uri->bucket
+          get-credentials-for-s3-bucket
           )
 
   (import (scheme base)
@@ -28,6 +30,14 @@
           (prefix (seth base64) base64-)
           )
 
+  (cond-expand
+   (chibi (import (chibi char-set)))
+   (chicken (import (srfi 14)))
+   (gauche (import (srfi 14)))
+   (sagittarius (import (srfi 14)))
+   (else))
+
+
   (begin
 
     ;; http://docs.aws.amazon.com/AmazonS3/latest/API/sig-v4-authenticating-requests.html
@@ -48,6 +58,10 @@
         (make-credentials
          (substring creds-line0 15 (string-length creds-line0))
          (substring creds-line1 13 (string-length creds-line1)))))
+
+    (define (get-credentials-for-s3-bucket bucket)
+      ;; XXX look at environment variables
+      (read-credentials (string-append "/etc/aws/s3-" bucket)))
 
 
     (define (make-path key)
@@ -177,5 +191,17 @@
                        (cons (aws-auth-header now) headers)
                        )))
               )))
+
+
+    (define (uri->bucket uri)
+      (let* ((uri (if (uri? uri) uri (uri-reference uri)))
+             (host (uri-host uri))
+             (cs (char-set-complement (string->char-set ".")))
+             (host-parts (string-tokenize host cs))
+             )
+        (cond ((not (= (length host-parts) 4)) #f)
+              ((not (equal? (list-ref host-parts 2) "amazonaws")) #f)
+              ((not (equal? (list-ref host-parts 3) "com")) #f)
+              (else (car host-parts)))))
 
     ))
