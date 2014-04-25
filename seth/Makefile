@@ -5,16 +5,10 @@
 all:
 
 package: index
-	ls packages | while read I ; do \
-		snow2 -s -r . package packages/$$I; \
-	done
+	snow2 -r . package packages/*.package
 
-
-upload: package
-	ls packages | while read I ; do \
-		snow2 -s -r . upload packages/$$I; \
-	done
-
+upload:
+	snow2 -r . s3-upload packages/*.package
 
 clean:
 	rm -f *~ */*~ */*/*~ */*/*/*~

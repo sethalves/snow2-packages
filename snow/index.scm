@@ -1,4 +1,8 @@
 (repository
+  (sibling
+    (name "Snow Repository")
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/")
+    (trust 1.0))
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/assert.tgz")
     (library
@@ -36,17 +40,26 @@
                (snow bytevector)
                (snow binio))
       (license lgpl/v2.1)))
-  (package
-    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
-    (library
-      (name (snow bytevector))
-      (path "snow/bytevector.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Seth Alves <seth@hungry.com>")
-      (description "bytevector compatibility layer")
-      (license lgpl/v2.1)))
+(package
+ (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
+ (library
+  (name (snow bytevector))
+  (path "snow/bytevector.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "bytevector compatibility layer")
+  (license bsd))
+ (library
+  (name (snow gauche-bv-string-utils))
+  (path "snow/gauche-bv-string-utils.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "bytevector compatibility layer")
+  (license bsd)))
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/digest.tgz")
     (library
@@ -81,6 +94,19 @@
       (depends (snow snowlib)
                (snow binio)
                (snow bytevector)
+               (snow srfi-60-integers-as-bits)))
+    (library
+      (name (snow gauche-extio-utils))
+      (path "snow/gauche-extio-utils.sld")
+      (version "1.0.3")
+      (homepage "http://snow.iro.umontreal.ca")
+      (maintainers "Seth Alves <alves@hungry.com>")
+      (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+      (description "Extended I/O." i/o snow)
+      (license lgpl/v2.1)
+      (depends (snow snowlib)
+               (snow binio)
+               (snow bytevector)
                (snow srfi-60-integers-as-bits))))
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
@@ -93,22 +119,42 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "File system access." os snow)
       (license lgpl/v2.1)
-      (depends (snow random) (snow srfi-13-strings))))
-  (package
-    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/genport.tgz")
+      (depends (snow random) (snow srfi-13-strings)))
     (library
-      (name (snow genport))
-      (path "snow/genport.sld")
-      (version "1.0.1")
+      (name (snow gauche-filesys-utils))
+      (path "snow/gauche-filesys-utils.sld")
+      (version "1.0.4")
       (homepage "http://snow.iro.umontreal.ca")
       (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-      (description "Generic ports." i/o snow)
+      (description "File system access." os snow)
       (license lgpl/v2.1)
-      (depends (snow binio)
-               (snow filesys)
-               (snow bytevector)
-               )))
+      (depends (snow random) (snow srfi-13-strings))))
+(package
+ (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/genport.tgz")
+ (library
+  (name (snow genport))
+  (path "snow/genport.sld")
+  (version "1.0.1")
+  (homepage "http://snow.iro.umontreal.ca")
+  (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+  (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+  (description "Generic ports." i/o snow)
+  (license lgpl/v2.1)
+  (depends (snow binio)
+           (snow filesys)
+           (snow bytevector)
+           ))
+ (library
+  (name (snow gauche-genport-utils.))
+  (path "snow/gauche-genport-utils.sld")
+  (version "1.0")
+  (homepage "http://snow.iro.umontreal.ca")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "Generic ports." i/o snow)
+  (license lgpl/v2.1)
+  ))
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/hello.tgz")
     (library
@@ -245,6 +291,17 @@
       (authors "Aubrey Jaffer"
                "Richard A. O'Keefe"
                "D.H.D. Warren")
+      (description "Sorting and Merging")
+      (license public-domain)
+      (depends (snow bytevector))
+      )
+    (library
+      (name (snow gauche-sort-utils))
+      (path "snow/gauche-sort-utils.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
       (description "Sorting and Merging")
       (license public-domain)
       (depends (snow bytevector))

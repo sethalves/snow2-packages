@@ -10,7 +10,9 @@
           find-packages-with-libraries
           gather-depends
           package-from-sexp
-          get-library-manifest)
+          package-from-filename
+          get-library-manifest
+          repository->sexp)
 
   (import (scheme base)
           (scheme read)
@@ -42,6 +44,8 @@
       ;; depend-sexp will be a library name, like (snow snowlib)
       depend-sexp)
 
+    (define (depend->sexp depend)
+      depend)
 
     (define (sibling-from-sexp sibling-sexp)
       ;; siblings look like
@@ -57,6 +61,12 @@
             (trust (get-number-by-type sibling-sexp 'trust 0.5)))
         (make-snow2-sibling name (uri-reference url) trust)))
 
+    (define (sibling->sexp sibling)
+      `(sibling
+        (name ,(snow2-sibling-name sibling))
+        (url ,(uri->string (snow2-sibling-url sibling)))
+        (trust ,(snow2-sibling-trust sibling))))
+
 
     (define (library-from-sexp library-sexp)
       ;; convert an s-exp into a library record
@@ -68,6 +78,16 @@
               (else
                (make-snow2-library
                 name path (map depend-from-sexp depends-sexps) #f)))))
+
+    (define (library->sexp library)
+      `(library
+        (name ,(snow2-library-name library))
+        (path ,(snow2-library-path library))
+        ;; (version ,(snow2-library-version library))
+        ;; (homepage ,(snow2-library-version library))
+        (depends ,@(map depend->sexp (snow2-library-depends library)))
+        ;; ... XXX
+        ))
 
 
     (define (package-from-sexp package-sexp)
@@ -87,6 +107,21 @@
                     (set-snow2-library-package! library package))
                   libraries)
                  package)))))
+
+    (define (package->sexp package)
+      `(package
+        (name ,(snow2-package-name package))
+        (url ,(uri->string (snow2-package-url package)))
+        ,@(map library->sexp (snow2-package-libraries package))
+        ))
+
+
+    (define (package-from-filename package-filename)
+      (let* ((package-port (open-input-file package-filename))
+             (package-sexp (read package-port))
+             (package (package-from-sexp package-sexp)))
+        (close-input-port package-port)
+        package))
 
 
     (define (repository-from-sexp repository-sexp)
@@ -111,6 +146,13 @@
                   (set-snow2-package-repository! package repo))
                 packages)
                repo))))
+
+
+    (define (repository->sexp repository)
+      `(repository
+        ,@(map sibling->sexp (snow2-repository-siblings repository))
+        ,@(map package->sexp (snow2-repository-packages repository))
+        ))
 
 
     (define (read-repository in-port)
@@ -289,16 +331,26 @@
                   (set-snow2-repository-url! repository repository-url)
                   repository))))
             (else
-             ;; read from local filesystem
-             (let* ((index-path (snow-make-filename
-                                 (uri->string repository-url)
-                                 "index.scm"))
-                    (in-port (open-binary-input-file index-path))
-                    (repository (read-repository in-port)))
-               (set-snow2-repository-local! repository #t)
-               (set-snow2-repository-url! repository repository-url)
-               (close-input-port in-port)
-               repository))))
+             ;; read from local filesystem repository
+             (let* ((repo-dirname (uri->string repository-url))
+                    (tests-dirname (snow-make-filename repo-dirname "tests"))
+                    (packages-dirname
+                     (snow-make-filename repo-dirname "packages"))
+                    (index-filename
+                     (snow-make-filename repo-dirname "index.scm"))
+                    )
+               (cond ((or (not (snow-file-exists? tests-dirname))
+                          (not (snow-file-directory? tests-dirname))
+                          (not (file-exists? packages-dirname))
+                          (not (snow-file-directory? packages-dirname)))
+                      #f)
+                     (else
+                      (let* ((in-port (open-binary-input-file index-filename))
+                             (repository (read-repository in-port)))
+                        (set-snow2-repository-local! repository #t)
+                        (set-snow2-repository-url! repository repository-url)
+                        (close-input-port in-port)
+                        repository)))))))
 
 
     (define (get-repositories-and-siblings repositories repository-urls)
@@ -333,7 +385,6 @@
       ;; return a list of source files for a package
       (list
        (snow2-library-path lib)))
-
 
 
     ))

@@ -387,11 +387,17 @@
                  (let ((repositories (get-repositories-and-siblings
                                       '() repository-urls)))
                    (search-for-libraries repositories args)))
-                ;; tar up a package
+                ;; tar up and gzip a package
                 ((member operation '("package"))
                  (let ((repositories (get-repositories-and-siblings
                                       '() repository-urls)))
                    (make-package-archives repositories args)))
+                ;; upload a tgz package file
+                ((member operation '("s3-upload"))
+                 (let ((repositories (get-repositories-and-siblings
+                                      '() repository-urls))
+                       (credentials #f))
+                   (upload-packages-to-s3 credentials repositories args)))
                 ;; other operations
                 ((not (member operation '("link-install"
                                           "install"

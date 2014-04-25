@@ -22,7 +22,6 @@
           snow2-library-path set-snow2-library-path!
           snow2-library-depends set-snow2-library-depends!
           snow2-library-package set-snow2-library-package!
-          ;; get-tag
           get-children-by-type
           get-child-by-type
           get-string-by-type
@@ -33,8 +32,7 @@
           )
 
 
-  (import (scheme base)
-          )
+  (import (scheme base))
   (cond-expand
    (chibi (import (only (srfi 1) filter make-list any fold)))
    (else (import (srfi 1))))
