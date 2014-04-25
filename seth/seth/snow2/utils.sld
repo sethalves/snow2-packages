@@ -12,7 +12,13 @@
           package-from-sexp
           package-from-filename
           get-library-manifest
-          repository->sexp)
+
+          depend->sexp
+          sibling->sexp
+          library->sexp
+          package->sexp
+          repository->sexp
+          refresh-package-from-filename)
 
   (import (scheme base)
           (scheme read)
@@ -72,21 +78,47 @@
       ;; convert an s-exp into a library record
       (let ((name (get-list-by-type library-sexp 'name #f))
             (path (get-string-by-type library-sexp 'path #f))
-            (depends-sexps (get-multi-args-by-type library-sexp 'depends '())))
+            (depends-sexps (get-multi-args-by-type library-sexp 'depends '()))
+            (version (get-string-by-type library-sexp 'version "1.0"))
+            (homepage (get-args-by-type library-sexp 'homepage '()))
+            (maintainers (get-args-by-type library-sexp 'maintainers '()))
+            (authors (get-args-by-type library-sexp 'authors '()))
+            (description (get-args-by-type library-sexp 'description '()))
+            (license (get-args-by-type library-sexp 'license '()))
+            )
+
+        ;; (define (delist what)
+        ;;   (cond ((and (list? what)
+        ;;               (= (length what) 1))
+        ;;          (delist (car what)))
+        ;;         (else
+        ;;          (list what))))
+
         (cond ((not name) #f)
               ((not path) #f)
               (else
                (make-snow2-library
-                name path (map depend-from-sexp depends-sexps) #f)))))
+                name path
+                (map depend-from-sexp depends-sexps)
+                version
+                homepage
+                maintainers
+                authors
+                description
+                license
+                #f)))))
 
     (define (library->sexp library)
       `(library
         (name ,(snow2-library-name library))
         (path ,(snow2-library-path library))
-        ;; (version ,(snow2-library-version library))
-        ;; (homepage ,(snow2-library-version library))
+        (version ,(snow2-library-version library))
+        (homepage ,@(snow2-library-homepage library))
+        (maintainers ,@(snow2-library-maintainers library))
+        (authors ,@(snow2-library-authors library))
+        (description ,@(snow2-library-description library))
+        (license ,@(snow2-library-license library))
         (depends ,@(map depend->sexp (snow2-library-depends library)))
-        ;; ... XXX
         ))
 
 
@@ -385,6 +417,26 @@
       ;; return a list of source files for a package
       (list
        (snow2-library-path lib)))
+
+
+    (define (refresh-package-from-filename repository package-filename)
+      ;; read a file that contains a package s-exp and update the copy
+      ;; in repository.
+      (let ((updated-package (package-from-filename package-filename)))
+        (let loop ((repo-packages (snow2-repository-packages repository)))
+          (cond ((null? repo-packages) #f)
+                (else
+                 (let ((repo-package (car repo-packages)))
+                   (cond ((and (equal? (snow2-package-name repo-package)
+                                       (snow2-package-name updated-package))
+                               (equal? (snow2-package-url repo-package)
+                                       (snow2-package-url updated-package)))
+                          (set-snow2-package-libraries!
+                           repo-package
+                           (snow2-package-libraries updated-package))
+                          repo-package)
+                         (else
+                          (loop (cdr repo-packages))))))))))
 
 
     ))

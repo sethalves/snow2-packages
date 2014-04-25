@@ -62,6 +62,33 @@
             (close-output-port out-p)))))
 
 
+    (define (conditional-put-object! credentials bucket s3-path local-filename)
+      (let ((local-md5 (filename->md5 local-filename))
+            (local-p (open-binary-input-file local-filename))
+            (md5-on-s3 (get-object-md5 credentials bucket s3-path)))
+
+        ;; (display "local-md5=") (write local-md5) (newline)
+        ;; (display "md5-on-s3=") (write md5-on-s3) (newline)
+
+        (cond ((equal? md5-on-s3 local-md5)
+               (display "[")
+               (write local-filename)
+               (display " unchanged]\n"))
+              (else
+               (display "[")
+               (write local-filename)
+               (display " --> s3:")
+               (display bucket)
+               (display s3-path)
+               (display "]")
+               (newline)
+               (put-object! credentials bucket s3-path local-p
+                            #f ;; (snow-file-size local-filename)
+                            "application/octet-stream"
+                            'public-read)
+               (close-input-port local-p)))))
+
+
     (define (upload-package-to-s3 credentials local-repository package)
       (let* ((repo-path (uri-path (snow2-repository-url local-repository)))
              (url (snow2-package-url package))
@@ -75,35 +102,10 @@
              (bucket (uri->bucket url))
              (s3-path (uri->path-string url))
              (credentials (if credentials credentials
-                              (get-credentials-for-s3-bucket bucket)))
-             (package-md5 (filename->md5 local-package-filename))
-             (md5-on-s3 (get-object-md5 credentials bucket s3-path))
-             )
-        (cond ((equal? md5-on-s3 package-md5)
-               (write local-package-filename)
-               (display " unchanged\n"))
-              (else
-               (write md5-on-s3)
-               (display " ")
-               (write package-md5)
-               (newline)
-
-               (write local-package-filename)
-               (display " --> ")
-               (write (uri->string url))
-               (newline)
-
-               ;; (display "bucket=")
-               ;; (write (uri->bucket url))
-               ;; (newline)
-
-               ;; (display "bucket path=")
-               ;; (write s3-path)
-               ;; (newline)
-
-               (put-object! credentials bucket s3-path local-package-port)
-               (close-input-port local-package-port)
-               ))))
+                              (get-credentials-for-s3-bucket bucket))))
+        (conditional-put-object!
+         credentials bucket s3-path local-package-filename)
+        (close-input-port local-package-port)))
 
 
     (define (find-implied-local-repository)
@@ -219,18 +221,32 @@
                  (cond ((pair? package-files) package-files)
                        (else (find-implied-local-package-files
                               local-repository))))
+                (repo-path (uri-path (snow2-repository-url local-repository)))
+                (index-filename (snow-combine-filename-parts
+                                 (append repo-path (list "index.scm"))))
                 (package-files
-                 (resolve-package-files local-repository package-files)))
-           (map
-            (lambda (package-filename)
-              (display "operating on package: ")
-              (write package-filename)
-              (newline)
-              ;; (op local-repository (package-from-filename package-filename))
-              (snow-pretty-print (repository->sexp local-repository))
-              (newline)
-              )
-            package-files)))))
+                 (resolve-package-files local-repository package-files))
+                (result
+                 (map
+                  (lambda (package-filename)
+                    (display "operating on package: ")
+                    (write package-filename)
+                    (newline)
+                    (let* ((package
+                            ;; (package-from-filename package-filename)
+                            (refresh-package-from-filename
+                             local-repository package-filename))
+                           (result (op local-repository package)))
+                      ;; rewrite package file to sync any changes
+                      (let ((p (open-output-file package-filename)))
+                        (snow-pretty-print (package->sexp package) p)
+                        (close-output-port p))
+                      result))
+                  package-files)))
+           (let ((p (open-output-file index-filename)))
+             (snow-pretty-print (repository->sexp local-repository) p)
+             (close-output-port p))
+           result))))
 
 
     (define (make-package-archives repositories package-files)
@@ -239,11 +255,42 @@
        (lambda (local-repository package)
          (make-package-archive local-repository package))))
 
+    (define (list-replace-last lst new-elt)
+      (reverse (cons new-elt (cdr (reverse lst)))))
+
 
     (define (upload-packages-to-s3 credentials repositories package-files)
       (local-packages-operation
        repositories package-files
        (lambda (local-repository package)
-         (upload-package-to-s3 credentials local-repository package))))
+         (upload-package-to-s3 credentials local-repository package)
+         (let* ((package-uri (snow2-package-url package))
+                (package-path (uri-path package-uri))
+                (index-path (list-replace-last package-path "index.scm"))
+                (index-uri (update-uri package-uri 'path index-path))
+                (index-bucket (uri->bucket index-uri))
+                (index-s3-path (uri->path-string index-uri))
+                (repo-path (uri-path (snow2-repository-url local-repository)))
+                (index-filename (snow-combine-filename-parts
+                                 (append repo-path (list "index.scm"))))
+                (credentials (if credentials credentials
+                                 (get-credentials-for-s3-bucket index-bucket)))
+                )
+           ;; (display "index-filename=")
+           ;; (write index-filename)
+           ;; (newline)
+           ;; (display "index-uri=")
+           ;; (write (uri->string index-uri))
+           ;; (newline)
+           ;; (display "index-bucket=")
+           ;; (write index-bucket)
+           ;; (newline)
+           ;; (display "index-s3-path=")
+           ;; (write index-s3-path)
+           ;; (newline)
 
+           (conditional-put-object! credentials index-bucket
+                                    index-s3-path index-filename)
+           )
+         )))
     ))

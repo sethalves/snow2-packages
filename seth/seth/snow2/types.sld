@@ -5,23 +5,33 @@
           snow2-repository-packages set-snow2-repository-packages!
           snow2-repository-local set-snow2-repository-local!
           snow2-repository-url set-snow2-repository-url!
+
           make-snow2-sibling
           snow2-sibling?
           snow2-sibling-name set-snow2-sibling-name!
           snow2-sibling-url set-snow2-sibling-url!
           snow2-sibling-trust set-snow2-sibling-trust!
+
           make-snow2-package
           snow2-package?
           snow2-package-name set-snow2-package-name!
           snow2-package-url set-snow2-package-url!
           snow2-package-libraries set-snow2-package-libraries!
           snow2-package-repository set-snow2-package-repository!
+
           make-snow2-library
           snow2-library?
           snow2-library-name set-snow2-library-name!
           snow2-library-path set-snow2-library-path!
           snow2-library-depends set-snow2-library-depends!
+          snow2-library-version set-snow2-library-version!
+          snow2-library-homepage set-snow2-library-homepage!
+          snow2-library-maintainers set-snow2-library-maintainers!
+          snow2-library-authors set-snow2-library-authors!
+          snow2-library-description set-snow2-library-description!
+          snow2-library-license set-snow2-library-license!
           snow2-library-package set-snow2-library-package!
+
           get-children-by-type
           get-child-by-type
           get-string-by-type
@@ -65,11 +75,18 @@
 
 
     (define-record-type <snow2-library>
-      (make-snow2-library name path depends package)
+      (make-snow2-library name path depends version homepage
+                          maintainers authors description license package)
       snow2-library?
       (name snow2-library-name set-snow2-library-name!)
       (path snow2-library-path set-snow2-library-path!)
       (depends snow2-library-depends set-snow2-library-depends!)
+      (version snow2-library-version set-snow2-library-version!)
+      (homepage snow2-library-homepage set-snow2-library-homepage!)
+      (maintainers snow2-library-maintainers set-snow2-library-maintainers!)
+      (authors snow2-library-authors set-snow2-library-authors!)
+      (description snow2-library-description set-snow2-library-description!)
+      (license snow2-library-license set-snow2-library-license!)
       (package snow2-library-package set-snow2-library-package!))
 
     (define (get-tag child)

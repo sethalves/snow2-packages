@@ -393,7 +393,7 @@
                                       '() repository-urls)))
                    (make-package-archives repositories args)))
                 ;; upload a tgz package file
-                ((member operation '("s3-upload"))
+                ((member operation '("s3-upload" "upload-s3" "upload"))
                  (let ((repositories (get-repositories-and-siblings
                                       '() repository-urls))
                        (credentials #f))
