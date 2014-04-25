@@ -1,6 +1,8 @@
 (define-library (seth crypt md5)
-  (export md5)
+  (export md5
+          filename->md5)
   (import (scheme base)
+          (scheme file)
           (scheme write)
           (snow bytevector))
 
@@ -450,4 +452,12 @@
 ;; C is given in the appendix.
 
 
-  ))))
+))
+
+(define (filename->md5 filename)
+  (let* ((p (open-binary-input-file filename))
+         (result (md5 p)))
+    (close-input-port p)
+    result))
+
+))
