@@ -398,6 +398,11 @@
                                       '() repository-urls))
                        (credentials #f))
                    (upload-packages-to-s3 credentials repositories args)))
+                ((member operation '("check" "lint"))
+                 (let ((repositories (get-repositories-and-siblings
+                                      '() repository-urls))
+                       (credentials #f))
+                   (check-packages credentials repositories args)))
                 ;; other operations
                 ((not (member operation '("link-install"
                                           "install"

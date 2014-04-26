@@ -1,17 +1,22 @@
 (define-library (seth snow2 manage)
   (export make-package-archives
           upload-packages-to-s3
+          check-packages
           )
 
   (import (scheme base)
           (scheme read)
           (scheme write)
           (scheme file)
+          (scheme time)
           (scheme process-context))
   (cond-expand
-   (chibi (import (only (srfi 1) filter make-list any fold last)))
+   (chibi (import (only (srfi 1) filter make-list any
+                        fold last lset-difference delete-duplicates
+                        drop-right)))
    (else (import (srfi 1))))
-  (import (snow tar)
+  (import (snow snowlib)
+          (snow tar)
           (snow zlib)
           (snow filesys)
           (snow srfi-13-strings)
@@ -25,27 +30,79 @@
 
   (begin
 
+
+
     (define (make-package-archive local-repository package)
       (let* ((repo-path (uri-path (snow2-repository-url local-repository))))
+
         (define (lib-file->tar-recs lib-filename)
+          ;; create a tar-rec for a file
           (let* ((lib-rel-path (snow-split-filename lib-filename))
                  (lib-full-path (append repo-path lib-rel-path))
                  (lib-full-filename (snow-combine-filename-parts lib-full-path))
                  (tar-recs (tar-read-file lib-full-filename)))
-            (if (not (= (length tar-recs) 1))
-                (error "unexpected tar-rec count" lib-filename tar-recs))
+            (cond ((not (= (length tar-recs) 1))
+                   (error "unexpected tar-rec count" lib-filename tar-recs)))
             (tar-rec-name-set! (car tar-recs) lib-filename)
-            tar-recs))
+            (car tar-recs)))
+
+        (define (lib-dir->tar-recs lib-dirname)
+          ;; create a tar-rec for a directory
+          (let* ((lib-rel-path (snow-split-filename lib-dirname))
+                 (tar-rec
+                  (make-tar-rec
+                   (snow-combine-filename-parts
+                    (append lib-rel-path (list "")))
+                   493 ;; mode
+                   0 ;; uid
+                   0 ;; gid
+                   (exact (floor (current-second))) ;; mtime
+                   'directory
+                   "" ;; linkname
+                   "root" ;; uname
+                   "root" ;; gname
+                   0 ;; devmajor
+                   0 ;; devminor
+                   #f ;; atime
+                   #f ;; ctime
+                   (make-bytevector 0))))
+            (list tar-rec)))
+
+        (define (file->directories filename)
+          ;; given a relative filename, return a list of directory
+          ;; paths.  if filename is "a/b/c", return '("a/" "a/b/")
+          (let loop ((parts (drop-right (snow-split-filename filename) 1))
+                     (result '()))
+            (cond ((null? parts)
+                   (map snow-combine-filename-parts result))
+                  (else
+                   (loop (drop-right parts 1)
+                         (cons parts result))))))
+
+        (define (manifest->directories manifest)
+          ;; product a list of directories needed in order to hold
+          ;; all the files listed in manifest.
+          (delete-duplicates
+           (fold append '() (map file->directories manifest))
+           equal?))
 
         (let* ((libraries (snow2-package-libraries package))
+               ;; get a list of filenames for all libraries in the package
                (manifest (fold append '() (map get-library-manifest libraries)))
-               (tar-recs (fold append '() (map lib-file->tar-recs manifest)))
-               (url (snow2-package-url package))
-               (local-package-path (reverse
-                                     (cons (last (uri-path url))
-                                           (reverse repo-path))))
-               (local-package-filename (snow-combine-filename-parts
-                                        local-package-path)))
+               ;; get a list of directories needed to hold the library files
+               (dirs (manifest->directories manifest))
+               ;; make tar records for the directories
+               (dir-tar-recs (fold append '() (map lib-dir->tar-recs dirs)))
+               ;; make tar records for the files
+               (file-tar-recs (map lib-file->tar-recs manifest))
+               ;; combine them
+               (all-tar-recs (append dir-tar-recs file-tar-recs))
+               ;; figure out the name of the tgz file within the local repo
+               (package-url (snow2-package-url package))
+               (package-filename (last (uri-path package-url)))
+               (local-package-path (append repo-path (list package-filename)))
+               (local-package-filename
+                (snow-combine-filename-parts local-package-path)))
           (display "writing ")
           (display local-package-path)
           (newline)
@@ -54,7 +111,7 @@
                      (snow-file-symbolic-link? local-package-filename))
                  (snow-delete-file local-package-filename)))
 
-          (let* ((tar-data (tar-pack-u8vector tar-recs))
+          (let* ((tar-data (tar-pack-u8vector all-tar-recs))
                  (tgz-data (gzip-u8vector tar-data))
                  (out-p (open-binary-output-file local-package-filename)))
 
@@ -82,10 +139,16 @@
                (display s3-path)
                (display "]")
                (newline)
-               (put-object! credentials bucket s3-path local-p
-                            #f ;; (snow-file-size local-filename)
-                            "application/octet-stream"
-                            'public-read)
+               (snow-with-exception-catcher
+                (lambda (err)
+                  (snow-display-error err)
+                  (exit 1))
+                (lambda ()
+                  (put-object! credentials bucket s3-path local-p
+                               #f ;; (snow-file-size local-filename)
+                               "application/octet-stream"
+                               'public-read)
+                  ))
                (close-input-port local-p)))))
 
 
@@ -134,6 +197,9 @@
 
 
     (define (resolve-package-file local-repository package-file)
+      ;; package-files may be a path (absolute or relative) to
+      ;; a repo/packages/NAME.package file, or they may be
+      ;; just NAME.  either way, return the former.
       (cond ((string-suffix? ".package" package-file) package-file)
             (else
              (let* ((repo-uri (snow2-repository-url local-repository))
@@ -146,9 +212,7 @@
 
 
     (define (resolve-package-files local-repository package-files)
-      ;; package-files may be a path (absolute or relative) to
-      ;; a repo/packages/NAME.package file, or they may be
-      ;; just NAME.  either way, return the former.
+      ;; call resolve-package-file for each of package-files
       (map (lambda (package-file)
              (resolve-package-file local-repository package-file))
            package-files))
@@ -204,9 +268,9 @@
                      ((= (length repositories) 1)
                       (car repositories))
                      (else (find-implied-local-repository)))))
-          (display "operating on repository: ")
-          (write (uri-path (snow2-repository-url repository)))
-          (newline)
+          ;; (display "operating on repository: ")
+          ;; (write (uri-path (snow2-repository-url repository)))
+          ;; (newline)
           (op repository))))
 
 
@@ -229,14 +293,18 @@
                 (result
                  (map
                   (lambda (package-filename)
-                    (display "operating on package: ")
-                    (write package-filename)
-                    (newline)
+
+                    ;; (display "operating on package: ")
+                    ;; (write package-filename)
+                    ;; (newline)
+
                     (let* ((package
                             ;; (package-from-filename package-filename)
                             (refresh-package-from-filename
                              local-repository package-filename))
-                           (result (op local-repository package)))
+                           (result (op local-repository
+                                       package-filename
+                                       package)))
                       ;; rewrite package file to sync any changes
                       (let ((p (open-output-file package-filename)))
                         (snow-pretty-print (package->sexp package) p)
@@ -250,19 +318,21 @@
 
 
     (define (make-package-archives repositories package-files)
+      ;; call make-package-archive for each of packages-files
       (local-packages-operation
        repositories package-files
-       (lambda (local-repository package)
+       (lambda (local-repository package-filename package)
          (make-package-archive local-repository package))))
 
     (define (list-replace-last lst new-elt)
+      ;; what's the srfi-1 one-liner for this?
       (reverse (cons new-elt (cdr (reverse lst)))))
 
 
     (define (upload-packages-to-s3 credentials repositories package-files)
       (local-packages-operation
        repositories package-files
-       (lambda (local-repository package)
+       (lambda (local-repository package-filename package)
          (upload-package-to-s3 credentials local-repository package)
          (let* ((package-uri (snow2-package-url package))
                 (package-path (uri-path package-uri))
@@ -293,4 +363,150 @@
                                     index-s3-path index-filename)
            )
          )))
+
+
+    (define (r7rs-explode-cond-expand r7rs-lib)
+      (let loop ((r7rs-lib r7rs-lib)
+                 (result '()))
+        (cond ((null? r7rs-lib) result)
+              (else
+               (let ((term (car r7rs-lib)))
+                 (cond ((and (pair? term)
+                             (eq? (car term) 'cond-expand))
+                        (let* ((ce-terms (cdr term))
+                               (childs (map cdr ce-terms))
+                               (childs-flat (apply append childs)))
+                          (loop (cdr r7rs-lib) (append result childs-flat))))
+                       (else
+                        (loop (cdr r7rs-lib)
+                              (append result (list term))))))))))
+
+
+    (define (r7rs-drop-body r7rs-lib)
+      (filter
+       (lambda (term)
+         (not (and (pair? term) (eq? (car term) 'begin))))
+       r7rs-lib))
+
+
+    (define (r7rs-extract-im/export r7rs-lib type)
+      (let loop ((r7rs-lib r7rs-lib)
+                 (result '()))
+        (cond ((null? r7rs-lib) result)
+              (else
+               (let ((term (car r7rs-lib)))
+                 (cond ((and (pair? term) (eq? (car term) type))
+                        (let ((childs (cdr term)))
+                          (loop (cdr r7rs-lib) (append result childs))))
+                       (else
+                        (loop (cdr r7rs-lib) result))))))))
+
+    (define (uniq lst)
+      (cond ((null? lst) lst)
+            ((member (car lst) (cdr lst)) (uniq (cdr lst)))
+            (else (cons (car lst) (uniq (cdr lst))))))
+
+
+    (define (r7rs-filter-known-imports r7rs-imports)
+      (filter
+       (lambda (r7rs-import)
+         (cond ((memq (car r7rs-import)
+                      '(scheme scheme chibi r7rs gauche sagittarius
+                               ports tcp rnrs use openssl udp posix
+                               srfi chicken ssax sxml sxpath txpath
+                               sxpath-lolevel text md5 rfc math sha1 sha2
+                               util memcached matchable match
+                               extras http-client uri-generic intarweb
+                               message-digest file z3 base64 hmac
+                               binary input-parse
+
+                               srfi-27 srfi-95
+                               )) #f)
+               (else #t)))
+       r7rs-imports))
+
+
+    (define (r7rs-get-library-imports filename)
+      ;; (display filename)
+      ;; (newline)
+
+      (let* ((p (open-input-file filename))
+             (r7rs-lib (read p))
+             (r7rs-no-begin (r7rs-drop-body r7rs-lib))
+             (r7rs-sans-ce (r7rs-explode-cond-expand r7rs-no-begin))
+             (r7rs-imports-all (r7rs-extract-im/export r7rs-sans-ce 'import))
+             (r7rs-imports-clean
+              (map (lambda (r7rs-import)
+                     (cond ((eq? (car r7rs-import) 'only)
+                            (cadr r7rs-import))
+                           ((eq? (car r7rs-import) 'prefix)
+                            (cadr r7rs-import))
+                           (else r7rs-import)))
+                   r7rs-imports-all))
+             (r7rs-imports (r7rs-filter-known-imports
+                            (uniq r7rs-imports-clean))))
+        (close-input-port p)
+
+        ;; (snow-pretty-print r7rs-no-begin)
+        ;; (newline)
+        ;; (snow-pretty-print r7rs-sans-ce)
+        ;; (newline)
+        ;; (newline)
+        ;; (snow-pretty-print r7rs-imports)
+        ;; (newline)
+        ;; (snow-pretty-print r7rs-imports)
+        ;; (newline)
+
+        r7rs-imports))
+
+
+    (define (check-packages credentials repositories package-files)
+      (local-packages-operation
+       repositories package-files
+       (lambda (local-repository package-filename package)
+         (let ((repo-path (uri-path (snow2-repository-url local-repository))))
+           (map
+            (lambda (lib)
+              (let* ((lib-filename (snow2-library-path lib))
+                     (lib-path
+                      (append repo-path (snow-split-filename lib-filename)))
+                     (lib-filename (snow-combine-filename-parts lib-path))
+                     (lib-imports (r7rs-get-library-imports lib-filename))
+                     (pkg-depends (snow2-library-depends lib))
+                     (deps-missing
+                      (lset-difference equal? lib-imports pkg-depends))
+                     (deps-unneeded
+                      (lset-difference equal? pkg-depends lib-imports))
+                     )
+
+                ;; (display "------lib imports----------\n")
+                ;; (write lib-imports)
+                ;; (newline)
+                ;; (display "------pkg-depends----------\n")
+                ;; (write pkg-depends)
+                ;; (newline)
+
+                (cond
+                 ((pair? deps-missing)
+                  (display "library ")
+                  (write (snow2-library-name lib))
+                  (display " in ")
+                  (write package-filename)
+                  (display " is missing depends: ")
+                  (write deps-missing)
+                  (newline)))
+
+                (cond
+                 ((pair? deps-unneeded)
+                  (display "library ")
+                  (write (snow2-library-name lib))
+                  (display " in ")
+                  (write package-filename)
+                  (display " has unneeded depends: ")
+                  (write deps-unneeded)
+                  (newline)))
+
+                ))
+            (snow2-package-libraries package))))))
+
     ))
