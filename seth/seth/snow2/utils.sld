@@ -427,16 +427,30 @@
           (cond ((null? repo-packages) #f)
                 (else
                  (let ((repo-package (car repo-packages)))
-                   (cond ((and (equal? (snow2-package-name repo-package)
-                                       (snow2-package-name updated-package))
-                               (equal? (snow2-package-url repo-package)
-                                       (snow2-package-url updated-package)))
+
+                   ;; (display "names: ")
+                   ;; (write (snow2-package-name repo-package))
+                   ;; (display " ")
+                   ;; (write (snow2-package-name updated-package))
+                   ;; (newline)
+
+                   ;; (display "urls: ")
+                   ;; (write (snow2-package-url repo-package))
+                   ;; (display " ")
+                   ;; (write (snow2-package-url updated-package))
+                   ;; (newline)
+
+                   (cond ((and
+                           (equal? (snow2-package-name repo-package)
+                                   (snow2-package-name updated-package))
+                           (uri-equal?
+                            (snow2-package-url repo-package)
+                            (snow2-package-url updated-package)))
                           (set-snow2-package-libraries!
                            repo-package
                            (snow2-package-libraries updated-package))
                           repo-package)
                          (else
                           (loop (cdr repo-packages))))))))))
-
 
     ))
