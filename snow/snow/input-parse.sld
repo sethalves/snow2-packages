@@ -20,7 +20,7 @@
                   (chibi io)
                   (snow srfi-13-strings)
                   ))
-   (chicken (import input-parse))
+   (chicken (import (input-parse)))
    (gauche (import (text parse)))
    (sagittarius (import (text parse))))
   (begin
