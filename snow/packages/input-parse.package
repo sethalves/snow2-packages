@@ -1,16 +1,14 @@
-  (package
-    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/input-parse.tgz")
-    (library
-      (name (snow input-parse))
-      (path "snow/input-parse.sld")
-      (version "1.0.1")
-      (homepage "http://snow.iro.umontreal.ca")
-      (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
-      (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-      (description "inspired and compatible with Oleg Kiselyov's input parsing library")
-      (license public-domain)
-      (depends
-       (snow snowlib)
-       (snow srfi-13-strings)
-       )
-      ))
+(package
+  (name ())
+  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/input-parse.tgz")
+  (library
+    (name (snow input-parse))
+    (path "snow/input-parse.sld")
+    (version "1.0.1")
+    (homepage "http://snow.iro.umontreal.ca")
+    (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+    (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+    (description
+      "inspired and compatible with Oleg Kiselyov's input parsing library")
+    (license public-domain)
+    (depends (snow snowlib) (snow srfi-13-strings))))

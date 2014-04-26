@@ -1,11 +1,13 @@
-  (package
-    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/assert.tgz")
-    (library
-      (name (snow assert))
-      (path "snow/assert.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Seth Alves <seth@hungry.com>")
-      (description "assert")
-      (license lgpl/v2.1)))
+(package
+  (name ())
+  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/assert.tgz")
+  (library
+    (name (snow assert))
+    (path "snow/assert.sld")
+    (version "1.0")
+    (homepage "https://github.com/sethalves")
+    (maintainers "Seth Alves <seth@hungry.com>")
+    (authors "Seth Alves <seth@hungry.com>")
+    (description "assert")
+    (license lgpl/v2.1)
+    (depends (snow snowlib))))

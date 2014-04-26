@@ -1,20 +1,21 @@
-  (package
-    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/digest.tgz")
-    (library
-      (name (snow digest))
-      (path "snow/digest.sld")
-      (version "1.0.1")
-      (homepage "http://snow.iro.umontreal.ca")
-      (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
-      (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-      (description
-        "Computation of message digests (CRC32, MD5, SHA-1, ...)."
-        hash
-        conv
-        snow)
-      (license lgpl/v2.1)
-      (depends
-        (snow srfi-60-integers-as-bits)
-        (snow binio)
-        (snow bytevector)
-        (snow binio))))
+(package
+  (name ())
+  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/digest.tgz")
+  (library
+    (name (snow digest))
+    (path "snow/digest.sld")
+    (version "1.0.1")
+    (homepage "http://snow.iro.umontreal.ca")
+    (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+    (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+    (description
+      "Computation of message digests (CRC32, MD5, SHA-1, ...)."
+      hash
+      conv
+      snow)
+    (license lgpl/v2.1)
+    (depends
+      (snow srfi-60-integers-as-bits)
+      (snow binio)
+      (snow bytevector)
+      (snow binio))))

@@ -1,11 +1,13 @@
-  (package
-    (url "http://snow2.s3-website-us-east-1.amazonaws.com/gensym.tgz")
-    (library
-      (name (seth gensym))
-      (path "seth/gensym.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Seth Alves <seth@hungry.com>")
-      (description "gensym")
-      (license BSD-style)))
+(package
+  (name ())
+  (url "http://snow2.s3-website-us-east-1.amazonaws.com/gensym.tgz")
+  (library
+    (name (seth gensym))
+    (path "seth/gensym.sld")
+    (version "1.0")
+    (homepage "https://github.com/sethalves")
+    (maintainers "Seth Alves <seth@hungry.com>")
+    (authors "Seth Alves <seth@hungry.com>")
+    (description "gensym")
+    (license BSD-style)
+    (depends)))

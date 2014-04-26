@@ -1,19 +1,18 @@
-    (package
-     (url "http://snow2.s3-website-us-east-1.amazonaws.com/mime.tgz")
-
-     (library
-      (name (seth mime))
-      (path "seth/mime.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Alex Shinn")
-      (description "RFC2045 MIME library")
-      (license BSD-style "http://synthcode.com/license.txt")
-      (depends
-        (snow srfi-13-strings)
-        (snow extio)
-        (seth quoted-printable)
-        (seth base64)
-        (snow binio)
-       )))
+(package
+  (name ())
+  (url "http://snow2.s3-website-us-east-1.amazonaws.com/mime.tgz")
+  (library
+    (name (seth mime))
+    (path "seth/mime.sld")
+    (version "1.0")
+    (homepage "https://github.com/sethalves")
+    (maintainers "Seth Alves <seth@hungry.com>")
+    (authors "Alex Shinn")
+    (description "RFC2045 MIME library")
+    (license BSD-style "http://synthcode.com/license.txt")
+    (depends
+      (snow srfi-13-strings)
+      (snow extio)
+      (seth quoted-printable)
+      (seth base64)
+      (snow binio))))

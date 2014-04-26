@@ -1,12 +1,13 @@
-  (package
-    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/pi.tgz")
-    (library
-      (name (snow pi))
-      (path "snow/pi.sld")
-      (version "1.0.1")
-      (homepage "http://snow.iro.umontreal.ca")
-      (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
-      (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-      (description "Computes the digits of pi." example snow)
-      (license lgpl/v2.1)
-      (depends (snow bignum))))
+(package
+  (name ())
+  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/pi.tgz")
+  (library
+    (name (snow pi))
+    (path "snow/pi.sld")
+    (version "1.0.1")
+    (homepage "http://snow.iro.umontreal.ca")
+    (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+    (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+    (description "Computes the digits of pi." example snow)
+    (license lgpl/v2.1)
+    (depends (snow bignum))))

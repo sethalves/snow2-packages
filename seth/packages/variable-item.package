@@ -1,11 +1,13 @@
-  (package
-    (url "http://snow2.s3-website-us-east-1.amazonaws.com/variable-item.tgz")
-    (library
-      (name (seth variable-item))
-      (path "seth/variable-item.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Kon Lovett")
-      (description "variable-item")
-      (license BSD-style)))
+(package
+  (name ())
+  (url "http://snow2.s3-website-us-east-1.amazonaws.com/variable-item.tgz")
+  (library
+    (name (seth variable-item))
+    (path "seth/variable-item.sld")
+    (version "1.0")
+    (homepage "https://github.com/sethalves")
+    (maintainers "Seth Alves <seth@hungry.com>")
+    (authors "Kon Lovett")
+    (description "variable-item")
+    (license BSD-style)
+    (depends)))

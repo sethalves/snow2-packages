@@ -1,16 +1,14 @@
-    (package
-     (url "http://snow2.s3-website-us-east-1.amazonaws.com/quoted-printable.tgz")
-
-     (library
-      (name (seth quoted-printable))
-      (path "seth/quoted-printable.sld")
-      (version "1.0")
-      (homepage "https://github.com/sethalves")
-      (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Alex Shinn")
-      (description "RFC 2045 quoted printable encoding and decoding utilities.  This API is backwards compatible with the Gauche library rfc.quoted-printable.")
-      (license BSD-style "http://synthcode.com/license.txt")
-      (depends
-       (snow srfi-60-integers-as-bits)
-       (snow srfi-13-strings)
-       )))
+(package
+  (name ())
+  (url "http://snow2.s3-website-us-east-1.amazonaws.com/quoted-printable.tgz")
+  (library
+    (name (seth quoted-printable))
+    (path "seth/quoted-printable.sld")
+    (version "1.0")
+    (homepage "https://github.com/sethalves")
+    (maintainers "Seth Alves <seth@hungry.com>")
+    (authors "Alex Shinn")
+    (description
+      "RFC 2045 quoted printable encoding and decoding utilities.  This API is backwards compatible with the Gauche library rfc.quoted-printable.")
+    (license BSD-style "http://synthcode.com/license.txt")
+    (depends (snow srfi-60-integers-as-bits) (snow srfi-13-strings))))

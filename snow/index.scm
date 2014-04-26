@@ -4,6 +4,7 @@
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/")
     (trust 1.0))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/assert.tgz")
     (library
       (name (snow assert))
@@ -13,8 +14,10 @@
       (maintainers "Seth Alves <seth@hungry.com>")
       (authors "Seth Alves <seth@hungry.com>")
       (description "assert")
-      (license lgpl/v2.1)))
+      (license lgpl/v2.1)
+      (depends (snow snowlib))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bignum.tgz")
     (library
       (name (snow bignum))
@@ -24,9 +27,10 @@
       (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Operations on large integers." math snow)
-      (depends (snow bytevector))
-      (license lgpl/v2.1)))
+      (license lgpl/v2.1)
+      (depends (snow bytevector))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/binio.tgz")
     (library
       (name (snow binio))
@@ -36,31 +40,33 @@
       (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Binary I/O." i/o snow)
-      (depends (snow snowlib)
-               (snow bytevector)
-               (snow binio))
-      (license lgpl/v2.1)))
-(package
- (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
- (library
-  (name (snow bytevector))
-  (path "snow/bytevector.sld")
-  (version "1.0")
-  (homepage "https://github.com/sethalves")
-  (maintainers "Seth Alves <seth@hungry.com>")
-  (authors "Seth Alves <seth@hungry.com>")
-  (description "bytevector compatibility layer")
-  (license bsd))
- (library
-  (name (snow gauche-bv-string-utils))
-  (path "snow/gauche-bv-string-utils.sld")
-  (version "1.0")
-  (homepage "https://github.com/sethalves")
-  (maintainers "Seth Alves <seth@hungry.com>")
-  (authors "Seth Alves <seth@hungry.com>")
-  (description "bytevector compatibility layer")
-  (license bsd)))
+      (license lgpl/v2.1)
+      (depends (snow snowlib) (snow bytevector))))
   (package
+    (name ())
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
+    (library
+      (name (snow bytevector))
+      (path "snow/bytevector.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "bytevector compatibility layer")
+      (license bsd)
+      (depends (snow gauche-bv-string-utils)))
+    (library
+      (name (snow gauche-bv-string-utils))
+      (path "snow/gauche-bv-string-utils.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "bytevector compatibility layer")
+      (license bsd)
+      (depends)))
+  (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/digest.tgz")
     (library
       (name (snow digest))
@@ -81,6 +87,7 @@
         (snow bytevector)
         (snow binio))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/extio.tgz")
     (library
       (name (snow extio))
@@ -91,10 +98,12 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
       (license lgpl/v2.1)
-      (depends (snow snowlib)
-               (snow binio)
-               (snow bytevector)
-               (snow srfi-60-integers-as-bits)))
+      (depends
+        (snow snowlib)
+        (snow binio)
+        (snow bytevector)
+        (snow srfi-60-integers-as-bits)
+        (snow gauche-extio-utils)))
     (library
       (name (snow gauche-extio-utils))
       (path "snow/gauche-extio-utils.sld")
@@ -104,11 +113,9 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
       (license lgpl/v2.1)
-      (depends (snow snowlib)
-               (snow binio)
-               (snow bytevector)
-               (snow srfi-60-integers-as-bits))))
+      (depends)))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
     (library
       (name (snow filesys))
@@ -119,7 +126,11 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "File system access." os snow)
       (license lgpl/v2.1)
-      (depends (snow random) (snow srfi-13-strings)))
+      (depends
+        (snow random)
+        (snow srfi-13-strings)
+        (snow bytevector)
+        (snow gauche-filesys-utils)))
     (library
       (name (snow gauche-filesys-utils))
       (path "snow/gauche-filesys-utils.sld")
@@ -129,33 +140,32 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "File system access." os snow)
       (license lgpl/v2.1)
-      (depends (snow random) (snow srfi-13-strings))))
-(package
- (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/genport.tgz")
- (library
-  (name (snow genport))
-  (path "snow/genport.sld")
-  (version "1.0.1")
-  (homepage "http://snow.iro.umontreal.ca")
-  (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
-  (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-  (description "Generic ports." i/o snow)
-  (license lgpl/v2.1)
-  (depends (snow binio)
-           (snow filesys)
-           (snow bytevector)
-           ))
- (library
-  (name (snow gauche-genport-utils.))
-  (path "snow/gauche-genport-utils.sld")
-  (version "1.0")
-  (homepage "http://snow.iro.umontreal.ca")
-  (maintainers "Seth Alves <seth@hungry.com>")
-  (authors "Seth Alves <seth@hungry.com>")
-  (description "Generic ports." i/o snow)
-  (license lgpl/v2.1)
-  ))
+      (depends)))
   (package
+    (name ())
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/genport.tgz")
+    (library
+      (name (snow genport))
+      (path "snow/genport.sld")
+      (version "1.0.1")
+      (homepage "http://snow.iro.umontreal.ca")
+      (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+      (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+      (description "Generic ports." i/o snow)
+      (license lgpl/v2.1)
+      (depends (snow binio) (snow bytevector) (snow gauche-genport-utils)))
+    (library
+      (name (snow gauche-genport-utils))
+      (path "snow/gauche-genport-utils.sld")
+      (version "1.0")
+      (homepage "http://snow.iro.umontreal.ca")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "Generic ports." i/o snow)
+      (license lgpl/v2.1)
+      (depends)))
+  (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/hello.tgz")
     (library
       (name (snow hello))
@@ -168,6 +178,7 @@
       (license lgpl/v2.1)
       (depends (snow pi))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/input-parse.tgz")
     (library
       (name (snow input-parse))
@@ -176,14 +187,12 @@
       (homepage "http://snow.iro.umontreal.ca")
       (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-      (description "inspired and compatible with Oleg Kiselyov's input parsing library")
+      (description
+        "inspired and compatible with Oleg Kiselyov's input parsing library")
       (license public-domain)
-      (depends
-       (snow snowlib)
-       (snow srfi-13-strings)
-       )
-      ))
+      (depends (snow snowlib) (snow srfi-13-strings))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/pi.tgz")
     (library
       (name (snow pi))
@@ -196,6 +205,7 @@
       (license lgpl/v2.1)
       (depends (snow bignum))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/processio.tgz")
     (library
       (name (snow processio))
@@ -208,10 +218,9 @@
         "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "I/O to operating system subprocesses." i/o os)
       (license bsdl)
-      (depends (snow snowlib)
-               (snow extio)
-               (snow filesys))))
+      (depends (snow snowlib) (snow extio) (snow filesys))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/random.tgz")
     (library
       (name (snow random))
@@ -222,8 +231,9 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "High-quality random number generation." snow)
       (license lgpl/v2.1)
-      (depends (snow binio) (snow bignum))))
+      (depends (snow binio) (snow bytevector) (snow bignum))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/snowlib.tgz")
     (library
       (name (snow snowlib))
@@ -233,8 +243,10 @@
       (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Scheme Now! runtime library." snow)
-      (license lgpl/v2.1)))
+      (license lgpl/v2.1)
+      (depends)))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-13-strings.tgz")
     (library
       (name (snow srfi-13-strings))
@@ -242,10 +254,12 @@
       (version "1.0")
       (homepage "https://github.com/sethalves")
       (maintainers "Seth Alves <seth@hungry.com>")
-      (authors )
+      (authors)
       (description "srfi-13-strings")
-      (license lgpl/v2.1)))
+      (license lgpl/v2.1)
+      (depends)))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-19-time.tgz")
     (library
       (name (snow srfi-19-time))
@@ -255,8 +269,10 @@
       (maintainers "Seth Alves <seth@hungry.com>")
       (authors "Will Fitzgerald" "Neodesic Corporation")
       (description "srfi-19-time")
-      (license BSD-style)))
+      (license BSD-style)
+      (depends)))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-29-format.tgz")
     (library
       (name (snow srfi-29-format))
@@ -264,11 +280,12 @@
       (version "1.0")
       (homepage "http://srfi.schemers.org/srfi-29/srfi-29.html")
       (maintainers)
-      (authors )
+      (authors)
       (description "srfi-29-format")
-      (depends (snow snowlib))
-      (license mit)))
+      (license mit)
+      (depends (snow snowlib))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-60-integers-as-bits.tgz")
     (library
       (name (snow srfi-60-integers-as-bits))
@@ -278,23 +295,23 @@
       (maintainers "Seth Alves <seth@hungry.com>")
       (authors "Seth Alves <seth@hungry.com>")
       (description "bytevector compatibility layer")
-      (license lgpl/v2.1)))
+      (license lgpl/v2.1)
+      (depends)))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-95-sort.tgz")
     (library
       (name (snow srfi-95-sort))
       (path "snow/srfi-95-sort.sld")
       (version "1.0")
-      (homepage "http://srfi.schemers.org/srfi-95/srfi-95.html"
-                "https://github.com/sethalves")
+      (homepage
+        "http://srfi.schemers.org/srfi-95/srfi-95.html"
+        "https://github.com/sethalves")
       (maintainers "Seth Alves <seth@hungry.com>")
-      (authors "Aubrey Jaffer"
-               "Richard A. O'Keefe"
-               "D.H.D. Warren")
+      (authors "Aubrey Jaffer" "Richard A. O'Keefe" "D.H.D. Warren")
       (description "Sorting and Merging")
       (license public-domain)
-      (depends (snow bytevector))
-      )
+      (depends (snow bytevector) (snow gauche-sort-utils)))
     (library
       (name (snow gauche-sort-utils))
       (path "snow/gauche-sort-utils.sld")
@@ -304,9 +321,9 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "Sorting and Merging")
       (license public-domain)
-      (depends (snow bytevector))
-      ))
+      (depends)))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/tar.tgz")
     (library
       (name (snow tar))
@@ -317,8 +334,15 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "TAR file format packing and unpacking." conv snow)
       (license lgpl/v2.1)
-      (depends (snow snowlib) (snow bignum) (snow genport) (snow filesys))))
+      (depends
+        (snow snowlib)
+        (snow bytevector)
+        (snow srfi-60-integers-as-bits)
+        (snow bignum)
+        (snow genport)
+        (snow filesys))))
   (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/zlib.tgz")
     (library
       (name (snow zlib))
@@ -341,5 +365,4 @@
         (snow digest)
         (snow srfi-60-integers-as-bits)
         (snow genport)
-        (snow digest))))
-)
+        (snow digest)))))
