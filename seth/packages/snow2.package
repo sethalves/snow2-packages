@@ -49,6 +49,7 @@
       (seth uri)
       (seth snow2 types)
       (seth snow2 utils)
+      (seth snow2 r7rs-library)
       (snow snowlib)))
   (library
     (name (seth snow2 types))
@@ -84,4 +85,15 @@
       (seth string-read-write)
       (seth srfi-37-argument-processor)
       (seth uri)
-      (seth snow2 types))))
+      (seth snow2 types)))
+  (library
+    (name (seth snow2 r7rs-library))
+    (path "seth/snow2/r7rs-library.sld")
+    (version "1.0")
+    (homepage "https://github.com/sethalves")
+    (maintainers "Seth Alves <seth@hungry.com>")
+    (authors "Seth Alves <seth@hungry.com>")
+    (description "snow2-utils")
+    (license mit)
+    (depends
+     )))
