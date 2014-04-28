@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/srfi-27-random.tgz")
   (size 3095)
-  (checksum (md5 "078199007c0e56ee2d9dacb26dd08457"))
+  (checksum (md5 "0b8fb0ccf71e526f93e9f726b495fd20"))
   (library
     (name (seth srfi-27-random))
     (path "seth/srfi-27-random.sld")

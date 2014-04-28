@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/cout.tgz")
   (size 4119)
-  (checksum (md5 "ea6a8b9b06c56aaaec1bdfaabe3d2838"))
+  (checksum (md5 "6ae63bdb4ef500636a5e0ab5e5ad2ceb"))
   (library
     (name (seth cout))
     (path "seth/cout.sld")

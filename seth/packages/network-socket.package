@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/network-socket.tgz")
   (size 27159)
-  (checksum (md5 "443a87d8d473cc6d72d453e6dbba831e"))
+  (checksum (md5 "48e43beefad43adf103a3888fcc28cae"))
   (library
     (name (seth network-socket))
     (path "seth/network-socket.sld")

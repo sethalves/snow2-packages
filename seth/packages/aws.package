@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/aws.tgz")
   (size 19991)
-  (checksum (md5 "bea95aa7fa5739e44e11455e3c790a2e"))
+  (checksum (md5 "470ac71b7e39e29223e1e284cbfa880f"))
   (library
     (name (seth aws s3))
     (path "seth/aws/s3.sld")

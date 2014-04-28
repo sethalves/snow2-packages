@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/tar.tgz")
   (size 3607)
-  (checksum (md5 "cac107e9e7ef9570ec07d684d956309c"))
+  (checksum (md5 "8a7ab983416282d3f0515fb4a5ad1c9e"))
   (library
     (name (seth tar))
     (path "seth/tar.sld")

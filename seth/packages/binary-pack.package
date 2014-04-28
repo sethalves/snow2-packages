@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/binary-pack.tgz")
   (size 5143)
-  (checksum (md5 "15e5d7666a64e67536e9abda48947b04"))
+  (checksum (md5 "6f50ce2b582b189d59526a89d960472f"))
   (library
     (name (seth binary-pack))
     (path "seth/binary-pack.sld")
