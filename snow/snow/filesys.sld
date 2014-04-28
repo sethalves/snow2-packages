@@ -966,15 +966,16 @@
       (define snow-file-mtime file-modification-time))
      (chibi
       (define (snow-file-mtime filename)
-        (+ 1262271600 (file-modification-time filename))))
+        (exact (floor (+ 1262271600 (file-modification-time filename))))))
      (chicken
       (define (snow-file-mtime filename)
-        (vector-ref (file-stat filename) 8)))
+        (exact (floor (vector-ref (file-stat filename) 8)))))
      (gambit
       (define (snow-file-mtime filename)
         (time->seconds (file-info-last-modification-time (file-info path)))))
      (gauche
-      (define snow-file-mtime file-mtime))
+      (define (snow-file-mtime filename)
+        (exact (floor (file-mtime filename)))))
      (guile
       (define (snow-file-mtime filename)
         (stat:mtime (stat filename))))
@@ -984,7 +985,8 @@
       (define (snow-file-mtime filename)
         (file-or-directory-modify-seconds filename)))
      (sagittarius
-      (define snow-file-mtime file-stat-mtime))
+      (define (snow-file-mtime filename)
+        (exact (floor (file-stat-mtime filename)))))
      (else))
 
 
