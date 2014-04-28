@@ -22,6 +22,7 @@
           (seth string-read-write)
           (seth srfi-37-argument-processor)
           (seth uri)
+          (seth crypt md5)
           (seth snow2 types)
           (seth snow2 utils)
           (seth snow2 manage)
@@ -59,11 +60,11 @@
       ;; library-names is a list of library-name s-expressions.
       ;; use-symlinks being true will cause symlinks to source files rather
       ;; than copies (when possible).  verbose prints more.
-      (define (install-from-tgz repo local-package-filename)
+      (define (install-from-tgz repo package local-package-tgz-file)
         (snow-with-exception-catcher
          (lambda (err)
            (display "Error -- " (current-error-port))
-           (display local-package-filename (current-error-port))
+           (display local-package-tgz-file (current-error-port))
            (display " " (current-error-port))
            (cond
             ((snow-error-condition? err)
@@ -73,17 +74,40 @@
            (newline (current-error-port))
            #f)
          (lambda ()
-           (let* ((bin-port (binio-open-input-file
-                             local-package-filename))
-                  (zipped-p (genport-native-input-port->genport bin-port))
-                  (unzipped-p (gunzip-genport zipped-p))
-                  (tar-recs (tar-unpack-genport unzipped-p)))
-             (genport-close-input-port unzipped-p)
-             (write-tar-recs-to-disk tar-recs)))))
+           (let* ((pkg-tgz-size (snow2-package-size package))
+                  (checksum (snow2-package-size package))
+                  (pkg-md5-sum (cond ((and checksum
+                                           (pair? checksum)
+                                           (eq? (car checksum) 'md5))
+                                      (cadr checksum))
+                                     (else #f))))
+             ;; if the package metadata had (size ...) or (checksum ...)
+             ;; make sure the provided values match those of what we're about
+             ;; to untar.
+             (cond ((and pkg-md5-sum
+                         (not (eq? pkg-md5-sum
+                                   (filename->md5 local-package-tgz-file))))
+                    (error "checksum mismatch"
+                           local-package-tgz-file
+                           pkg-md5-sum))
+                   ((and pkg-tgz-size
+                         (not (= pkg-tgz-size
+                                 (snow-file-size local-package-tgz-file))))
+                    (error "filesize mismatch"
+                           local-package-tgz-file
+                           pkg-tgz-size)))
+
+             (let* ((bin-port (binio-open-input-file
+                               local-package-tgz-file))
+                    (zipped-p (genport-native-input-port->genport bin-port))
+                    (unzipped-p (gunzip-genport zipped-p))
+                    (tar-recs (tar-unpack-genport unzipped-p)))
+               (genport-close-input-port unzipped-p)
+               (write-tar-recs-to-disk tar-recs))))))
 
 
       (define (install-from-http repo package url)
-        (let-values (((write-port local-package-filename)
+        (let-values (((write-port local-package-tgz-file)
                       (temporary-file)))
           (display "downloading ")
           (display (snow-filename-strip-directory (uri->string url)))
@@ -106,8 +130,9 @@
 
             (cond (download-success
                    (let ((success
-                          (install-from-tgz repo local-package-filename)))
-                     (delete-file local-package-filename)
+                          (install-from-tgz repo package
+                                            local-package-tgz-file)))
+                     (delete-file local-package-tgz-file)
                      success))
                   (else #f)))))
 
@@ -167,14 +192,14 @@
                                    ;; package-local-directory
                                    ))
                 (else
-                 (let ((local-package-filename
+                 (let ((local-package-tgz-file
                         (snow-make-filename repo-path package-file)))
                    (display "extracting ")
                    (display package-file)
                    (display " from ")
                    (display repo-path)
                    (newline)
-                   (install-from-tgz repo local-package-filename))))))
+                   (install-from-tgz repo package local-package-tgz-file))))))
 
       (let* ((pkgs (find-packages-with-libraries repositories library-names))
              (libraries (snow2-packages-libraries pkgs))

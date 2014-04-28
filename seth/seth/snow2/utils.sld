@@ -126,13 +126,16 @@
       ;; convert a s-exp into a package record
       (let ((url (get-string-by-type package-sexp 'url #f))
             (name (get-list-by-type package-sexp 'name '()))
+            (size (get-number-by-type package-sexp 'size 'unset))
+            (checksum (get-list-by-type package-sexp 'checksum 'unset))
             (library-sexps (get-children-by-type package-sexp 'library)))
         (cond ((not url) #f)
               ((not name) #f)
               (else
                (let* ((libraries (map library-from-sexp library-sexps))
                       (package (make-snow2-package
-                                name (uri-reference url) libraries #f)))
+                                name (uri-reference url) libraries #f
+                                size checksum #f)))
                  ;; backlink to packages
                  (for-each
                   (lambda (library)
@@ -144,8 +147,11 @@
       `(package
         (name ,(snow2-package-name package))
         (url ,(uri->string (snow2-package-url package)))
-        ,@(map library->sexp (snow2-package-libraries package))
-        ))
+        ,@(let ((size (snow2-package-size package)))
+            (if (not (eq? size 'unset)) `((size ,size)) '()))
+        ,@(let ((checksum (snow2-package-checksum package)))
+            (if (not (eq? checksum 'unset)) `((checksum ,checksum)) '()))
+        ,@(map library->sexp (snow2-package-libraries package))))
 
 
     (define (package-from-filename package-filename)
@@ -171,7 +177,7 @@
                     (sibling-sexps
                      (get-children-by-type repository-sexp 'sibling))
                     (siblings (map sibling-from-sexp sibling-sexps))
-                    (repo (make-snow2-repository siblings packages #f #f)))
+                    (repo (make-snow2-repository siblings packages #f #f #f)))
                ;; backlink package to repository
                (for-each
                 (lambda (package)
@@ -440,15 +446,35 @@
                    ;; (write (snow2-package-url updated-package))
                    ;; (newline)
 
+
                    (cond ((and
                            (equal? (snow2-package-name repo-package)
                                    (snow2-package-name updated-package))
                            (uri-equal?
                             (snow2-package-url repo-package)
                             (snow2-package-url updated-package)))
-                          (set-snow2-package-libraries!
-                           repo-package
-                           (snow2-package-libraries updated-package))
+
+                          ;; (let ((hi (snow2-package-repository repo-package)))
+                          ;;   (set-snow2-package-repository! repo-package #f)
+                          ;;   (display "--------------\n")
+                          ;;   (write repo-package)
+                          ;;   (display "\n--------------\n")
+                          ;;   (write updated-package)
+                          ;;   (display "\n--------------\n")
+                          ;;   (set-snow2-package-repository! repo-package hi)
+                          ;;   (write (snow2-packages-equal? repo-package
+                          ;;                                 updated-package))
+                          ;;   (display "\n--------------\n"))
+
+
+
+                          (cond ((not (snow2-packages-equal? repo-package
+                                                             updated-package))
+                                 ;; (display "package file changed.\n")
+                                 (set-snow2-package-libraries!
+                                  repo-package
+                                  (snow2-package-libraries updated-package))
+                                 (set-snow2-repository-dirty! repository #t)))
                           repo-package)
                          (else
                           (loop (cdr repo-packages))))))))))

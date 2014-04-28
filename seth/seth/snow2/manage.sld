@@ -16,11 +16,13 @@
                         drop-right)))
    (else (import (srfi 1))))
   (import (snow snowlib)
+          (snow bytevector)
           (snow tar)
           (snow zlib)
           (snow filesys)
           (snow srfi-13-strings)
           (snow extio)
+          (snow srfi-29-format)
           (seth uri)
           (seth crypt md5)
           (seth aws common)
@@ -31,9 +33,9 @@
 
   (begin
 
-
-
     (define (make-package-archive local-repository package)
+      ;; create the .tgz file that gets uploaded to a repository.
+      ;; update the size and md5 sum in the package meta-data
       (let* ((repo-path (uri-path (snow2-repository-url local-repository))))
 
         (define (lib-file->tar-recs lib-filename)
@@ -117,10 +119,24 @@
                  (out-p (open-binary-output-file local-package-filename)))
 
             (write-bytevector tgz-data out-p)
-            (close-output-port out-p)))))
+            (close-output-port out-p)
+
+            (let ((local-package-md5
+                   (bytes->hex-string
+                    (filename->md5 local-package-filename)))
+                  (local-package-size (snow-file-size local-package-filename)))
+              (display (format "  size=~a md5=~a\n"
+                               local-package-size local-package-md5))
+
+              (set-snow2-package-size! package local-package-size)
+              (set-snow2-package-checksum!
+               package `(md5 ,local-package-md5))
+              (set-snow2-package-dirty! package #t))))))
 
 
     (define (conditional-put-object! credentials bucket s3-path local-filename)
+      ;; ask s3 for the md5-sum of the file we're about to upload.  if
+      ;; they don't match, upload the new file.
       (let ((local-md5 (filename->md5 local-filename))
             (local-p (open-binary-input-file local-filename))
             (md5-on-s3 (get-object-md5 credentials bucket s3-path)))
@@ -173,6 +189,8 @@
 
 
     (define (find-implied-local-repository)
+      ;; figure out which repository (if any) the user's CWD was within when
+      ;; this program was run.
       (or
        (get-repository
         (uri-reference (snow-combine-filename-parts '("."))))
@@ -297,28 +315,32 @@
                  (resolve-package-files local-repository package-files))
                 (result
                  (map
-                  (lambda (package-filename)
+                  (lambda (package-metafile)
 
                     ;; (display "operating on package: ")
-                    ;; (write package-filename)
+                    ;; (write package-metafile)
                     ;; (newline)
 
                     (let* ((package
-                            ;; (package-from-filename package-filename)
+                            ;; (package-from-filename package-metafile)
                             (refresh-package-from-filename
-                             local-repository package-filename))
+                             local-repository package-metafile))
                            (result (op local-repository
-                                       package-filename
+                                       package-metafile
                                        package)))
-                      ;; rewrite package file to sync any changes
-                      (let ((p (open-output-file package-filename)))
-                        (snow-pretty-print (package->sexp package) p)
-                        (close-output-port p))
+                      ;; rewrite package meta-file to sync any changes
+                      (cond ((snow2-package-dirty package)
+                             (let ((p (open-output-file package-metafile)))
+                               (snow-pretty-print (package->sexp package) p)
+                               (close-output-port p)
+                               (set-snow2-repository-dirty!
+                                local-repository #t))))
                       result))
                   package-files)))
-           (let ((p (open-output-file index-filename)))
-             (snow-pretty-print (repository->sexp local-repository) p)
-             (close-output-port p))
+           (cond ((snow2-repository-dirty local-repository)
+                  (let ((p (open-output-file index-filename)))
+                    (snow-pretty-print (repository->sexp local-repository) p)
+                    (close-output-port p))))
            result))))
 
 
@@ -326,8 +348,10 @@
       ;; call make-package-archive for each of packages-files
       (local-packages-operation
        repositories package-files
-       (lambda (local-repository package-filename package)
+       (lambda (local-repository package-metafile package)
+         (refresh-package-from-filename local-repository package-metafile)
          (make-package-archive local-repository package))))
+
 
     (define (list-replace-last lst new-elt)
       ;; what's the srfi-1 one-liner for this?
@@ -337,7 +361,7 @@
     (define (upload-packages-to-s3 credentials repositories package-files)
       (local-packages-operation
        repositories package-files
-       (lambda (local-repository package-filename package)
+       (lambda (local-repository package-metafile package)
          (upload-package-to-s3 credentials local-repository package)
          (let* ((package-uri (snow2-package-url package))
                 (package-path (uri-path package-uri))
@@ -373,7 +397,7 @@
     (define (check-packages credentials repositories package-files)
       (local-packages-operation
        repositories package-files
-       (lambda (local-repository package-filename package)
+       (lambda (local-repository package-metafile package)
          (let ((repo-path (uri-path (snow2-repository-url local-repository))))
            (map
             (lambda (lib)
@@ -401,7 +425,7 @@
                   (display "library ")
                   (write (snow2-library-name lib))
                   (display " in ")
-                  (write package-filename)
+                  (write package-metafile)
                   (display " is missing depends: ")
                   (write deps-missing)
                   (newline)))
@@ -411,7 +435,7 @@
                   (display "library ")
                   (write (snow2-library-name lib))
                   (display " in ")
-                  (write package-filename)
+                  (write package-metafile)
                   (display " has unneeded depends: ")
                   (write deps-unneeded)
                   (newline)))

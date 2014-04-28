@@ -3,6 +3,7 @@
           )
   (import (scheme base)
           (scheme read)
+          (scheme write)
           (scheme file)
           )
 
@@ -57,18 +58,19 @@
     (define (r7rs-filter-known-imports r7rs-imports)
       (filter
        (lambda (r7rs-import)
-         (cond ((memq (car r7rs-import)
-                      '(scheme scheme chibi r7rs gauche sagittarius
-                               ports tcp rnrs use openssl udp posix
-                               srfi chicken ssax sxml sxpath txpath
-                               sxpath-lolevel text md5 rfc math sha1 sha2
-                               util memcached matchable match
-                               extras http-client uri-generic intarweb
-                               message-digest file z3 base64 hmac
-                               binary input-parse
+         (cond ((and (pair? r7rs-import)
+                     (memq (car r7rs-import)
+                           '(scheme scheme chibi r7rs gauche sagittarius
+                                    ports tcp rnrs use openssl udp posix
+                                    srfi chicken ssax sxml sxpath txpath
+                                    sxpath-lolevel text md5 rfc math sha1 sha2
+                                    util memcached matchable match
+                                    extras http-client uri-generic intarweb
+                                    message-digest file z3 base64 hmac
+                                    binary input-parse
 
-                               srfi-27 srfi-95
-                               )) #f)
+                                    srfi-27 srfi-95
+                                    ))) #f)
                (else #t)))
        r7rs-imports))
 
@@ -84,7 +86,12 @@
              (r7rs-imports-all (r7rs-extract-im/export r7rs-sans-ce 'import))
              (r7rs-imports-clean
               (map (lambda (r7rs-import)
-                     (cond ((eq? (car r7rs-import) 'only)
+                     (cond ((not (pair? r7rs-import))
+                            (display "Warning: unexpected import form: ")
+                            (write r7rs-import)
+                            (newline)
+                            r7rs-import)
+                           ((eq? (car r7rs-import) 'only)
                             (cadr r7rs-import))
                            ((eq? (car r7rs-import) 'prefix)
                             (cadr r7rs-import))

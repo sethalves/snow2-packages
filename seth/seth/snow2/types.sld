@@ -5,6 +5,7 @@
           snow2-repository-packages set-snow2-repository-packages!
           snow2-repository-local set-snow2-repository-local!
           snow2-repository-url set-snow2-repository-url!
+          snow2-repository-dirty set-snow2-repository-dirty!
 
           make-snow2-sibling
           snow2-sibling?
@@ -18,6 +19,9 @@
           snow2-package-url set-snow2-package-url!
           snow2-package-libraries set-snow2-package-libraries!
           snow2-package-repository set-snow2-package-repository!
+          snow2-package-size set-snow2-package-size!
+          snow2-package-checksum set-snow2-package-checksum!
+          snow2-package-dirty set-snow2-package-dirty!
 
           make-snow2-library
           snow2-library?
@@ -39,6 +43,9 @@
           get-list-by-type
           get-args-by-type
           get-multi-args-by-type
+
+          snow2-libraries-equal?
+          snow2-packages-equal?
           )
 
 
@@ -47,14 +54,17 @@
    (chibi (import (only (srfi 1) filter make-list any fold)))
    (else (import (srfi 1))))
 
+  (import (seth uri))
+
   (begin
     (define-record-type <snow2-repository>
-      (make-snow2-repository siblings packages local url)
+      (make-snow2-repository siblings packages local url dirty)
       snow2-repository?
       (siblings snow2-repository-siblings set-snow2-repository-siblings!)
       (packages snow2-repository-packages set-snow2-repository-packages!)
       (local snow2-repository-local set-snow2-repository-local!)
-      (url snow2-repository-url set-snow2-repository-url!))
+      (url snow2-repository-url set-snow2-repository-url!)
+      (dirty snow2-repository-dirty set-snow2-repository-dirty!))
 
 
     (define-record-type <snow2-sibling>
@@ -66,12 +76,15 @@
 
 
     (define-record-type <snow2-package>
-      (make-snow2-package name url libraries repo)
+      (make-snow2-package name url libraries repo size checksum dirty)
       snow2-package?
       (name snow2-package-name set-snow2-package-name!)
       (url snow2-package-url set-snow2-package-url!)
       (libraries snow2-package-libraries set-snow2-package-libraries!)
-      (repo snow2-package-repository set-snow2-package-repository!))
+      (repo snow2-package-repository set-snow2-package-repository!)
+      (size snow2-package-size set-snow2-package-size!)
+      (checksum snow2-package-checksum set-snow2-package-checksum!)
+      (dirty snow2-package-dirty set-snow2-package-dirty!))
 
 
     (define-record-type <snow2-library>
@@ -107,13 +120,13 @@
               (cdr obj)))
 
 
-    (define (get-child-by-type obj child-type default)
+    (define (get-child-by-type obj child-type . default)
       ;; find a non-optional child with the given tag.  the tag
       ;; is expected to be unique among the children.
       (let ((childs (get-children-by-type obj child-type)))
         (cond ((null? childs)
-               (if default
-                   default
+               (if (pair? default)
+                   (car default)
                    (error "~A has no ~A\n" (get-tag obj) child-type)))
               ((> (length childs) 1)
                (error "~A has more than one ~A\n." obj child-type))
@@ -125,7 +138,7 @@
       ;; return the string from a child with the form
       ;; '(child-type "...")
       ;; if no such child is found and default isn't #f, return default
-      (let ((child (get-child-by-type obj child-type default)))
+      (let ((child (get-child-by-type obj child-type #f)))
         (cond ((and (not child) default) default)
               ((and (null? child) default) default)
               ((not child) #f)
@@ -147,7 +160,7 @@
       ;; return the number from a child with the form
       ;; '(child-type 1.0)
       ;; if no such child is found and default isn't #f, return default
-      (let ((child (get-child-by-type obj child-type default)))
+      (let ((child (get-child-by-type obj child-type #f)))
         (cond ((and (not child) default) default)
               ((and (null? child) default) default)
               ((not child) #f)
@@ -170,7 +183,7 @@
       ;; return the list from a child with the form
       ;; '(child-type (x y z))
       ;; if no such child is found and default isn't #f, return default
-      (let ((child (get-child-by-type obj child-type default)))
+      (let ((child (get-child-by-type obj child-type #f)))
         (cond ((and (not child) default) default)
               ((and (null? child) default) default)
               ((not child) #f)
@@ -211,6 +224,33 @@
                (fold append '() (map cdr childs))))))
 
 
+    (define (snow2-libraries-equal? a b)
+      (and (equal? (snow2-library-name a) (snow2-library-name b))
+           (equal? (snow2-library-path a) (snow2-library-path b))
+           (equal? (snow2-library-depends a) (snow2-library-depends b))
+           (equal? (snow2-library-version a) (snow2-library-version b))
+           (equal? (snow2-library-homepage a) (snow2-library-homepage b))
+           (equal? (snow2-library-maintainers a) (snow2-library-maintainers b))
+           (equal? (snow2-library-authors a) (snow2-library-authors b))
+           (equal? (snow2-library-description a) (snow2-library-description b))
+           (equal? (snow2-library-license a) (snow2-library-license b))))
+
+
+    (define (snow2-library-lists-equal? a b)
+      (cond ((and (null? a) (null? b)) #t)
+            ((null? a) #f)
+            ((null? b) #f)
+            ((not (snow2-libraries-equal? (car a) (car b))) #f)
+            (else (snow2-library-lists-equal? (cdr a) (cdr b)))))
+
+
+    (define (snow2-packages-equal? a b)
+      (and (equal? (snow2-package-name a) (snow2-package-name b))
+           (uri-equal? (snow2-package-url a) (snow2-package-url b))
+           ;; (equal? (snow2-package-libraries a) (snow2-package-libraries b))
+           (snow2-library-lists-equal? (snow2-package-libraries a)
+                                       (snow2-package-libraries b))
+           ))
 
 
     ))
