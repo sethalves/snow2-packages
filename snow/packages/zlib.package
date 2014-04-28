@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/zlib.tgz")
+  (size 45591)
+  (checksum (md5 "13661c225c9715f9aed98039f40e3669"))
   (library
     (name (snow zlib))
     (path "snow/zlib.sld")

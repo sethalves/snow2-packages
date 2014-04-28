@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bignum.tgz")
+  (size 39447)
+  (checksum (md5 "fcbc3f4285689059f8edf2dea833444c"))
   (library
     (name (snow bignum))
     (path "snow/bignum.sld")

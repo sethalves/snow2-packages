@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-29-format.tgz")
+  (size 10775)
+  (checksum (md5 "210abd854b1983bf7006bd1a7c36dec9"))
   (library
     (name (snow srfi-29-format))
     (path "snow/srfi-29-format.sld")

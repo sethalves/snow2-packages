@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/pi.tgz")
+  (size 4631)
+  (checksum (md5 "4a6623a828d3731400720c56c146eb5d"))
   (library
     (name (snow pi))
     (path "snow/pi.sld")

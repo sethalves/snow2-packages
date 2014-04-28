@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
+  (size 33303)
+  (checksum (md5 "fc8f063ba56540f017d7c5100cd8b385"))
   (library
     (name (snow filesys))
     (path "snow/filesys.sld")

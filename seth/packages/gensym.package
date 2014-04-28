@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/gensym.tgz")
+  (size 3095)
+  (checksum (md5 "9423a021210368a50b0ef2a8e3651ced"))
   (library
     (name (seth gensym))
     (path "seth/gensym.sld")

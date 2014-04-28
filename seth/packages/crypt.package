@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/crypt.tgz")
+  (size 52247)
+  (checksum (md5 "31b2b897dd3b7b78b16e7750f287d2b8"))
   (library
     (name (seth crypt md5))
     (path "seth/crypt/md5.sld")

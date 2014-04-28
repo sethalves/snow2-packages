@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/input-parse.tgz")
+  (size 12311)
+  (checksum (md5 "5a6466f97fc65e381015d311ea85694d"))
   (library
     (name (snow input-parse))
     (path "snow/input-parse.sld")

@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/http.tgz")
+  (size 18967)
+  (checksum (md5 "184f2c38f776534c2ff18f0ddcca50f1"))
   (library
     (name (seth http))
     (path "seth/http.sld")

@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/port-extras.tgz")
+  (size 7703)
+  (checksum (md5 "09631f72ed8e97954256fb1b27b2d784"))
   (library
     (name (seth port-extras))
     (path "seth/port-extras.sld")

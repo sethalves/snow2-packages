@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/hello.tgz")
+  (size 3095)
+  (checksum (md5 "3ee899fd86c923dc1575f46a282f9222"))
   (library
     (name (snow hello))
     (path "snow/hello.sld")

@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
+  (size 78876)
+  (checksum (md5 "a494d1425ce591121990be9026c2d6e2"))
   (library
     (name (seth snow2 client))
     (path "seth/snow2/client.sld")
@@ -25,6 +27,7 @@
       (seth srfi-37-argument-processor)
       (seth string-read-write)
       (seth uri)
+      (seth crypt md5)
       (seth snow2 types)
       (seth snow2 utils)
       (seth snow2 manage)))
@@ -39,7 +42,9 @@
     (license mit)
     (depends
       (snow extio)
+      (snow bytevector)
       (snow srfi-13-strings)
+      (snow srfi-29-format)
       (snow filesys)
       (seth crypt md5)
       (snow zlib)
@@ -60,7 +65,7 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "snow2-utils")
     (license mit)
-    (depends))
+    (depends (seth uri)))
   (library
     (name (seth snow2 utils))
     (path "seth/snow2/utils.sld")
@@ -95,5 +100,4 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "snow2-utils")
     (license mit)
-    (depends
-     )))
+    (depends)))

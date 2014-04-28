@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/mime.tgz")
+  (size 18967)
+  (checksum (md5 "7bf7a41a88d76eb029fb02314f82763f"))
   (library
     (name (seth mime))
     (path "seth/mime.sld")

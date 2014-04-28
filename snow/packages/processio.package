@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/processio.tgz")
+  (size 8727)
+  (checksum (md5 "f512e712793a200cea560217a51831ee"))
   (library
     (name (snow processio))
     (path "snow/processio.sld")

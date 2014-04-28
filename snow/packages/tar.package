@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/tar.tgz")
+  (size 25111)
+  (checksum (md5 "636b877d9ef28314abe7723ad094b06a"))
   (library
     (name (snow tar))
     (path "snow/tar.sld")

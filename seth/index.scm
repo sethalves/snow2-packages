@@ -6,6 +6,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/aws.tgz")
+    (size 19991)
+    (checksum (md5 "bea95aa7fa5739e44e11455e3c790a2e"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -52,6 +54,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/base64.tgz")
+    (size 13847)
+    (checksum (md5 "8b489b7e8f692c021bef2001498e7571"))
     (library
       (name (seth base64))
       (path "seth/base64.sld")
@@ -65,6 +69,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/binary-pack.tgz")
+    (size 5143)
+    (checksum (md5 "15e5d7666a64e67536e9abda48947b04"))
     (library
       (name (seth binary-pack))
       (path "seth/binary-pack.sld")
@@ -78,6 +84,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/cout.tgz")
+    (size 4119)
+    (checksum (md5 "ea6a8b9b06c56aaaec1bdfaabe3d2838"))
     (library
       (name (seth cout))
       (path "seth/cout.sld")
@@ -91,6 +99,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/crypt.tgz")
+    (size 52247)
+    (checksum (md5 "31b2b897dd3b7b78b16e7750f287d2b8"))
     (library
       (name (seth crypt md5))
       (path "seth/crypt/md5.sld")
@@ -139,6 +149,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/gensym.tgz")
+    (size 3095)
+    (checksum (md5 "9423a021210368a50b0ef2a8e3651ced"))
     (library
       (name (seth gensym))
       (path "seth/gensym.sld")
@@ -152,6 +164,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/http.tgz")
+    (size 18967)
+    (checksum (md5 "184f2c38f776534c2ff18f0ddcca50f1"))
     (library
       (name (seth http))
       (path "seth/http.sld")
@@ -177,6 +191,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/memcache-client.tgz")
+    (size 16919)
+    (checksum (md5 "895e646f1999f4d7fb8839e7f1dff680"))
     (library
       (name (seth memcache-client))
       (path "seth/memcache-client.sld")
@@ -197,6 +213,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/message-digest.tgz")
+    (size 54807)
+    (checksum (md5 "bf2df737cfc3517a6ff3807343effbbf"))
     (library
       (name (seth message-digest parameters))
       (path "seth/message-digest/parameters.sld")
@@ -310,6 +328,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/mime.tgz")
+    (size 18967)
+    (checksum (md5 "7bf7a41a88d76eb029fb02314f82763f"))
     (library
       (name (seth mime))
       (path "seth/mime.sld")
@@ -328,6 +348,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/network-socket.tgz")
+    (size 27159)
+    (checksum (md5 "443a87d8d473cc6d72d453e6dbba831e"))
     (library
       (name (seth network-socket))
       (path "seth/network-socket.sld")
@@ -354,6 +376,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/port-extras.tgz")
+    (size 7703)
+    (checksum (md5 "09631f72ed8e97954256fb1b27b2d784"))
     (library
       (name (seth port-extras))
       (path "seth/port-extras.sld")
@@ -367,6 +391,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/quoted-printable.tgz")
+    (size 9751)
+    (checksum (md5 "4689215cfa4120fffac72b63aeb09c61"))
     (library
       (name (seth quoted-printable))
       (path "seth/quoted-printable.sld")
@@ -381,6 +407,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
+    (size 78876)
+    (checksum (md5 "a494d1425ce591121990be9026c2d6e2"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -405,6 +433,7 @@
         (seth srfi-37-argument-processor)
         (seth string-read-write)
         (seth uri)
+        (seth crypt md5)
         (seth snow2 types)
         (seth snow2 utils)
         (seth snow2 manage)))
@@ -419,7 +448,9 @@
       (license mit)
       (depends
         (snow extio)
+        (snow bytevector)
         (snow srfi-13-strings)
+        (snow srfi-29-format)
         (snow filesys)
         (seth crypt md5)
         (snow zlib)
@@ -429,6 +460,7 @@
         (seth uri)
         (seth snow2 types)
         (seth snow2 utils)
+        (seth snow2 r7rs-library)
         (snow snowlib)))
     (library
       (name (seth snow2 types))
@@ -439,7 +471,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "snow2-utils")
       (license mit)
-      (depends))
+      (depends (seth uri)))
     (library
       (name (seth snow2 utils))
       (path "seth/snow2/utils.sld")
@@ -464,10 +496,22 @@
         (seth string-read-write)
         (seth srfi-37-argument-processor)
         (seth uri)
-        (seth snow2 types))))
+        (seth snow2 types)))
+    (library
+      (name (seth snow2 r7rs-library))
+      (path "seth/snow2/r7rs-library.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "snow2-utils")
+      (license mit)
+      (depends)))
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/srfi-27-random.tgz")
+    (size 3095)
+    (checksum (md5 "078199007c0e56ee2d9dacb26dd08457"))
     (library
       (name (seth srfi-27-random))
       (path "seth/srfi-27-random.sld")
@@ -481,6 +525,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/srfi-37-argument-processor.tgz")
+    (size 13335)
+    (checksum (md5 "2b81696df863394f27bc32c80a738804"))
     (library
       (name (seth srfi-37-argument-processor))
       (path "seth/srfi-37-argument-processor.sld")
@@ -494,6 +540,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/srfi-69-hash-tables.tgz")
+    (size 18455)
+    (checksum (md5 "80e4004c67a216da9c709849b77c8096"))
     (library
       (name (seth srfi-69-hash-tables))
       (path "seth/srfi-69-hash-tables.sld")
@@ -507,6 +555,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/string-read-write.tgz")
+    (size 4119)
+    (checksum (md5 "52b7756241f6a45e9328165c85d821b6"))
     (library
       (name (seth string-read-write))
       (path "seth/string-read-write.sld")
@@ -520,10 +570,12 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/tar.tgz")
+    (size 3607)
+    (checksum (md5 "cac107e9e7ef9570ec07d684d956309c"))
     (library
       (name (seth tar))
       (path "seth/tar.sld")
-      (version "1.0")
+      (version "1.3")
       (homepage "https://github.com/sethalves")
       (maintainers "Seth Alves <seth@hungry.com>")
       (authors "Seth Alves <seth@hungry.com>")
@@ -533,6 +585,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/temporary-file.tgz")
+    (size 5143)
+    (checksum (md5 "289b432807111257b03b38554618e2b7"))
     (library
       (name (seth temporary-file))
       (path "seth/temporary-file.sld")
@@ -546,6 +600,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/uri.tgz")
+    (size 45591)
+    (checksum (md5 "156bcbc3d9e941226570ddc5e33537ab"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
@@ -562,6 +618,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/uuid.tgz")
+    (size 5655)
+    (checksum (md5 "82f28a8f61a661490ec1215f6683f962"))
     (library
       (name (seth uuid))
       (path "seth/uuid.sld")
@@ -580,6 +638,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/variable-item.tgz")
+    (size 5655)
+    (checksum (md5 "3c85a11362806e03aaf20f57e72421b5"))
     (library
       (name (seth variable-item))
       (path "seth/variable-item.sld")
@@ -593,6 +653,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/xml.tgz")
+    (size 332336)
+    (checksum (md5 "f419a4e5d9b7b68df3cc0333407b1dd9"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
@@ -624,6 +686,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/zlib.tgz")
+    (size 6679)
+    (checksum (md5 "491665e8e4625fb3d0940e1452d9c50a"))
     (library
       (name (seth zlib))
       (path "seth/zlib.sld")

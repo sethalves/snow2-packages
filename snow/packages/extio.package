@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/extio.tgz")
+  (size 39447)
+  (checksum (md5 "0f048a1b3f37fd47bb1176afebebe1e1"))
   (library
     (name (snow extio))
     (path "snow/extio.sld")

@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/message-digest.tgz")
+  (size 54807)
+  (checksum (md5 "bf2df737cfc3517a6ff3807343effbbf"))
   (library
     (name (seth message-digest parameters))
     (path "seth/message-digest/parameters.sld")

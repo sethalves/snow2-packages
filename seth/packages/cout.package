@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/cout.tgz")
+  (size 4119)
+  (checksum (md5 "ea6a8b9b06c56aaaec1bdfaabe3d2838"))
   (library
     (name (seth cout))
     (path "seth/cout.sld")

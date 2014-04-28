@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/base64.tgz")
+  (size 13847)
+  (checksum (md5 "8b489b7e8f692c021bef2001498e7571"))
   (library
     (name (seth base64))
     (path "seth/base64.sld")

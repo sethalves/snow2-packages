@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/xml.tgz")
+  (size 332336)
+  (checksum (md5 "f419a4e5d9b7b68df3cc0333407b1dd9"))
   (library
     (name (seth xml ssax))
     (path "seth/xml/ssax.sld")

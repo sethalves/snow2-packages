@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
+  (size 13847)
+  (checksum (md5 "a80e344618b8a669ed00f4249b449422"))
   (library
     (name (snow bytevector))
     (path "snow/bytevector.sld")

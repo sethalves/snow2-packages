@@ -1,6 +1,8 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-60-integers-as-bits.tgz")
+  (size 9751)
+  (checksum (md5 "0ee0f4c74987d351b24a4e676c0cd5a8"))
   (library
     (name (snow srfi-60-integers-as-bits))
     (path "snow/srfi-60-integers-as-bits.sld")
