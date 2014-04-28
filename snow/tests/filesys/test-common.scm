@@ -66,6 +66,14 @@
    (snow-filename-relative? "../ok/fuh")
    (not (snow-filename-relative? "/ok/fuh"))
 
-   (equal? (snow-file-size "../Makefile") 46)
+   (equal? (snow-file-size "Makefile") 78)
+
+   ;; (begin
+   ;;   (write (snow-file-mtime "test-common.scm"))
+   ;;   (newline)
+   ;;   #t)
+
+   (> (snow-file-mtime "test-common.scm") 1398705085)
+
 
    #t))
