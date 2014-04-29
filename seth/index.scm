@@ -1,6 +1,6 @@
 (repository
   (sibling
-    (name "Seth Repository")
+    (name "Snow Repository")
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/")
     (trust 1.0))
   (package
