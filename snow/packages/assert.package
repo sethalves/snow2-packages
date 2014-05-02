@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/assert.tgz")
   (size 3095)
-  (checksum (md5 "f9fc9da6c69d2dbbd4b0ef72b5e95ffd"))
+  (checksum (md5 "973ac3794355083ad6666d752d515f3e"))
   (library
     (name (snow assert))
     (path "snow/assert.sld")

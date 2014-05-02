@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/random.tgz")
   (size 5143)
-  (checksum (md5 "ca645604cd8d5452449bfa265d4a4a11"))
+  (checksum (md5 "167a804b6f932205ce4c7ca85c314393"))
   (library
     (name (snow random))
     (path "snow/random.sld")

@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/gensym.tgz")
   (size 3095)
-  (checksum (md5 "d177f76ad3c70ee66e1a909a6b58061b"))
+  (checksum (md5 "271fab63047a03846c67a402076fe326"))
   (library
     (name (seth gensym))
     (path "seth/gensym.sld")

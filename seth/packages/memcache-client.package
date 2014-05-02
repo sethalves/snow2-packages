@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/memcache-client.tgz")
   (size 16919)
-  (checksum (md5 "a8b74490bbeb8f30593cf8f076c5aa09"))
+  (checksum (md5 "872c3bd98f93d44bae709676cb021546"))
   (library
     (name (seth memcache-client))
     (path "seth/memcache-client.sld")
@@ -18,5 +18,4 @@
       (snow binio)
       (seth network-socket)
       (seth string-read-write)
-      (seth port-extras)
       (seth base64))))

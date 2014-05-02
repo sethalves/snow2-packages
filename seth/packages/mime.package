@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/mime.tgz")
   (size 18967)
-  (checksum (md5 "03acc24be99ad2ee52d1c7a201e3bd41"))
+  (checksum (md5 "65f1bbca58575283ff4524e0c3092187"))
   (library
     (name (seth mime))
     (path "seth/mime.sld")
@@ -14,7 +14,6 @@
     (license BSD-style "http://synthcode.com/license.txt")
     (depends
       (snow srfi-13-strings)
-      (snow extio)
       (seth quoted-printable)
       (seth base64)
       (snow binio))))

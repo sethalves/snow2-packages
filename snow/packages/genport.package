@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/genport.tgz")
   (size 13847)
-  (checksum (md5 "1f4c1010104543fa16dbc73783bfdf4e"))
+  (checksum (md5 "4ef9ff698f963dc951828f6be2f70e11"))
   (library
     (name (snow genport))
     (path "snow/genport.sld")

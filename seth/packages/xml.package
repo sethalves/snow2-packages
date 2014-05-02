@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/xml.tgz")
   (size 332336)
-  (checksum (md5 "2e42c2917f357c81cbd4751b8f6df989"))
+  (checksum (md5 "b97b9a37f14eca3b3d51f0ae2a6b8637"))
   (library
     (name (seth xml ssax))
     (path "seth/xml/ssax.sld")
@@ -12,11 +12,7 @@
     (authors "Oleg Kiselyov")
     (description "XML parser")
     (license public-domain)
-    (depends
-      (snow snowlib)
-      (snow assert)
-      (snow input-parse)
-      (snow srfi-13-strings)))
+    (depends (snow assert) (snow input-parse) (snow srfi-13-strings)))
   (library
     (name (seth xml sxpath))
     (path "seth/xml/sxpath.sld")

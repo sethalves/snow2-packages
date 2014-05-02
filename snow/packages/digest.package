@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/digest.tgz")
   (size 64023)
-  (checksum (md5 "9aad8b62e4a6a027fb9c11f775cf611f"))
+  (checksum (md5 "db3434cdef57e8ecf626e5e41e732b38"))
   (library
     (name (snow digest))
     (path "snow/digest.sld")

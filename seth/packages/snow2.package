@@ -1,8 +1,8 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
-  (size 79388)
-  (checksum (md5 "830ecb6b189d01ad19a49d1eee20b5ed"))
+  (size 87068)
+  (checksum (md5 "408a291208328214dd2cc28c9791d519"))
   (library
     (name (seth snow2 client))
     (path "seth/snow2/client.sld")
@@ -14,9 +14,7 @@
     (license mit)
     (depends
       (snow snowlib)
-      (snow extio)
       (snow srfi-13-strings)
-      (seth srfi-69-hash-tables)
       (snow filesys)
       (snow binio)
       (snow genport)
@@ -78,17 +76,9 @@
     (depends
       (snow snowlib)
       (snow extio)
-      (snow srfi-13-strings)
       (seth srfi-69-hash-tables)
       (snow filesys)
-      (snow binio)
-      (snow genport)
-      (snow zlib)
-      (snow tar)
       (seth http)
-      (seth temporary-file)
-      (seth string-read-write)
-      (seth srfi-37-argument-processor)
       (seth uri)
       (seth snow2 types)))
   (library
@@ -100,4 +90,8 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "snow2-utils")
     (license mit)
-    (depends)))
+    (depends
+      (snow filesys)
+      (seth snow2 types)
+      (snow srfi-95-sort)
+      (seth snow2 utils))))

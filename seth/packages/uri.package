@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/uri.tgz")
   (size 45591)
-  (checksum (md5 "fabc36309baaa1f5b9e29f43f45d2dd6"))
+  (checksum (md5 "027b20088e25b5b313ba368cc038aaf4"))
   (library
     (name (seth uri))
     (path "seth/uri.sld")

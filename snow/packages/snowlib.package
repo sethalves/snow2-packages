@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/snowlib.tgz")
   (size 24087)
-  (checksum (md5 "b73822cf5622e4ac0bdf5f5e951a4df9"))
+  (checksum (md5 "b13e57396ce71f4a87de9d360dd5e39e"))
   (library
     (name (snow snowlib))
     (path "snow/snowlib.sld")

@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-95-sort.tgz")
   (size 12823)
-  (checksum (md5 "cd675f797e51850b448ba2a7918ec384"))
+  (checksum (md5 "a92ea3c479392788899be1db15182c2a"))
   (library
     (name (snow srfi-95-sort))
     (path "snow/srfi-95-sort.sld")

@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
   (size 34327)
-  (checksum (md5 "c60eab123b0759044ead6bfc4789ebf8"))
+  (checksum (md5 "0aeb165597d697b838c3747784fd3534"))
   (library
     (name (snow filesys))
     (path "snow/filesys.sld")
@@ -12,11 +12,7 @@
     (authors "Marc Feeley <feeley at iro.umontreal.ca>")
     (description "File system access." os snow)
     (license lgpl/v2.1)
-    (depends
-      (snow random)
-      (snow srfi-13-strings)
-      (snow bytevector)
-      (snow gauche-filesys-utils)))
+    (depends (snow srfi-13-strings) (snow gauche-filesys-utils)))
   (library
     (name (snow gauche-filesys-utils))
     (path "snow/gauche-filesys-utils.sld")

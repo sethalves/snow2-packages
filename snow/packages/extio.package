@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/extio.tgz")
   (size 39447)
-  (checksum (md5 "d8d3fdedc751699a09cb6b4175ce9d00"))
+  (checksum (md5 "7d69920c0c176e3469b9c0f0588c2e69"))
   (library
     (name (snow extio))
     (path "snow/extio.sld")
@@ -14,7 +14,6 @@
     (license lgpl/v2.1)
     (depends
       (snow snowlib)
-      (snow binio)
       (snow bytevector)
       (snow srfi-60-integers-as-bits)
       (snow gauche-extio-utils)))

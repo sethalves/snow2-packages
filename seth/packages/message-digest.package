@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/message-digest.tgz")
   (size 54807)
-  (checksum (md5 "b183b1dc14601c3ca7a238b750952be8"))
+  (checksum (md5 "8ff16820cb42ad2af6ed421e955fa3dc"))
   (library
     (name (seth message-digest parameters))
     (path "seth/message-digest/parameters.sld")
@@ -52,10 +52,7 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends
-      (seth message-digest primitive)
-      (seth message-digest type)
-      (seth message-digest support)))
+    (depends (seth message-digest type) (seth message-digest support)))
   (library
     (name (seth message-digest port))
     (path "seth/message-digest/port.sld")
@@ -66,9 +63,7 @@
     (description "message-digest")
     (license BSD)
     (depends
-      (seth string-read-write)
       (seth srfi-69-hash-tables)
-      (seth message-digest primitive)
       (seth message-digest type)
       (seth message-digest bv)))
   (library
@@ -85,8 +80,7 @@
       (snow bytevector)
       (seth message-digest parameters)
       (seth message-digest primitive)
-      (seth message-digest type)
-      (seth message-digest support)))
+      (seth message-digest type)))
   (library
     (name (seth message-digest md5))
     (path "seth/message-digest/md5.sld")

@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/quoted-printable.tgz")
   (size 9751)
-  (checksum (md5 "a41d863aa26e80ce4b417d1cad2af374"))
+  (checksum (md5 "9f424c471d1ec7989ff30b893a30d1b0"))
   (library
     (name (seth quoted-printable))
     (path "seth/quoted-printable.sld")

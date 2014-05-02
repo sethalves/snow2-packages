@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/uuid.tgz")
   (size 5655)
-  (checksum (md5 "d9078c095a759be180767b9d107e6ac7"))
+  (checksum (md5 "f4dace3cf3571767ff1b30a6b50e2405"))
   (library
     (name (seth uuid))
     (path "seth/uuid.sld")

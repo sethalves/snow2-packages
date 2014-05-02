@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/string-read-write.tgz")
   (size 4119)
-  (checksum (md5 "f61a3bcd2e463f8ebfe0fcd87a40f6df"))
+  (checksum (md5 "9ec9763d23933f3a9f8c9908dab388ef"))
   (library
     (name (seth string-read-write))
     (path "seth/string-read-write.sld")

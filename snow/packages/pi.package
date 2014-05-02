@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/pi.tgz")
   (size 4631)
-  (checksum (md5 "424f61286dda2d827d4b0496639ea189"))
+  (checksum (md5 "76ab2b8e7229a848aa481fd03d729149"))
   (library
     (name (snow pi))
     (path "snow/pi.sld")

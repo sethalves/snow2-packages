@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/network-socket.tgz")
   (size 27159)
-  (checksum (md5 "48e43beefad43adf103a3888fcc28cae"))
+  (checksum (md5 "3d9939e0cff5d25f0d3eb0fca70e33f0"))
   (library
     (name (seth network-socket))
     (path "seth/network-socket.sld")
@@ -12,7 +12,7 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "network-socket")
     (license bsd)
-    (depends (seth port-extras) (snow bytevector) (seth gauche-socket-utils)))
+    (depends (snow bytevector) (seth gauche-socket-utils)))
   (library
     (name (seth gauche-socket-utils))
     (path "seth/gauche-socket-utils.sld")

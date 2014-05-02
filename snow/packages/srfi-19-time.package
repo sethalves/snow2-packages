@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-19-time.tgz")
   (size 58903)
-  (checksum (md5 "eb45b5781d70e1b62f3c2d17733fcdb9"))
+  (checksum (md5 "3da2f1e034e0a12324699d642dfdf4ee"))
   (library
     (name (snow srfi-19-time))
     (path "snow/srfi-19-time.sld")

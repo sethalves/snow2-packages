@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-13-strings.tgz")
   (size 15895)
-  (checksum (md5 "5e290b061c70d5217bb21abe1d1d45d8"))
+  (checksum (md5 "20a8d617129bd587018c2bc2812d2afa"))
   (library
     (name (snow srfi-13-strings))
     (path "snow/srfi-13-strings.sld")

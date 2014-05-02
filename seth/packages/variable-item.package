@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/variable-item.tgz")
   (size 5655)
-  (checksum (md5 "eda5e539ab3d6fa6d0a7985e48213ef8"))
+  (checksum (md5 "d75a396c36aa69d2354daf37b8336bb1"))
   (library
     (name (seth variable-item))
     (path "seth/variable-item.sld")

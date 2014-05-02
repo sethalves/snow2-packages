@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/port-extras.tgz")
   (size 7703)
-  (checksum (md5 "d0c36532ea1ddbc778a561f0db4b7c14"))
+  (checksum (md5 "df87aa702a7dae8e269764a9d0789265"))
   (library
     (name (seth port-extras))
     (path "seth/port-extras.sld")
@@ -12,4 +12,4 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "port-extras")
     (license lgpl/v2.1)
-    (depends (snow bytevector) (snow binio) (seth string-read-write))))
+    (depends (snow bytevector) (snow binio))))
