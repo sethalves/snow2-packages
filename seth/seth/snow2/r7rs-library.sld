@@ -22,7 +22,7 @@
           )
 
   (cond-expand
-   (chibi (import (only (srfi 1) filter)))
+   (chibi (import (only (srfi 1) filter find)))
    (else (import (srfi 1))))
 
   (begin

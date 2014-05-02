@@ -15,7 +15,7 @@
   (cond-expand
    (chibi (import (only (srfi 1) filter make-list any
                         fold last lset-difference delete-duplicates
-                        drop-right)))
+                        drop-right find)))
    (else (import (srfi 1))))
   (import (snow snowlib)
           (snow bytevector)
