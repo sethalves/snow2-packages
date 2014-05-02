@@ -25,6 +25,7 @@
           (seth crypt md5)
           (seth snow2 types)
           (seth snow2 utils)
+          (seth snow2 r7rs-library)
           (seth snow2 manage)
           )
   (begin
@@ -428,6 +429,13 @@
                                       '() repository-urls))
                        (credentials #f))
                    (check-packages credentials repositories args)))
+                ((member operation '("blerg"))
+                 (let ((repositories (get-repositories-and-siblings
+                                      '() repository-urls))
+                       (credentials #f))
+                   (check-packages~ credentials repositories
+                                    (map read-from-string args)
+                                    )))
                 ;; other operations
                 ((not (member operation '("link-install"
                                           "install"
