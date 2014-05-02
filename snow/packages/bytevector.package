@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
   (size 13847)
-  (checksum (md5 "a80e344618b8a669ed00f4249b449422"))
+  (checksum (md5 "6bec7305a8e25e32317c2b7ea9e5eac0"))
   (library
     (name (snow bytevector))
     (path "snow/bytevector.sld")

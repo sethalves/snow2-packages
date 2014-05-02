@@ -2,7 +2,7 @@
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/binio.tgz")
   (size 9751)
-  (checksum (md5 "df75aa5e6e202bff10709414583a4c1a"))
+  (checksum (md5 "eccf0309b21e1d1aaa143e27bc399355"))
   (library
     (name (snow binio))
     (path "snow/binio.sld")
