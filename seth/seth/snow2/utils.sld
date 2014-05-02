@@ -284,7 +284,7 @@
 
     (define (find-package-with-library repositories library-name)
       ;; find the last package that contains a library with the given name
-      (car (find-package-with-library repositories library-name)))
+      (car (find-packages-with-library repositories library-name)))
 
 
     (define (find-packages-with-libraries repositories library-names)
