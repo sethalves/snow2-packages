@@ -7,7 +7,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/assert.tgz")
     (size 3095)
-    (checksum (md5 "55cc949067fd1c3a66de12475e4b84f8"))
+    (checksum (md5 "f9fc9da6c69d2dbbd4b0ef72b5e95ffd"))
     (library
       (name (snow assert))
       (path "snow/assert.sld")
@@ -22,7 +22,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bignum.tgz")
     (size 39447)
-    (checksum (md5 "fcbc3f4285689059f8edf2dea833444c"))
+    (checksum (md5 "2b01de11be03e9178f4c60b5d4fc6edb"))
     (library
       (name (snow bignum))
       (path "snow/bignum.sld")
@@ -37,7 +37,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/binio.tgz")
     (size 9751)
-    (checksum (md5 "df75aa5e6e202bff10709414583a4c1a"))
+    (checksum (md5 "eccf0309b21e1d1aaa143e27bc399355"))
     (library
       (name (snow binio))
       (path "snow/binio.sld")
@@ -52,7 +52,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
     (size 13847)
-    (checksum (md5 "a80e344618b8a669ed00f4249b449422"))
+    (checksum (md5 "6bec7305a8e25e32317c2b7ea9e5eac0"))
     (library
       (name (snow bytevector))
       (path "snow/bytevector.sld")
@@ -77,7 +77,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/digest.tgz")
     (size 64023)
-    (checksum (md5 "aac658014cddb770d4a772420eba4e96"))
+    (checksum (md5 "9aad8b62e4a6a027fb9c11f775cf611f"))
     (library
       (name (snow digest))
       (path "snow/digest.sld")
@@ -100,7 +100,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/extio.tgz")
     (size 39447)
-    (checksum (md5 "0f048a1b3f37fd47bb1176afebebe1e1"))
+    (checksum (md5 "d8d3fdedc751699a09cb6b4175ce9d00"))
     (library
       (name (snow extio))
       (path "snow/extio.sld")
@@ -129,8 +129,8 @@
   (package
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
-    (size 33303)
-    (checksum (md5 "fc8f063ba56540f017d7c5100cd8b385"))
+    (size 34327)
+    (checksum (md5 "c60eab123b0759044ead6bfc4789ebf8"))
     (library
       (name (snow filesys))
       (path "snow/filesys.sld")
@@ -159,7 +159,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/genport.tgz")
     (size 13847)
-    (checksum (md5 "0c5bf3c1cdd84eebbf8b4ec043c1d1ef"))
+    (checksum (md5 "1f4c1010104543fa16dbc73783bfdf4e"))
     (library
       (name (snow genport))
       (path "snow/genport.sld")
@@ -184,7 +184,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/hello.tgz")
     (size 3095)
-    (checksum (md5 "3ee899fd86c923dc1575f46a282f9222"))
+    (checksum (md5 "ca1dc3d8fd6387ae3971fa63dfada579"))
     (library
       (name (snow hello))
       (path "snow/hello.sld")
@@ -199,7 +199,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/input-parse.tgz")
     (size 12311)
-    (checksum (md5 "5a6466f97fc65e381015d311ea85694d"))
+    (checksum (md5 "8f6374ebb031b5ddb2090faa9acf8419"))
     (library
       (name (snow input-parse))
       (path "snow/input-parse.sld")
@@ -215,7 +215,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/pi.tgz")
     (size 4631)
-    (checksum (md5 "4a6623a828d3731400720c56c146eb5d"))
+    (checksum (md5 "424f61286dda2d827d4b0496639ea189"))
     (library
       (name (snow pi))
       (path "snow/pi.sld")
@@ -230,7 +230,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/processio.tgz")
     (size 8727)
-    (checksum (md5 "f512e712793a200cea560217a51831ee"))
+    (checksum (md5 "2e3f477bb66f0e1533128aebda4227e7"))
     (library
       (name (snow processio))
       (path "snow/processio.sld")
@@ -247,7 +247,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/random.tgz")
     (size 5143)
-    (checksum (md5 "2a0d0453ae22b4801c6b3593270db694"))
+    (checksum (md5 "ca645604cd8d5452449bfa265d4a4a11"))
     (library
       (name (snow random))
       (path "snow/random.sld")
@@ -262,7 +262,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/snowlib.tgz")
     (size 24087)
-    (checksum (md5 "70c7fe0945c371d6782d689e236d5814"))
+    (checksum (md5 "b73822cf5622e4ac0bdf5f5e951a4df9"))
     (library
       (name (snow snowlib))
       (path "snow/snowlib.sld")
@@ -277,7 +277,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-13-strings.tgz")
     (size 15895)
-    (checksum (md5 "76d436d32c620144726c5bda29c4f7da"))
+    (checksum (md5 "5e290b061c70d5217bb21abe1d1d45d8"))
     (library
       (name (snow srfi-13-strings))
       (path "snow/srfi-13-strings.sld")
@@ -292,7 +292,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-19-time.tgz")
     (size 58903)
-    (checksum (md5 "604843dede6b77ff74f568dbaec1370b"))
+    (checksum (md5 "eb45b5781d70e1b62f3c2d17733fcdb9"))
     (library
       (name (snow srfi-19-time))
       (path "snow/srfi-19-time.sld")
@@ -307,7 +307,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-29-format.tgz")
     (size 10775)
-    (checksum (md5 "210abd854b1983bf7006bd1a7c36dec9"))
+    (checksum (md5 "13aee06dbe469342cec108b04e630b0e"))
     (library
       (name (snow srfi-29-format))
       (path "snow/srfi-29-format.sld")
@@ -322,7 +322,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-60-integers-as-bits.tgz")
     (size 9751)
-    (checksum (md5 "0ee0f4c74987d351b24a4e676c0cd5a8"))
+    (checksum (md5 "4ae3383fe946486e6685e44ac4d8d356"))
     (library
       (name (snow srfi-60-integers-as-bits))
       (path "snow/srfi-60-integers-as-bits.sld")
@@ -337,7 +337,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-95-sort.tgz")
     (size 12823)
-    (checksum (md5 "df59fd3ed1ca2ee9c2ea59241cb3d3b9"))
+    (checksum (md5 "cd675f797e51850b448ba2a7918ec384"))
     (library
       (name (snow srfi-95-sort))
       (path "snow/srfi-95-sort.sld")
@@ -364,7 +364,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/tar.tgz")
     (size 25111)
-    (checksum (md5 "636b877d9ef28314abe7723ad094b06a"))
+    (checksum (md5 "55d0a087f38a6a86396be1ec728b1d1c"))
     (library
       (name (snow tar))
       (path "snow/tar.sld")
@@ -385,7 +385,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/zlib.tgz")
     (size 45591)
-    (checksum (md5 "13661c225c9715f9aed98039f40e3669"))
+    (checksum (md5 "4db34b925317461c15bbec06800f0bfd"))
     (library
       (name (snow zlib))
       (path "snow/zlib.sld")
