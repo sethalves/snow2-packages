@@ -20,7 +20,8 @@
    (seth message-digest parameters)
    (seth message-digest primitive)
    (seth message-digest type)
-   (seth message-digest support))
+   ;; (seth message-digest support)
+   )
 
 (begin
 

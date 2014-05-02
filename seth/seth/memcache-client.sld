@@ -29,7 +29,7 @@
           (snow binio)
           (seth network-socket)
           (seth string-read-write)
-          (seth port-extras)
+          ;; (seth port-extras)
           (seth base64))
   (begin
 
