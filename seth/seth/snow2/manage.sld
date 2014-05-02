@@ -2,7 +2,7 @@
   (export make-package-archives
           upload-packages-to-s3
           check-packages
-          check-packages~
+          ;; check-packages~
           )
 
   (import (scheme base)
@@ -28,7 +28,7 @@
           (seth uri)
           (seth crypt md5)
           (seth aws common)
-          (seth srfi-69-hash-tables)
+          ;; (seth srfi-69-hash-tables)
           (seth aws s3)
           (seth snow2 types)
           (seth snow2 utils)
@@ -282,7 +282,13 @@
       (let ((repositories (filter snow2-repository-local repositories)))
         (let ((repository
                (cond ((> (length repositories) 1)
-                      (error "multiple local repositories given.\n"))
+                      ;; (error "multiple local repositories given.\n")
+                      ;; (find-implied-local-repository)
+                      (let ((repo (last repositories)))
+                        (display "multiple local repositories given, using ")
+                        (write (uri->string (snow2-repository-url repo)))
+                        (newline)
+                        repo))
                      ((= (length repositories) 1)
                       (car repositories))
                      (else (find-implied-local-repository)))))
@@ -383,20 +389,33 @@
             (local-repository->in-fs-index-filename local-repository))))))
 
 
+    (define (import-is-needed? imported-lib-exports lib-body-symbols)
+      (find (lambda (imported-lib-export)
+              (member imported-lib-export lib-body-symbols))
+            imported-lib-exports))
+
+
     (define (check-packages credentials repositories package-metafiles)
       (local-packages-operation
        repositories package-metafiles
        (lambda (local-repository package-metafile package)
-         (map
+         (for-each
           (lambda (lib)
             (let* ((lib-filename (local-repository->in-fs-lib-filename
                                   local-repository lib))
-                   (lib-imports (r7rs-get-library-imports lib-filename))
+                   (lib-sexp (r7rs-library-file->sexp lib-filename))
+                   (lib-imports (r7rs-get-imported-library-names lib-sexp))
                    (pkg-depends (snow2-library-depends lib))
                    (deps-missing
                     (lset-difference equal? lib-imports pkg-depends))
                    (deps-unneeded
-                    (lset-difference equal? pkg-depends lib-imports)))
+                    (lset-difference equal? pkg-depends lib-imports))
+
+                   ;; (XXX (begin (write lib-filename) (newline)))
+
+                   (lib-body-symbols (r7rs-get-referenced-symbols lib-sexp))
+                   (import-decls (r7rs-get-import-decls lib-sexp))
+                   )
 
               (cond
                ((pair? deps-missing)
@@ -418,25 +437,41 @@
                 (write deps-unneeded)
                 (newline)))
 
+              ;; (display "-------lib-body-symbols-------\n")
+              ;; (write lib-body-symbols)
+              ;; (newline)
+
+              ;; (display "-------import-decls-------\n")
+              ;; (write import-decls)
+              ;; (newline)
+
+              (for-each (lambda (import-decl)
+
+                          ;; (display "  ------")
+                          ;; (write import-decl)
+                          ;; (display "\n")
+
+                          (let-values (((imported-lib-name imported-lib-exports)
+                                        (r7rs-get-exports-from-import-set
+                                         repositories import-decl)))
+                            (cond ((and
+                                    imported-lib-name
+                                    (not (is-system-import? imported-lib-name))
+                                    (not (import-is-needed?
+                                          imported-lib-exports
+                                          lib-body-symbols)))
+                                   (display "in ")
+                                   (write lib-filename)
+                                   (display " unused import: ")
+                                   (write imported-lib-name)
+                                   (newline)
+
+                                   (write imported-lib-exports)
+                                   (newline)
+
+                                   ))))
+                        import-decls)
               ))
           (snow2-package-libraries package)))))
-
-
-    (define (check-packages~ credentials repositories import-decls)
-      (for-each
-       (lambda (import-decl)
-         (display "-------------\n")
-         (write import-decl)
-         (newline)
-         (let ((result (r7rs-get-exports-from-imports
-                        repositories import-decl)))
-           (for-each (lambda (key)
-                       (write key)
-                       (display "  ")
-                       (write (hash-table-ref result key))
-                       (newline))
-                     (hash-table-keys result)))
-         (newline))
-       import-decls))
 
     ))

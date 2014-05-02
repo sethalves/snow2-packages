@@ -1,14 +1,22 @@
 (define-library (seth snow2 r7rs-library)
-  (export r7rs-get-library-imports
-          r7rs-get-exports-from-imports
+  (export r7rs-get-import-decls
+          r7rs-get-imported-library-names
+          is-system-import?
+          ;; r7rs-get-exports-from-imports
+          r7rs-get-exports-from-import-set
+          r7rs-get-referenced-symbols
+          r7rs-library-file->sexp
           )
   (import (scheme base)
+          (scheme char)
           (scheme cxr)
           (scheme read)
           (scheme write)
           (scheme file)
           (snow filesys)
-          (seth srfi-69-hash-tables)
+          ;; (snow srfi-13-strings)
+          (snow srfi-95-sort)
+          ;; (seth srfi-69-hash-tables)
           (seth snow2 types)
           (seth snow2 utils)
           )
@@ -37,9 +45,18 @@
 
 
     (define (r7rs-drop-body r7rs-lib)
+      ;; return r7rs-lib with (begin ...) snipped out
       (filter
        (lambda (term)
          (not (and (pair? term) (eq? (car term) 'begin))))
+       r7rs-lib))
+
+
+    (define (r7rs-body r7rs-lib)
+      ;; return (begin ...)
+      (find
+       (lambda (term)
+         (and (pair? term) (eq? (car term) 'begin)))
        r7rs-lib))
 
 
@@ -61,23 +78,24 @@
             (else (cons (car lst) (uniq (cdr lst))))))
 
 
+    (define (is-system-import? lib-name)
+      (and (pair? lib-name)
+           (memq (car lib-name)
+                 '(scheme scheme chibi r7rs gauche sagittarius
+                          ports tcp rnrs use openssl udp posix
+                          srfi chicken ssax sxml sxpath txpath
+                          sxpath-lolevel text md5 rfc math sha1 sha2
+                          util memcached matchable match
+                          extras http-client uri-generic intarweb
+                          message-digest file z3 base64 hmac
+                          binary input-parse
+                          srfi-27 srfi-95))))
+
+
     (define (r7rs-filter-known-imports r7rs-imports)
       (filter
        (lambda (r7rs-import)
-         (cond ((and (pair? r7rs-import)
-                     (memq (car r7rs-import)
-                           '(scheme scheme chibi r7rs gauche sagittarius
-                                    ports tcp rnrs use openssl udp posix
-                                    srfi chicken ssax sxml sxpath txpath
-                                    sxpath-lolevel text md5 rfc math sha1 sha2
-                                    util memcached matchable match
-                                    extras http-client uri-generic intarweb
-                                    message-digest file z3 base64 hmac
-                                    binary input-parse
-
-                                    srfi-27 srfi-95
-                                    ))) #f)
-               (else #t)))
+         (not (is-system-import? r7rs-import)))
        r7rs-imports))
 
 
@@ -94,60 +112,29 @@
             (else r7rs-import)))
 
 
-
-    (define (r7rs-get-library-imports filename)
-      ;; (display filename)
-      ;; (newline)
-
+    (define (r7rs-library-file->sexp filename)
       (let* ((p (open-input-file filename))
-             (r7rs-lib (read p))
-             (r7rs-no-begin (r7rs-drop-body r7rs-lib))
-             (r7rs-sans-ce (r7rs-explode-cond-expand r7rs-no-begin))
-             (r7rs-imports-all (r7rs-extract-im/export r7rs-sans-ce 'import))
-             (r7rs-imports-clean (map r7rs-import-set->libs r7rs-imports-all))
-             ;; (r7rs-imports-clean
-             ;;  (map (lambda (r7rs-import)
-             ;;         (cond ((not (pair? r7rs-import))
-             ;;                (display "Warning: unexpected import form: ")
-             ;;                (write r7rs-import)
-             ;;                (newline)
-             ;;                r7rs-import)
-             ;;               ((eq? (car r7rs-import) 'only)
-             ;;                (cadr r7rs-import))
-             ;;               ((eq? (car r7rs-import) 'prefix)
-             ;;                (cadr r7rs-import))
-             ;;               (else r7rs-import)))
-             ;;       r7rs-imports-all))
-             (r7rs-imports
-              (r7rs-filter-known-imports (uniq r7rs-imports-clean)))
-             )
+             (lib-sexp (read p)))
         (close-input-port p)
-
-        ;; (snow-pretty-print r7rs-no-begin)
-        ;; (newline)
-        ;; (snow-pretty-print r7rs-sans-ce)
-        ;; (newline)
-        ;; (newline)
-        ;; (snow-pretty-print r7rs-imports)
-        ;; (newline)
-        ;; (snow-pretty-print r7rs-imports)
-        ;; (newline)
-
-        r7rs-imports))
+        lib-sexp))
 
 
-    (define (hash-table-cons! ht key value)
-      (cond ((hash-table-exists? ht key)
-             (let ((previous (hash-table-ref ht key)))
-               (hash-table-set! ht key (cons value previous))))
-            (else
-             (hash-table-set! ht key (list value)))))
+    (define (r7rs-get-import-decls lib-sexp)
+      ;; extract a list of import-delcs from the (import ...) statements
+      ;; in lib-sexp
+      (let* ((lib-no-begin (r7rs-drop-body lib-sexp))
+             (lib-sans-ce (r7rs-explode-cond-expand lib-no-begin)))
+        (uniq (r7rs-extract-im/export lib-sans-ce 'import))))
+
+
+    (define (r7rs-get-imported-library-names lib-sexp)
+      ;; return a list of library-names that may be imported by this library
+      (let* ((lib-imports-all (r7rs-get-import-decls lib-sexp))
+             (lib-imports-clean (map r7rs-import-set->libs lib-imports-all)))
+        (r7rs-filter-known-imports (uniq lib-imports-clean))))
 
 
     (define (r7rs-get-library-exports filename)
-      ;; (display filename)
-      ;; (newline)
-
       (let* ((p (open-input-file filename))
              (r7rs-lib (read p))
              (r7rs-no-begin (r7rs-drop-body r7rs-lib))
@@ -156,7 +143,7 @@
         r7rs-exports))
 
 
-    (define (r7rs-get-exports-from-imports-set repositories import-set)
+    (define (r7rs-get-exports-from-import-set repositories import-set)
       (cond ((not (list? import-set))
              (error "import-set isn't a list"))
             ((null? import-set)
@@ -167,7 +154,7 @@
             ((eq? (car import-set) 'prefix)
              (let ((prefix (symbol->string (caddr import-set))))
                (let-values (((sub-lib sub-identifiers)
-                             (r7rs-get-exports-from-imports-set
+                             (r7rs-get-exports-from-import-set
                               repositories (cadr import-set))))
                  (values sub-lib
                          (map (lambda (identifier)
@@ -184,9 +171,6 @@
                     (libs (find-libraries-by-name local-repos import-set))
                     (libs-len (length libs)))
                (cond ((= libs-len 0)
-                      (display "library ")
-                      (write import-set)
-                      (display " not found in a local repository.\n")
                       (values #f '()))
                      ((> libs-len 1)
                       (display "library ")
@@ -195,41 +179,39 @@
                       (values #f '()))
                      (else
                       (let* ((lib (car libs))
-                             (lib-path (local-repository->in-fs-lib-path
-                                        (car local-repos) lib)))
-                        (values
-                         import-set
-                         (r7rs-get-library-exports
-                          (snow-combine-filename-parts lib-path))))))))))
+                             (lib-pkg (snow2-library-package lib))
+                             (lib-repo (snow2-package-repository lib-pkg)))
+                        (cond (lib-repo
+                               (values import-set
+                                       (r7rs-get-library-exports
+                                        (snow-combine-filename-parts
+                                         (local-repository->in-fs-lib-path
+                                          lib-repo lib)))))
+                              (else
+                               (display "didn't find repository for ")
+                               (write (snow2-library-name (car libs)))
+                               (display ", perhaps need a re-package?\n")
+                               (values #f '()))))))))))
 
 
+    (define (flatten lst)
+      (cond
+       ((null? lst) '())
+       ((not (pair? lst)) (list lst))
+       ((pair? lst)
+        (append (flatten (car lst)) (flatten (cdr lst))))
+       (else
+        (cons (car lst) (flatten (cdr lst))))))
 
 
+    (define (r7rs-get-referenced-symbols lib-sexp)
+      (let ((body (r7rs-body lib-sexp)))
+        (cond (body
+               (sort
+                (uniq (filter symbol? (flatten body)))
+                (lambda (a b)
+                  (string-ci<? (symbol->string a) (symbol->string b)))))
+              (else '()))))
 
-    (define (r7rs-get-exports-from-imports repositories import-decl)
-      ;; given an import declaration, figure out the names of
-      ;; the libraries, see if we can find these libraries in
-      ;; local repositories and return a hashtable with library
-      ;; names as keys and export-lists as values.
-      (cond ((not (list? import-decl))
-             (error "r7rs-get-exports-from-imports import-decl isn't a list"))
-            ((null? import-decl)
-             (error "r7rs-get-exports-from-imports import-decl is empty"))
-            ((not (eq? (car import-decl) 'import))
-             (error "r7rs-get-exports-from-imports no (import ...)"))
-            (else
-             (let ((result (make-hash-table)))
-               (for-each
-                (lambda (import-set)
-                  (let-values (((lib identifiers)
-                                (r7rs-get-exports-from-imports-set
-                                 repositories import-set)))
-                    (if lib
-                        (for-each
-                         (lambda (identifier)
-                           (hash-table-cons! result lib identifier))
-                         identifiers))))
-                (cdr import-decl))
-               result))))
 
     ))
