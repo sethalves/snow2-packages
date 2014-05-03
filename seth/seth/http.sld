@@ -32,8 +32,8 @@
             (match)
             (srfi 1)
             (srfi 13)
-            (srfi 14)))
-   )
+            (srfi 14)
+            (only (rnrs) make-custom-binary-input-port))))
   (import (snow snowlib)
           (snow bytevector)
           (snow binio)
@@ -136,7 +136,7 @@
          (chibi
           (make-custom-binary-input-port
            (lambda (str start end)
-             (cond (saw-eof (eof-object))
+             (cond (saw-eof 0)
                    (else
                     (let ((c (chunked-read-u8)))
                       (cond ((eof-object? c) c)
@@ -158,6 +158,23 @@
            :getc chunked-read-char
            :ready chunked-char-ready?
            :close (lambda () #t)))
+
+         (sagittarius
+          (make-custom-binary-input-port
+           "http chunked port"
+           (lambda (str start count)
+             (cond (saw-eof 0)
+                   (else
+                    (let ((c (chunked-read-u8)))
+                      (cond ((eof-object? c) 0)
+                            (else
+                             (bytevector-u8-set! str start c)
+                             1))))))
+           #f ;; get-position
+           #f ;; set-position!
+           #f ;; close
+           #f ;; ready
+           ))
 
          (else
           (let loop ((chars '()))
@@ -337,17 +354,13 @@
 
         (let* ((status-code (read-status-line read-port))
                (headers (mime-headers->list read-port))
-
-               ;; (XXX (begin (display "headers=") (write headers) (newline)))
-
                (content-length
                 (http-header-as-integer headers 'content-length #f))
                (transfer-encoding
                 (http-header-as-string headers 'transfer-encoding #f))
                (body-port
                 (cond ((or (equal? verb-str "HEAD")
-                           (= status-code 204) ;; No Content
-                           )
+                           (= status-code 204)) ;; No Content
                        (open-input-bytevector (make-bytevector 0)))
                       (content-length
                        (make-delimited-input-port read-port content-length))

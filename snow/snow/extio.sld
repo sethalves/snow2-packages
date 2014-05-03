@@ -20,9 +20,18 @@
                           seek/cur seek/end)
                     (ports)))
    (gauche (import (snow gauche-extio-utils)))
-   (sagittarius (import (only (rnrs) port-position set-port-position!))))
+   (sagittarius (import
+                 (only (rnrs)
+                       port-position
+                       set-port-position!
+                       make-custom-binary-input-port
+                       make-custom-textual-input-port
+                       transcoded-port
+                       make-transcoder
+                       utf-8-codec
+                       latin-1-codec
+                       eol-style))))
   (import (snow snowlib)
-          ;; (snow binio)
           (snow bytevector)
           (snow srfi-60-integers-as-bits)
           )
@@ -518,8 +527,54 @@
            ))))
 
 
+     (sagittarius-XXX ;; XXX why is this so slow?
+      (define (make-delimited-textual-input-port port len)
+        (let ((index 0))
+          (make-custom-textual-input-port
+           (string-append "delmited textual port " (number->string len))
+           (lambda (str start count)
+             (cond ((= index len) 0)
+                   (else
+                    (let ((c (read-char port)))
+                      (cond ((eof-object? c) c)
+                            (else (set! index (+ index 1))
+                                  (string-set! str start c)
+                                  1))))))
+           #f ;; get-position
+           #f ;; set-position!
+           #f ;; close
+           (lambda () (char-ready? port)) ;; ready
+           )))
+
+
+      (define (make-delimited-binary-input-port port len)
+        (let ((index 0))
+          (make-custom-binary-input-port
+           (string-append "delmited binary port " (number->string len))
+           (lambda (bv start count)
+             (let* ((plan-to-read (- len index))
+                    (plan-to-read
+                     (if (< count plan-to-read) count plan-to-read))
+                    (did-read
+                     (read-bytevector! bv port start (+ start plan-to-read))))
+               (cond ((eof-object? did-read) 0)
+                     (else
+                      (set! index (+ index did-read))
+                      did-read))))
+           #f ;; get-position
+           #f ;; set-position!
+           #f ;; close
+           (lambda () (u8-ready? port)) ;; ready
+           )))
+
+      (define (make-delimited-input-port port len)
+        (cond ((binary-port? port)
+               (make-delimited-binary-input-port port len))
+              (else
+               (make-delimited-textual-input-port port len)))))
+
      (else
-      ;; for schemes with no procedural ports (sagittarius)
+      ;; for schemes with no procedural ports
       (define (make-delimited-binary-input-port port len)
         (let loop ((i 0)
                    (segments '()))
@@ -767,8 +822,16 @@
                     )
            :close (lambda () #t)))))
 
+
+     (sagittarius
+      (define (binary-port->textual-port port)
+        (transcoded-port port (make-transcoder
+                               (utf-8-codec)
+                               (eol-style none)))))
+
+
      (else
-      ;; for schemes with no procedural ports (sagittarius)
+      ;; for schemes with no procedural ports
       (define (binary-port->textual-port port)
         (let loop ((segments '()))
           (let ((seg (read-bytevector 1024 port)))
@@ -853,9 +916,43 @@
            :close (lambda () #t)))))
 
 
+     (sagittarius
+      (define (textual-port->binary-port port)
+        (let ((buffer '()))
+          (define (get-next-byte)
+            (cond ((null? buffer)
+                   (let ((c (read-char port)))
+                     (cond ((eof-object? c) c)
+                           (else
+                            (let ((bytes (bytevector->u8-list
+                                          (string->utf8 (string c)))))
+                              (set! buffer (cdr bytes))
+                              (car bytes))))))
+                  (else
+                   (let ((b (car buffer)))
+                     (set! buffer (cdr buffer))
+                     b))))
+
+          (make-custom-binary-input-port
+           "textual-port->binary-port"
+           (lambda (bv start count)
+             (let ((len count))
+               (let loop ((i 0))
+                 (cond ((= i len) i)
+                       (else
+                        (let ((b (get-next-byte)))
+                          (cond ((eof-object? b) i)
+                                (else
+                                 (bytevector-u8-set! bv (+ start i) b)
+                                 (loop (+ i 1))))))))))
+           #f ;; get-position
+           #f ;; set-position!
+           #f ;; close
+           #f ;; ready
+           ))))
+
      (else
-      ;; for schemes with no procedural ports (sagittarius)
-      ;; XXX sagittarius has make-custom-binary-input-port make-custom-textual-input-port etc
+      ;; for schemes with no procedural ports
       (define (textual-port->binary-port port)
         (let loop ((segments '()))
           (let ((seg (read-string 1024 port)))
