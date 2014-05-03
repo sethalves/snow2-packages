@@ -3,7 +3,10 @@
 exec sash -L . -S .sld $0 "$@"
 |#
 
-(import (scheme base) (scheme write) (scheme file))
+(import (scheme base)
+        (scheme write)
+        (scheme file)
+        (scheme time))
 (import (snow binio)
         (snow extio)
         (seth port-extras)

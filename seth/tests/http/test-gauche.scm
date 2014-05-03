@@ -7,6 +7,7 @@ exec gosh \
 |#
 
 (import (scheme base)
+        (scheme time)
         (scheme read)
         (scheme file)
         (scheme write))

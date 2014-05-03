@@ -375,13 +375,16 @@
           (cond ((not reader)
                  (let* ((response-body
                          (if content-length
-                             (read-latin-1-string content-length body-port)
-                             (read-all-latin-1-chars body-port)))
-                        (expect-eof (read-latin-1-char body-port)))
-                   (cond ((not (eof-object? expect-eof))
+                             (read-bytevector content-length body-port)
+                             (read-all-u8 body-port)))
+                        (expect-eof (read-u8 body-port)))
+                   (cond ((eof-object? response-body)
+                          (snow-raise "http -- empty body"))
+                         ((not (eof-object? expect-eof))
                           (snow-raise "http -- extra data in response body"))
                          ((and content-length
-                               (< (string-length response-body) content-length))
+                               (< (bytevector-length response-body)
+                                  content-length))
                           (snow-raise "http -- response body too short"))
                          (else
                           (values status-code headers response-body)))))
@@ -401,9 +404,9 @@
 
     (cond-expand
 
-     ;; (chibi
-     ;;  (define (call-with-request-body url consumer)
-     ;;    (call-with-input-url url consumer)))
+     (chibi
+      (define (call-with-request-body url consumer)
+        (call-with-input-url url consumer)))
 
      (chicken
       (define (call-with-request-body url reader)
@@ -436,16 +439,14 @@
       (http 'GET
             url #f
             (lambda (status-code headers response-body-port)
-              (let loop ()
-                (let ((c (read-latin-1-char response-body-port)))
-                  (cond ((eof-object? c)
-                         (close-output-port write-port)
-                         #t)
-                        ((> (char->integer c) 255)
-                         (display "OOPS\n")
-                         (snow-error "download-file OOPS"))
-                        (else
-                         (write-latin-1-char c write-port)
-                         (loop))))))))
+              (let ((buffer (make-bytevector 1024)))
+                (let loop ()
+                  (let ((got (read-bytevector! buffer response-body-port)))
+                    (cond ((eof-object? got)
+                           (close-output-port write-port)
+                           #t)
+                          (else
+                           (write-bytevector buffer write-port 0 got)
+                           (loop)))))))))
 
     ))

@@ -461,7 +461,7 @@
         (let ((index 0))
           (make-custom-input-port
            (lambda (str start end)
-             (cond ((= index len) (eof-object))
+             (cond ((= index len) 0)
                    (else
                     (let ((c (read-char port)))
                       (cond ((eof-object? c) c)
@@ -476,15 +476,19 @@
         (let ((index 0))
           (make-custom-binary-input-port
            (lambda (bv start end)
-             (let* ((plan-to-read (- len index))
-                    (plan-to-read (if (< (- end start) plan-to-read)
-                                      (- end start) plan-to-read))
-                    (did-read
-                     (read-bytevector! bv port start (+ start plan-to-read))))
-               (cond ((eof-object? did-read) 0)
-                     (else
-                      (set! index (+ index did-read))
-                      did-read)))))))
+             (cond ((= index len) 0)
+                   (else
+                    (let* ((plan-to-read (- len index))
+                           (plan-to-read (if (< (- end start) plan-to-read)
+                                             (- end start) plan-to-read))
+                           (did-read
+                            (read-bytevector!
+                             bv port start (+ start plan-to-read))))
+                      (cond ((eof-object? did-read) 0)
+                            (else
+                             (set! index (+ index did-read))
+                             did-read)))))))))
+
 
       (define (make-delimited-input-port port len)
         (cond ((binary-port? port)
@@ -527,7 +531,7 @@
            ))))
 
 
-     (sagittarius-XXX ;; XXX why is this so slow?
+     (sagittarius
       (define (make-delimited-textual-input-port port len)
         (let ((index 0))
           (make-custom-textual-input-port
@@ -552,15 +556,18 @@
           (make-custom-binary-input-port
            (string-append "delmited binary port " (number->string len))
            (lambda (bv start count)
-             (let* ((plan-to-read (- len index))
-                    (plan-to-read
-                     (if (< count plan-to-read) count plan-to-read))
-                    (did-read
-                     (read-bytevector! bv port start (+ start plan-to-read))))
-               (cond ((eof-object? did-read) 0)
-                     (else
-                      (set! index (+ index did-read))
-                      did-read))))
+             (cond ((= index len) 0)
+                   (else
+                    (let* ((plan-to-read (- len index))
+                           (plan-to-read
+                            (if (< count plan-to-read) count plan-to-read))
+                           (did-read
+                            (read-bytevector! bv port start
+                                              (+ start plan-to-read))))
+                      (cond ((eof-object? did-read) 0)
+                            (else
+                             (set! index (+ index did-read))
+                             did-read))))))
            #f ;; get-position
            #f ;; set-position!
            #f ;; close
