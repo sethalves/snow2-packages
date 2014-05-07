@@ -45,12 +45,19 @@
           ;; create a tar-rec for a file
           (let* ((lib-rel-path (snow-split-filename lib-filename))
                  (lib-full-path (append repo-path lib-rel-path))
-                 (lib-full-filename (snow-combine-filename-parts lib-full-path))
-                 (tar-recs (tar-read-file lib-full-filename)))
-            (cond ((not (= (length tar-recs) 1))
-                   (error "unexpected tar-rec count" lib-filename tar-recs)))
-            (tar-rec-name-set! (car tar-recs) lib-filename)
-            (car tar-recs)))
+                 (lib-full-filename
+                  (snow-combine-filename-parts lib-full-path)))
+            (cond ((not (file-exists? lib-full-filename))
+                   (display "package source file missing: ")
+                   (display lib-full-filename)
+                   (newline)
+                   (exit 1))
+                  (else
+                   (let ((tar-recs (tar-read-file lib-full-filename)))
+                     (cond ((not (= (length tar-recs) 1))
+                            (error "unexpected tar-rec count" lib-filename tar-recs)))
+                     (tar-rec-name-set! (car tar-recs) lib-filename)
+                     (car tar-recs))))))
 
         (define (lib-dir->tar-recs lib-dirname)
           ;; create a tar-rec for a directory
@@ -96,8 +103,18 @@
            equal?))
 
         (let* ((libraries (snow2-package-libraries package))
+               ;; read in the files indicated by the (path ...) clauses
+               ;; in the library definitions.
+               (lib-sexps (map (lambda (lib)
+                                 (let* ((lib-filename
+                                         (local-repository->in-fs-lib-filename
+                                          local-repository lib)))
+                                   (r7rs-library-file->sexp lib-filename)))
+                               libraries))
                ;; get a list of filenames for all libraries in the package
-               (manifest (fold append '() (map get-library-manifest libraries)))
+               (manifest (fold append '()
+                               (map r7rs-get-library-manifest
+                                    libraries lib-sexps)))
                ;; get a list of directories needed to hold the library files
                (dirs (manifest->directories manifest))
                ;; make tar records for the directories
@@ -108,7 +125,10 @@
                (all-tar-recs (append dir-tar-recs file-tar-recs))
                ;; figure out the name of the tgz file within the local repo
                (package-url (snow2-package-url package))
-               (package-filename (last (uri-path package-url)))
+               (package-filename
+                (if (and package-url (pair? (uri-path package-url)))
+                    (last (uri-path package-url))
+                    "unknown.tgz"))
                (local-package-path (append repo-path (list package-filename)))
                (local-package-filename
                 (snow-combine-filename-parts local-package-path)))
@@ -410,9 +430,6 @@
                     (lset-difference equal? lib-imports pkg-depends))
                    (deps-unneeded
                     (lset-difference equal? pkg-depends lib-imports))
-
-                   ;; (XXX (begin (write lib-filename) (newline)))
-
                    (lib-body-symbols (r7rs-get-referenced-symbols lib-sexp))
                    (import-decls (r7rs-get-import-decls lib-sexp))
                    )

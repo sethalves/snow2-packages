@@ -12,7 +12,6 @@
           gather-depends
           package-from-sexp
           package-from-filename
-          get-library-manifest
 
           depend->sexp
           sibling->sexp
@@ -138,29 +137,28 @@
 
     (define (package-from-sexp package-sexp)
       ;; convert a s-exp into a package record
-      (let ((url (get-string-by-type package-sexp 'url #f))
+      (let ((url (get-string-by-type package-sexp 'url ""))
             (name (get-list-by-type package-sexp 'name '()))
             (size (get-number-by-type package-sexp 'size 'unset))
             (checksum (get-list-by-type package-sexp 'checksum 'unset))
             (library-sexps (get-children-by-type package-sexp 'library)))
-        (cond ((not url) #f)
-              ((not name) #f)
-              (else
-               (let* ((libraries (map library-from-sexp library-sexps))
-                      (package (make-snow2-package
-                                name (uri-reference url) libraries #f
-                                size checksum #f)))
-                 ;; backlink to packages
-                 (for-each
-                  (lambda (library)
-                    (set-snow2-library-package! library package))
-                  libraries)
-                 package)))))
+        (let* ((libraries (map library-from-sexp library-sexps))
+               (package (make-snow2-package
+                         name (uri-reference url) libraries #f
+                         size checksum #f)))
+          ;; backlink to packages
+          (for-each
+           (lambda (library)
+             (set-snow2-library-package! library package))
+           libraries)
+          package)))
 
     (define (package->sexp package)
       `(package
         (name ,(snow2-package-name package))
-        (url ,(uri->string (snow2-package-url package)))
+        (url ,(if (snow2-package-url package)
+                  (uri->string (snow2-package-url package))
+                  ""))
         ,@(let ((size (snow2-package-size package)))
             (if (not (eq? size 'unset)) `((size ,size)) '()))
         ,@(let ((checksum (snow2-package-checksum package)))
@@ -169,11 +167,16 @@
 
 
     (define (package-from-filename package-filename)
-      (let* ((package-port (open-input-file package-filename))
-             (package-sexp (read package-port))
-             (package (package-from-sexp package-sexp)))
-        (close-input-port package-port)
-        package))
+      (cond ((not (file-exists? package-filename))
+             (package-from-sexp '(package)))
+            (else
+             (let* ((package-port (open-input-file package-filename))
+                    (package-sexp (read package-port))
+                    (package (if (eof-object? package-sexp)
+                                 (package-from-sexp '(package))
+                                 (package-from-sexp package-sexp))))
+               (close-input-port package-port)
+               package))))
 
 
     (define (repository-from-sexp repository-sexp)
@@ -396,12 +399,24 @@
                     (index-filename
                      (snow-make-filename repo-dirname "index.scm"))
                     )
+               (define (bad-local-repo why)
+                 (display "local repository ")
+                 (write repo-dirname)
+                 (display " is incomplete: ")
+                 (display why)
+                 (newline)
+                 (exit 1))
                (cond ((or (not (snow-file-exists? tests-dirname))
-                          (not (snow-file-directory? tests-dirname))
-                          (not (file-exists? packages-dirname))
-                          (not (snow-file-directory? packages-dirname))
-                          (not (snow-file-exists? index-filename)))
-                      #f)
+                          (not (snow-file-directory? tests-dirname)))
+                      (bad-local-repo "missing tests subdirectory"))
+                     ((or (not (file-exists? packages-dirname))
+                          (not (snow-file-directory? packages-dirname)))
+                      (bad-local-repo "missing packages subdirectory"))
+                     ((not (file-exists? index-filename))
+                      (let* ((repository (repository-from-sexp '(repository))))
+                        (set-snow2-repository-local! repository #t)
+                        (set-snow2-repository-url! repository repository-url)
+                        repository))
                      (else
                       (let* ((in-port (open-binary-input-file index-filename))
                              (repository (read-repository in-port)))
@@ -436,13 +451,6 @@
                             ;; for now, just try to continue.
                             (get-repositories-and-siblings
                              repositories (cdr repository-urls))))))))))
-
-
-
-    (define (get-library-manifest lib)
-      ;; return a list of source files for a package
-      (list
-       (snow2-library-path lib)))
 
 
     (define (refresh-package-from-filename repository package-filename)

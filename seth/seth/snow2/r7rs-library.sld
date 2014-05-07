@@ -6,6 +6,7 @@
           r7rs-get-exports-from-import-set
           r7rs-get-referenced-symbols
           r7rs-library-file->sexp
+          r7rs-get-library-manifest
           )
   (import (scheme base)
           (scheme char)
@@ -60,7 +61,10 @@
        r7rs-lib))
 
 
-    (define (r7rs-extract-im/export r7rs-lib type)
+    (define (r7rs-extract-clause-cdr r7rs-lib type)
+      ;; type will be one of 'import 'export 'include.
+      ;; this will return the arguments (the cdrs) of the
+      ;; indicated clause type appended into one list.
       (let loop ((r7rs-lib r7rs-lib)
                  (result '()))
         (cond ((null? r7rs-lib) result)
@@ -124,7 +128,7 @@
       ;; in lib-sexp
       (let* ((lib-no-begin (r7rs-drop-body lib-sexp))
              (lib-sans-ce (r7rs-explode-cond-expand lib-no-begin)))
-        (uniq (r7rs-extract-im/export lib-sans-ce 'import))))
+        (uniq (r7rs-extract-clause-cdr lib-sans-ce 'import))))
 
 
     (define (r7rs-get-imported-library-names lib-sexp)
@@ -138,7 +142,7 @@
       (let* ((p (open-input-file filename))
              (r7rs-lib (read p))
              (r7rs-no-begin (r7rs-drop-body r7rs-lib))
-             (r7rs-exports (r7rs-extract-im/export r7rs-no-begin 'export)))
+             (r7rs-exports (r7rs-extract-clause-cdr r7rs-no-begin 'export)))
         (close-input-port p)
         r7rs-exports))
 
@@ -212,6 +216,31 @@
                 (lambda (a b)
                   (string-ci<? (symbol->string a) (symbol->string b)))))
               (else '()))))
+
+
+    (define (r7rs-get-includes lib-sexp)
+      ;; extract a list of included files from the (include ...) statements
+      ;; in lib-sexp
+      (let* ((lib-no-begin (r7rs-drop-body lib-sexp))
+             (lib-sans-ce (r7rs-explode-cond-expand lib-no-begin)))
+        (uniq (r7rs-extract-clause-cdr lib-sans-ce 'include))))
+
+
+
+
+    (define (r7rs-get-library-manifest lib lib-sexp)
+      ;; return a list of source files for a library.  lib should be
+      ;; a snow2-library record and lib-sexp should be the contents of the
+      ;; file indicated by the (path ...) clause in lib.
+      (let* ((base-path
+              (drop-right (snow-split-filename (snow2-library-path lib)) 1)))
+        (cons (snow2-library-path lib)
+              (map
+               (lambda (filename)
+                 (let ((filename-path (snow-split-filename filename)))
+                   (snow-combine-filename-parts
+                    (append base-path filename-path))))
+               (r7rs-get-includes lib-sexp)))))
 
 
     ))
