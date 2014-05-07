@@ -359,7 +359,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/tar.tgz")
     (size 25111)
-    (checksum (md5 "b6665c5b29cb0a67fe0c274473ef8b86"))
+    (checksum (md5 "7ec17d9c169e9a86a964633b69618715"))
     (library
       (name (snow tar))
       (path "snow/tar.sld")
