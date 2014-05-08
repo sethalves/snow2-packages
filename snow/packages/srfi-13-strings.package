@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-13-strings.tgz")
-  (size 15895)
-  (checksum (md5 "20a8d617129bd587018c2bc2812d2afa"))
   (library
-    (name (snow srfi-13-strings))
     (path "snow/srfi-13-strings.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -12,4 +9,4 @@
     (authors)
     (description "srfi-13-strings")
     (license lgpl/v2.1)
-    (depends)))
+    ))

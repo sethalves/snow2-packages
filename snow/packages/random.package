@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/random.tgz")
-  (size 5143)
-  (checksum (md5 "167a804b6f932205ce4c7ca85c314393"))
   (library
-    (name (snow random))
     (path "snow/random.sld")
     (version "1.0.1")
     (homepage "http://snow.iro.umontreal.ca")
@@ -12,4 +9,4 @@
     (authors "Marc Feeley <feeley at iro.umontreal.ca>")
     (description "High-quality random number generation." snow)
     (license lgpl/v2.1)
-    (depends (snow binio) (snow bytevector) (snow bignum))))
+    ))

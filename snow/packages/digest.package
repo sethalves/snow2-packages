@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/digest.tgz")
-  (size 64023)
-  (checksum (md5 "db3434cdef57e8ecf626e5e41e732b38"))
   (library
-    (name (snow digest))
     (path "snow/digest.sld")
     (version "1.0.1")
     (homepage "http://snow.iro.umontreal.ca")
@@ -16,8 +13,4 @@
       conv
       snow)
     (license lgpl/v2.1)
-    (depends
-      (snow srfi-60-integers-as-bits)
-      (snow binio)
-      (snow bytevector)
-      (snow binio))))
+    ))

@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/binio.tgz")
-  (size 9751)
-  (checksum (md5 "b99e934bd4066acfa52bb32c9c545070"))
   (library
-    (name (snow binio))
     (path "snow/binio.sld")
     (version "1.0.2")
     (homepage "http://snow.iro.umontreal.ca")
@@ -12,4 +9,4 @@
     (authors "Marc Feeley <feeley at iro.umontreal.ca>")
     (description "Binary I/O." i/o snow)
     (license lgpl/v2.1)
-    (depends (snow snowlib) (snow bytevector))))
+    ))

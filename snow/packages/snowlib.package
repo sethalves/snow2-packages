@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/snowlib.tgz")
-  (size 24087)
-  (checksum (md5 "b13e57396ce71f4a87de9d360dd5e39e"))
   (library
-    (name (snow snowlib))
     (path "snow/snowlib.sld")
     (version "1.2.1")
     (homepage "http://snow.iro.umontreal.ca")
@@ -12,4 +9,4 @@
     (authors "Marc Feeley <feeley at iro.umontreal.ca>")
     (description "Scheme Now! runtime library." snow)
     (license lgpl/v2.1)
-    (depends)))
+    ))

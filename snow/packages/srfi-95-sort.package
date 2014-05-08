@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-95-sort.tgz")
-  (size 12823)
-  (checksum (md5 "a92ea3c479392788899be1db15182c2a"))
   (library
-    (name (snow srfi-95-sort))
     (path "snow/srfi-95-sort.sld")
     (version "1.0")
     (homepage
@@ -14,7 +11,7 @@
     (authors "Aubrey Jaffer" "Richard A. O'Keefe" "D.H.D. Warren")
     (description "Sorting and Merging")
     (license public-domain)
-    (depends (snow bytevector) (snow gauche-sort-utils)))
+    )
   (library
     (name (snow gauche-sort-utils))
     (path "snow/gauche-sort-utils.sld")
@@ -24,4 +21,4 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "Sorting and Merging")
     (license public-domain)
-    (depends)))
+    ))

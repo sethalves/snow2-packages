@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-60-integers-as-bits.tgz")
-  (size 9751)
-  (checksum (md5 "2266f8ff21127eb6b20c4a83edfd5e77"))
   (library
-    (name (snow srfi-60-integers-as-bits))
     (path "snow/srfi-60-integers-as-bits.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -12,4 +9,4 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "bytevector compatibility layer")
     (license lgpl/v2.1)
-    (depends)))
+    ))
