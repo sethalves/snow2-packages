@@ -771,13 +771,17 @@
            (lambda (str start end)
              (let loop ((char-count 0)
                         (byte-count 0))
-               (if (>= (+ start char-count) end)
-                   (begin byte-count)
+
+               ;; XXX byte-count or char-count?
+               (if (>= (+ start (+ byte-count 6)) end)
+
+                   byte-count
                    (let ((b (read-u8 port)))
                      (cond ((eof-object? b)
-                            (if (= buffer-len 0)
-                                byte-count
-                                (snow-error "trailing utf8 bytes")))
+                            (cond ((= buffer-len 0)
+                                   byte-count)
+                                  (else
+                                   (snow-error "trailing utf8 bytes"))))
                            ((>= buffer-len 6)
                             (snow-error "utf8 buffer overflow"))
                            (else
