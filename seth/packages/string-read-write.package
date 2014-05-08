@@ -1,15 +1,12 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/string-read-write.tgz")
-  (size 4119)
-  (checksum (md5 "9ec9763d23933f3a9f8c9908dab388ef"))
   (library
-    (name (seth string-read-write))
     (path "seth/string-read-write.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
     (maintainers "Seth Alves <seth@hungry.com>")
     (authors "Seth Alves <seth@hungry.com>")
     (description "string-read-write")
-    (license lgpl/v2.1)
-    (depends)))
+    (license bsd)
+    ))

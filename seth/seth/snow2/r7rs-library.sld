@@ -166,8 +166,6 @@
                                  (string-append
                                   prefix (symbol->string identifier))))
                               sub-identifiers)))))
-            ((eq? (car import-set) 'prefix)
-             (error "write this"))
             ((eq? (car import-set) 'rename)
              (error "write this"))
             (else
@@ -185,17 +183,11 @@
                       (let* ((lib (car libs))
                              (lib-pkg (snow2-library-package lib))
                              (lib-repo (snow2-package-repository lib-pkg)))
-                        (cond (lib-repo
-                               (values import-set
-                                       (r7rs-get-library-exports
-                                        (snow-combine-filename-parts
-                                         (local-repository->in-fs-lib-path
-                                          lib-repo lib)))))
-                              (else
-                               (display "didn't find repository for ")
-                               (write (snow2-library-name (car libs)))
-                               (display ", perhaps need a re-package?\n")
-                               (values #f '()))))))))))
+                        (values import-set
+                                (r7rs-get-library-exports
+                                 (snow-combine-filename-parts
+                                  (local-repository->in-fs-lib-path
+                                   lib-repo lib)))))))))))
 
 
     (define (flatten lst)
@@ -226,8 +218,6 @@
         (uniq (r7rs-extract-clause-cdr lib-sans-ce 'include))))
 
 
-
-
     (define (r7rs-get-library-manifest lib lib-sexp)
       ;; return a list of source files for a library.  lib should be
       ;; a snow2-library record and lib-sexp should be the contents of the
@@ -238,6 +228,7 @@
               (map
                (lambda (filename)
                  (let ((filename-path (snow-split-filename filename)))
+                   ;; XXX this assumes relative include paths
                    (snow-combine-filename-parts
                     (append base-path filename-path))))
                (r7rs-get-includes lib-sexp)))))

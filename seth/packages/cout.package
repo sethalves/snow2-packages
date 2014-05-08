@@ -1,15 +1,11 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/cout.tgz")
-  (size 4119)
-  (checksum (md5 "e730e1c5b5a1225e001126577fb9a5f0"))
   (library
-    (name (seth cout))
     (path "seth/cout.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
     (maintainers "Seth Alves <seth@hungry.com>")
     (authors "Seth Alves <seth@hungry.com>")
     (description "cout")
-    (license lgpl/v2.1)
-    (depends)))
+    (license bsd)))

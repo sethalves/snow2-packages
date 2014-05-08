@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/quoted-printable.tgz")
-  (size 9751)
-  (checksum (md5 "9f424c471d1ec7989ff30b893a30d1b0"))
   (library
-    (name (seth quoted-printable))
     (path "seth/quoted-printable.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -13,4 +10,4 @@
     (description
       "RFC 2045 quoted printable encoding and decoding utilities.  This API is backwards compatible with the Gauche library rfc.quoted-printable.")
     (license BSD-style "http://synthcode.com/license.txt")
-    (depends (snow srfi-60-integers-as-bits) (snow srfi-13-strings))))
+    ))

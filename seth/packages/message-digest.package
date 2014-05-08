@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/message-digest.tgz")
-  (size 54807)
-  (checksum (md5 "8ff16820cb42ad2af6ed421e955fa3dc"))
   (library
-    (name (seth message-digest parameters))
     (path "seth/message-digest/parameters.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -12,9 +9,8 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends (seth variable-item)))
+    )
   (library
-    (name (seth message-digest primitive))
     (path "seth/message-digest/primitive.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -22,9 +18,8 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends (seth gensym)))
+    )
   (library
-    (name (seth message-digest type))
     (path "seth/message-digest/type.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -32,9 +27,8 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends (snow snowlib) (snow bytevector) (seth message-digest primitive)))
+    )
   (library
-    (name (seth message-digest support))
     (path "seth/message-digest/support.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -42,9 +36,8 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends (seth message-digest primitive) (seth message-digest type)))
+    )
   (library
-    (name (seth message-digest bv))
     (path "seth/message-digest/bv.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -52,9 +45,8 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends (seth message-digest type) (seth message-digest support)))
+    )
   (library
-    (name (seth message-digest port))
     (path "seth/message-digest/port.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -62,12 +54,8 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends
-      (seth srfi-69-hash-tables)
-      (seth message-digest type)
-      (seth message-digest bv)))
+    )
   (library
-    (name (seth message-digest update-item))
     (path "seth/message-digest/update-item.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -75,14 +63,8 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends
-      (snow snowlib)
-      (snow bytevector)
-      (seth message-digest parameters)
-      (seth message-digest primitive)
-      (seth message-digest type)))
+    )
   (library
-    (name (seth message-digest md5))
     (path "seth/message-digest/md5.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -90,12 +72,8 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends
-      (snow bytevector)
-      (snow srfi-60-integers-as-bits)
-      (seth message-digest primitive)))
+    )
   (library
-    (name (seth message-digest item))
     (path "seth/message-digest/item.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -103,4 +81,4 @@
     (authors "Kon Lovett")
     (description "message-digest")
     (license BSD)
-    (depends (seth message-digest type) (seth message-digest update-item))))
+    ))

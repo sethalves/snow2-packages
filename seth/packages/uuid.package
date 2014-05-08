@@ -1,20 +1,12 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/uuid.tgz")
-  (size 5655)
-  (checksum (md5 "f4dace3cf3571767ff1b30a6b50e2405"))
   (library
-    (name (seth uuid))
     (path "seth/uuid.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
     (maintainers "Seth Alves <seth@hungry.com>")
     (authors "Seth Alves <seth@hungry.com>")
     (description "parse and generate uuids")
-    (license lgpl/v2.1)
-    (depends
-      (snow bytevector)
-      (snow srfi-60-integers-as-bits)
-      (seth binary-pack)
-      (snow srfi-13-strings)
-      (seth srfi-27-random))))
+    (license bsd)
+    ))

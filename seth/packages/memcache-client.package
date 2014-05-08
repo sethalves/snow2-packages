@@ -1,21 +1,12 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/memcache-client.tgz")
-  (size 16919)
-  (checksum (md5 "872c3bd98f93d44bae709676cb021546"))
   (library
-    (name (seth memcache-client))
     (path "seth/memcache-client.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
     (maintainers "Seth Alves <seth@hungry.com>")
     (authors "Seth Alves <seth@hungry.com>")
     (description "memcache-client")
-    (license lgpl/v2.1)
-    (depends
-      (snow bytevector)
-      (snow srfi-13-strings)
-      (snow binio)
-      (seth network-socket)
-      (seth string-read-write)
-      (seth base64))))
+    (license bsd)
+    ))

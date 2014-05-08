@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/crypt.tgz")
-  (size 52247)
-  (checksum (md5 "ca9ca1c8e74ba69960ed4f8b1a0b4502"))
   (library
-    (name (seth crypt md5))
     (path "seth/crypt/md5.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -12,9 +9,8 @@
     (authors "Alex Shinn")
     (description "md5")
     (license BSD-style)
-    (depends (snow bytevector) (snow srfi-60-integers-as-bits)))
+    )
   (library
-    (name (seth crypt sha-1))
     (path "seth/crypt/sha-1.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -22,9 +18,8 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "sha-1")
     (license BSD-style)
-    (depends (snow bytevector) (snow srfi-60-integers-as-bits)))
+    )
   (library
-    (name (seth crypt sha-2))
     (path "seth/crypt/sha-2.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -32,9 +27,8 @@
     (authors "Alex Shinn")
     (description "sha-2")
     (license BSD-style)
-    (depends (snow bytevector) (snow srfi-60-integers-as-bits)))
+    )
   (library
-    (name (seth crypt hmac-sha-1))
     (path "seth/crypt/hmac-sha-1.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -42,8 +36,4 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "hmac-sha-1")
     (license BSD-style)
-    (depends
-      (snow bytevector)
-      (snow srfi-60-integers-as-bits)
-      (seth port-extras)
-      (seth crypt sha-1))))
+    ))

@@ -1,10 +1,7 @@
 (package
   (name ())
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/zlib.tgz")
-  (size 6679)
-  (checksum (md5 "61371463884823de1fb8ef00d244d612"))
   (library
-    (name (seth zlib))
     (path "seth/zlib.sld")
     (version "1.0")
     (homepage "https://github.com/sethalves")
@@ -12,4 +9,4 @@
     (authors "Seth Alves <seth@hungry.com>")
     (description "zlib")
     (license BSD-style)
-    (depends (snow genport) (snow bytevector) (seth port-extras) (snow zlib))))
+    ))

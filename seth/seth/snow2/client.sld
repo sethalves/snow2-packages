@@ -428,6 +428,7 @@
                  (let ((repositories (get-repositories-and-siblings
                                       '() repository-urls))
                        (credentials #f))
+                   (for-each sanity-check-repository repositories)
                    (check-packages credentials repositories args)))
                 ;; ((member operation '("blerg"))
                 ;;  (let ((repositories (get-repositories-and-siblings
