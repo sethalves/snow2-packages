@@ -23,7 +23,7 @@
           )
 
   (cond-expand
-   (chibi (import (only (srfi 1) filter find)))
+   (chibi (import (only (srfi 1) filter find drop-right)))
    (else (import (srfi 1))))
 
   (begin

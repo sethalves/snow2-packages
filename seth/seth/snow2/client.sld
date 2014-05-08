@@ -13,9 +13,7 @@
    (chibi (import (chibi filesystem)))
    (else))
   (import (snow snowlib)
-          ;; (snow extio)
           (snow srfi-13-strings)
-          ;; (seth srfi-69-hash-tables)
           (snow filesys) (snow binio) (snow genport) (snow zlib) (snow tar)
           (prefix (seth http) http-)
           (seth temporary-file)
@@ -25,7 +23,7 @@
           (seth crypt md5)
           (seth snow2 types)
           (seth snow2 utils)
-          ;; (seth snow2 r7rs-library)
+          (seth snow2 r7rs-library)
           (seth snow2 manage)
           )
   (begin
@@ -140,7 +138,8 @@
 
       (define (install-symlinks repo package)
         (let* ((libraries (snow2-package-libraries package))
-               (manifest (fold append '() (map get-library-manifest libraries)))
+               (manifest (fold append '()
+                               (map r7rs-get-library-manifest libraries)))
                (repo-path (uri-path (snow2-repository-url repo))))
           (for-each
            (lambda (library-member-filename)
