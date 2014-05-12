@@ -41,16 +41,17 @@
 
           bytevector-map
           )
-  (import (scheme base)
-          (srfi 1))
+  (import (scheme base))
   (cond-expand
-   (chibi (import (chibi io)))
-   (chicken (import (chicken) (srfi 4)))
+   (chibi (import (chibi io) (srfi 1)))
+   (chicken (import (chicken) (srfi 4) (srfi 1)))
    (foment (import (scheme char)))
-   (gauche (import (gauche uvector)
+   (gauche (import (srfi 1)
+                   (gauche uvector)
                    (snow gauche-bv-string-utils)
                    ))
-   (sagittarius (import (util bytevector)))
+   (sagittarius (import (srfi 1)
+                        (util bytevector)))
    )
   (begin
 

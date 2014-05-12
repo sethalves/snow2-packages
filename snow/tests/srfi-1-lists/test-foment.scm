@@ -1,0 +1,6 @@
+(import (scheme base))
+(import (scheme write))
+(import (snow srfi-1-lists))
+(include "test-common.scm")
+(display (main-program))
+(newline)

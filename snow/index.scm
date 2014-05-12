@@ -5,6 +5,21 @@
     (trust 1.0))
   (package
     (name ())
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-1-lists.tgz")
+    (size 59927)
+    (checksum (md5 "bf7c7ec4189c44e75e4a1c02d8a573d1"))
+    (library
+      (name (snow srfi-1-lists))
+      (path "snow/srfi-1-lists.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors)
+      (description "srfi-1-lists")
+      (license olin-shivers-doesnt-care)
+      (depends)))
+  (package
+    (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/assert.tgz")
     (size 3095)
     (checksum (md5 "3746a7538f916c05d7895ad4d8b84b5f"))
