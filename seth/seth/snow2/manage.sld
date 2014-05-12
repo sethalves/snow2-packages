@@ -229,15 +229,16 @@
       ;; this program was run.
       (or
        (get-repository
-        (uri-reference (snow-combine-filename-parts '("."))))
+        (uri-reference (snow-combine-filename-parts '("."))) #f)
        (get-repository
-        (uri-reference (snow-combine-filename-parts '(".."))))
+        (uri-reference (snow-combine-filename-parts '(".."))) #f)
        (get-repository
-        (uri-reference (snow-combine-filename-parts '(".." ".."))))
+        (uri-reference (snow-combine-filename-parts '(".." ".."))) #f)
        (get-repository
-        (uri-reference (snow-combine-filename-parts '(".." ".." ".."))))
+        (uri-reference (snow-combine-filename-parts '(".." ".." ".."))) #f)
        (get-repository
-        (uri-reference (snow-combine-filename-parts '(".." ".." ".." ".."))))))
+        (uri-reference (snow-combine-filename-parts '(".." ".." ".." ".."))) #f)
+       ))
 
 
     (define (all-package-metafiles local-repository)

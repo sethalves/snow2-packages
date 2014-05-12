@@ -4,11 +4,17 @@
           client
           main-program)
 
-  (import (scheme base) (scheme read) (scheme write)
-          (scheme file) (scheme process-context))
+  (import (scheme base)
+          (scheme write)
+          (scheme file)
+          (scheme process-context))
   (cond-expand
-   (chibi (import (only (srfi 1) filter make-list any fold)))
-   (else (import (srfi 1))))
+   (chibi (import (only (srfi 1) filter make-list any fold)
+                  ;; (only (chibi) read)
+                  ))
+   (else (import ;; (scheme read)
+                 (srfi 1)
+                 )))
   (cond-expand
    (chibi (import (chibi filesystem)))
    (else))
@@ -136,11 +142,18 @@
                   (else #f)))))
 
 
-      (define (install-symlinks repo package)
+      (define (install-symlinks local-repository package)
         (let* ((libraries (snow2-package-libraries package))
+               (lib-sexps (map (lambda (lib)
+                                 (let* ((lib-filename
+                                         (local-repository->in-fs-lib-filename
+                                          local-repository lib)))
+                                   (r7rs-library-file->sexp lib-filename)))
+                               libraries))
                (manifest (fold append '()
-                               (map r7rs-get-library-manifest libraries)))
-               (repo-path (uri-path (snow2-repository-url repo))))
+                               (map r7rs-get-library-manifest
+                                    libraries lib-sexps)))
+               (repo-path (uri-path (snow2-repository-url local-repository))))
           (for-each
            (lambda (library-member-filename)
              (let* ((dst-path (snow-split-filename library-member-filename))

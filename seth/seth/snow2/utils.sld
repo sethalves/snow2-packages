@@ -35,13 +35,16 @@
           )
 
   (import (scheme base)
-          (scheme read)
+          ;; (scheme read)
           (scheme write)
           (scheme file)
           (scheme process-context))
   (cond-expand
-   (chibi (import (only (srfi 1) filter make-list any fold last)))
-   (else (import (srfi 1))))
+   (chibi (import (only (srfi 1) filter make-list any fold last)
+                  (only (chibi) read)
+                  ))
+   (else (import (scheme read)
+                 (srfi 1))))
   (cond-expand
    (chibi (import (chibi filesystem)))
    (else))
@@ -383,7 +386,12 @@
             (gather-depends repositories (hash-table-values lib-name-ht)))))
 
 
-    (define (get-repository repository-url)
+    (define (get-repository repository-url . maybe-error-on-bad-repo)
+      ;; read index.scm from over http(s) or from a local filesystem.
+      ;; if from a local directory, make sure the repository looks sane:
+      ;; it must have a "tests" subdirectory and a "pacakges" subdirectory.
+      ;; if it's missing either of these, raise an error unless
+      ;; maybe-error-on-bad-repo is #f.
       (cond ((memq (uri-scheme repository-url) '(http https))
              ;; get repository over http
              (snow-with-exception-catcher
@@ -405,7 +413,10 @@
                   repository))))
             (else
              ;; read from local filesystem repository
-             (let* ((repo-dirname (uri->string repository-url))
+             (let* ((error-on-bad-repo (if (pair? maybe-error-on-bad-repo)
+                                           (car maybe-error-on-bad-repo)
+                                           #t))
+                    (repo-dirname (uri->string repository-url))
                     (tests-dirname (snow-make-filename repo-dirname "tests"))
                     (packages-dirname
                      (snow-make-filename repo-dirname "packages"))
@@ -413,12 +424,14 @@
                      (snow-make-filename repo-dirname "index.scm"))
                     )
                (define (bad-local-repo why)
-                 (display "local repository ")
-                 (write repo-dirname)
-                 (display " is incomplete: ")
-                 (display why)
-                 (newline)
-                 (exit 1))
+                 (cond (error-on-bad-repo
+                        (display "local repository ")
+                        (write repo-dirname)
+                        (display " is incomplete: ")
+                        (display why)
+                        (newline)
+                        (exit 1))
+                       (else #f)))
                (cond ((or (not (snow-file-exists? tests-dirname))
                           (not (snow-file-directory? tests-dirname)))
                       (bad-local-repo "missing tests subdirectory"))
