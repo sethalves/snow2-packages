@@ -92,7 +92,7 @@
                           util memcached matchable match
                           extras http-client uri-generic intarweb
                           message-digest file z3 base64 hmac
-                          binary input-parse
+                          binary input-parse foment
                           srfi-27 srfi-95))))
 
 
