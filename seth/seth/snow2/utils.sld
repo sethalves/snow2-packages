@@ -282,7 +282,11 @@
         (cond
          ((null? repositories)
           (cond ((null? candidate-packages)
-                 (error "couldn't find library" library-name))
+                 ;; (error "couldn't find library" library-name)
+                 (display "couldn't find library: " (current-error-port))
+                 (write library-name (current-error-port))
+                 (newline (current-error-port))
+                 '())
                 ;; XXX rather than just taking the last one,
                 ;; select one based on version requirements, etc
                 (else candidate-packages)))
@@ -303,7 +307,8 @@
 
     (define (find-package-with-library repositories library-name)
       ;; find the last package that contains a library with the given name
-      (car (find-packages-with-library repositories library-name)))
+      (let ((pwl (find-packages-with-library repositories library-name)))
+        (if (pair? pwl) (car pwl) #f)))
 
 
     (define (find-packages-with-libraries repositories library-names)
@@ -314,10 +319,7 @@
          (lambda (library-name)
            (let ((package
                   (find-package-with-library repositories library-name)))
-             (cond ((not package)
-                    (error "didn't find a package with library: ~S\n"
-                           library-name))
-                   (else
+             (cond (package
                     (hash-table-set!
                      package-url-ht
                      (uri->hashtable-key (snow2-package-url package))
@@ -330,11 +332,7 @@
       ;; search repositories for a library record with the given name.
       ;; return the first matching record or #f.
       (let* ((package (find-package-with-library repositories library-name)))
-        (cond ((not package)
-               (error
-                "can't find package that contains ~S\n" library-name)
-               #f)
-              (else
+        (cond (package
                (let loop ((libraries (snow2-package-libraries package)))
                  (cond ((null? libraries) #f)
                        ((equal? library-name
@@ -354,28 +352,30 @@
 
            (let ((lib-name (snow2-library-name library)))
              (let ((package (find-package-with-library repositories lib-name)))
-               (hash-table-set! lib-name-ht lib-name library)
-               (hash-table-set!
-                package-url-ht
-                (uri->hashtable-key (snow2-package-url package))
-                package))
+               (cond (package
+                      (hash-table-set! lib-name-ht lib-name library)
+                      (hash-table-set!
+                       package-url-ht
+                       (uri->hashtable-key (snow2-package-url package))
+                       package))))
 
              (for-each
               (lambda (depend)
-                (let* ((package (find-package-with-library repositories depend))
-                       (libs (snow2-package-libraries package)))
-                  (hash-table-set!
-                   package-url-ht
-                   (uri->hashtable-key (snow2-package-url package))
-                   package)
-                  ;; XXX if the same lib is in more than one
-                  ;; package, there should be some reason to pick one
-                  ;; over the other?
-                  (for-each
-                   (lambda (lib)
-                     (hash-table-set! lib-name-ht
-                                      (snow2-library-name lib) lib))
-                   libs)))
+                (let ((package (find-package-with-library repositories depend)))
+                  (cond (package
+                         (let ((libs (snow2-package-libraries package)))
+                           (hash-table-set!
+                            package-url-ht
+                            (uri->hashtable-key (snow2-package-url package))
+                            package)
+                           ;; XXX if the same lib is in more than one
+                           ;; package, there should be some reason to pick one
+                           ;; over the other?
+                           (for-each
+                            (lambda (lib)
+                              (hash-table-set! lib-name-ht
+                                               (snow2-library-name lib) lib))
+                            libs))))))
               (snow2-library-depends library))))
          libraries)
 
