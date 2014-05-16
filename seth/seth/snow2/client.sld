@@ -361,11 +361,11 @@
         (display " " (current-error-port))
         (display "[arguments] <operation> '(library name)' ...\n"
                  (current-error-port))
-        (display "  <operation> can be \"install\" or " (current-error-port))
-        (display "\"uninstall\" or \"list-depends\" or \"search\"\n"
-                 (current-error-port))
+        (display "  <operation> can be one of: install " (current-error-port))
+        (display "uninstall list-depends " (current-error-port))
+        (display "search check\n" (current-error-port))
         (display "  -r --repo <url>      " (current-error-port))
-        (display "Prepend to list of snow2 repositories.\n"
+        (display "Add to list of snow2 repositories.\n"
                  (current-error-port))
         (display "  -s --symlink         " (current-error-port))
         (display "Make symlinks to a repo's source files.\n")
@@ -373,7 +373,9 @@
         (display "Print more.\n" (current-error-port))
         (display "  -h --help            " (current-error-port))
         (display "Print usage message.\n" (current-error-port))
-        (display "\nExample: snow2 install '(snow srfi-13-strings)'\n")
+        (display "\nExample: snow2 install '(snow hello)'\n")
+        (display "\nsee ")
+        (display "https://github.com/sethalves/snow2-client#snow2-client\n")
         (exit 1)))
 
 
@@ -441,14 +443,7 @@
                                       '() repository-urls))
                        (credentials #f))
                    (for-each sanity-check-repository repositories)
-                   (check-packages credentials repositories args)))
-                ;; ((member operation '("blerg"))
-                ;;  (let ((repositories (get-repositories-and-siblings
-                ;;                       '() repository-urls))
-                ;;        (credentials #f))
-                ;;    (check-packages~ credentials repositories
-                ;;                     (map read-from-string args)
-                ;;                     )))
+                   (check-packages credentials repositories args verbose)))
                 ;; other operations
                 ((not (member operation '("link-install"
                                           "install"
