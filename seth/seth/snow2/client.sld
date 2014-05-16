@@ -21,6 +21,7 @@
   (import (snow snowlib)
           (snow srfi-13-strings)
           (snow filesys) (snow binio) (snow genport) (snow zlib) (snow tar)
+          (snow srfi-29-format)
           (prefix (seth http) http-)
           (seth temporary-file)
           (seth string-read-write)
@@ -33,6 +34,24 @@
           (seth snow2 manage)
           )
   (begin
+
+
+    (define (display-error msg err . maybe-depth)
+      (let* ((depth (if (pair? maybe-depth) (car maybe-depth) 0))
+             (depth-s (make-string (* depth 2) #\space)))
+        (display
+         (format "~aError -- ~a ~s\n" depth-s msg (error-object-message err))
+         (current-error-port))
+        (for-each (lambda (irr)
+                    (cond ((error-object? irr)
+                           (display-error "" irr (+ depth 1)))
+                          (else
+                           (display depth-s)
+                           (write irr (current-error-port))
+                           (newline (current-error-port)))))
+                  (error-object-irritants err))))
+
+
 
     (define (write-tar-recs-to-disk tar-recs)
       (let loop ((tar-recs tar-recs))
@@ -66,49 +85,45 @@
       ;; use-symlinks being true will cause symlinks to source files rather
       ;; than copies (when possible).  verbose prints more.
       (define (install-from-tgz repo package local-package-tgz-file)
-        (snow-with-exception-catcher
-         (lambda (err)
-           (display "Error -- " (current-error-port))
-           (display local-package-tgz-file (current-error-port))
-           (display " " (current-error-port))
-           (cond
-            ((snow-error-condition? err)
-             (display (snow-error-condition-msg err) (current-error-port)))
-            (else
-             (display err)))
-           (newline (current-error-port))
-           #f)
-         (lambda ()
-           (let* ((pkg-tgz-size (snow2-package-size package))
-                  (checksum (snow2-package-size package))
-                  (pkg-md5-sum (cond ((and checksum
-                                           (pair? checksum)
-                                           (eq? (car checksum) 'md5))
-                                      (cadr checksum))
-                                     (else #f))))
-             ;; if the package metadata had (size ...) or (checksum ...)
-             ;; make sure the provided values match those of what we're about
-             ;; to untar.
-             (cond ((and pkg-md5-sum
-                         (not (eq? pkg-md5-sum
-                                   (filename->md5 local-package-tgz-file))))
-                    (error "checksum mismatch"
-                           local-package-tgz-file
-                           pkg-md5-sum))
-                   ((and pkg-tgz-size
-                         (not (= pkg-tgz-size
-                                 (snow-file-size local-package-tgz-file))))
-                    (error "filesize mismatch"
-                           local-package-tgz-file
-                           pkg-tgz-size)))
+        (guard
+         (err (#t
+               ;; (display
+               ;;     (format "Error -- ~a ~s ~s\n"
+               ;;             local-package-tgz-file
+               ;;             (error-object-message err)
+               ;;             (error-object-irritants err)))
+               (display-error local-package-tgz-file err)
+               (raise err)))
+         (let* ((pkg-tgz-size (snow2-package-size package))
+                (checksum (snow2-package-size package))
+                (pkg-md5-sum (cond ((and checksum
+                                         (pair? checksum)
+                                         (eq? (car checksum) 'md5))
+                                    (cadr checksum))
+                                   (else #f))))
+           ;; if the package metadata had (size ...) or (checksum ...)
+           ;; make sure the provided values match those of what we're about
+           ;; to untar.
+           (cond ((and pkg-md5-sum
+                       (not (eq? pkg-md5-sum
+                                 (filename->md5 local-package-tgz-file))))
+                  (error "checksum mismatch"
+                         local-package-tgz-file
+                         pkg-md5-sum))
+                 ((and pkg-tgz-size
+                       (not (= pkg-tgz-size
+                               (snow-file-size local-package-tgz-file))))
+                  (error "filesize mismatch"
+                         local-package-tgz-file
+                         pkg-tgz-size)))
 
-             (let* ((bin-port (binio-open-input-file
-                               local-package-tgz-file))
-                    (zipped-p (genport-native-input-port->genport bin-port))
-                    (unzipped-p (gunzip-genport zipped-p))
-                    (tar-recs (tar-unpack-genport unzipped-p)))
-               (genport-close-input-port unzipped-p)
-               (write-tar-recs-to-disk tar-recs))))))
+           (let* ((bin-port (binio-open-input-file
+                             local-package-tgz-file))
+                  (zipped-p (genport-native-input-port->genport bin-port))
+                  (unzipped-p (gunzip-genport zipped-p))
+                  (tar-recs (tar-unpack-genport unzipped-p)))
+             (genport-close-input-port unzipped-p)
+             (write-tar-recs-to-disk tar-recs)))))
 
 
       (define (install-from-http repo package url)
@@ -121,22 +136,38 @@
           (newline)
 
           (let ((download-success
-                 (snow-with-exception-catcher
-                  (lambda (exn)
-                    (display "unable to install package: "
-                             (current-error-port))
-                    (display (uri->string url) (current-error-port))
-                    (newline (current-error-port))
-                    (display exn (current-error-port))
-                    (newline (current-error-port))
-                    #f)
-                  (lambda ()
-                    (http-download-file (uri->string url) write-port)))))
+
+                 ;; (snow-with-exception-catcher
+                 ;;  (lambda (exn)
+                 ;;    (display "unable to install package: "
+                 ;;             (current-error-port))
+                 ;;    (display (uri->string url) (current-error-port))
+                 ;;    (newline (current-error-port))
+                 ;;    (display exn (current-error-port))
+                 ;;    (newline (current-error-port))
+                 ;;    #f)
+                 ;;  (lambda ()
+                 ;;    (http-download-file (uri->string url) write-port)))
+
+                 (guard
+                  (err (#t
+                        ;; (display
+                        ;;  (format "Unable to install package: ~a ~s ~s\n"
+                        ;;          (uri->string url)
+                        ;;          (error-object-message err)
+                        ;;          (error-object-irritants err)
+                        ;;          ))
+                        (display-error
+                         (format "Unable to install package: ~a\n"
+                                 (uri->string url))
+                         err)
+                        (raise err)))
+                  (http-download-file (uri->string url) write-port))
+                 ))
 
             (cond (download-success
-                   (let ((success
-                          (install-from-tgz repo package
-                                            local-package-tgz-file)))
+                   (let ((success (install-from-tgz
+                                   repo package local-package-tgz-file)))
                      (delete-file local-package-tgz-file)
                      success))
                   (else #f)))))
