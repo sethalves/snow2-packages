@@ -135,6 +135,27 @@ exec csi -s $0 "$@"
             repo-name package-name)
     (close-output-port test-chibi-hndl))
 
+
+  (let ((test-foment-hndl
+         (open-output-file
+          (string-append repo-name "/" package-name "/test/test-foment.scm"))))
+    (format test-foment-hndl
+            (string-append
+             "#! /usr/bin/env foment-scheme\n"
+             "\n"
+             "(import (scheme base)\n"
+             "        (scheme write)\n"
+             "        (~A ~A))\n"
+             "\n"
+             "\n"
+             "(include \"test-common.scm\")\n"
+             "\n"
+             "(display (main-program))\n"
+             "(newline)\n")
+            repo-name package-name)
+    (close-output-port test-foment-hndl))
+
+
   (let ((test-gauche-hndl
          (open-output-file
           (string-append repo-name "/" package-name "/test/test-gauche.scm"))))
