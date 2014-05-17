@@ -433,28 +433,28 @@
     (cond-expand
 
 
-     (chicken
-      (define (make-delimited-input-port port len)
-        (let ((index 0)
-              (saw-eof #f))
-          (make-input-port
-           (lambda () ; read-char
-             (cond ((= index len) (eof-object))
-                   (saw-eof (eof-object))
-                   (else
-                    (let ((c (read-char port)))
-                      (cond ((eof-object? c) (set! saw-eof #t))
-                            (else (set! index (+ index 1))))
-                      c))))
-           (lambda () ; char-ready?
-             (cond ((= index len) #f)
-                   (saw-eof #f)
-                   (else (char-ready? port))))
-           (lambda () #t) ; close
-           (lambda () ; peek-char
-             (if (= index len)
-                 (eof-object)
-                 (peek-char port)))))))
+     ;; (chicken
+     ;;  (define (make-delimited-input-port port len)
+     ;;    (let ((index 0)
+     ;;          (saw-eof #f))
+     ;;      (make-input-port
+     ;;       (lambda () ; read-char
+     ;;         (cond ((= index len) (eof-object))
+     ;;               (saw-eof (eof-object))
+     ;;               (else
+     ;;                (let ((c (read-char port)))
+     ;;                  (cond ((eof-object? c) (set! saw-eof #t))
+     ;;                        (else (set! index (+ index 1))))
+     ;;                  c))))
+     ;;       (lambda () ; char-ready?
+     ;;         (cond ((= index len) #f)
+     ;;               (saw-eof #f)
+     ;;               (else (char-ready? port))))
+     ;;       (lambda () #t) ; close
+     ;;       (lambda () ; peek-char
+     ;;         (if (= index len)
+     ;;             (eof-object)
+     ;;             (peek-char port)))))))
 
      (chibi
       (define (make-delimited-textual-input-port port len)
