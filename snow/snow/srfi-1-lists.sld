@@ -24,8 +24,6 @@
 
   (import (scheme base))
   (cond-expand
-   (chibi (import (srfi 1)))
-   (chicken (import (srfi 1)))
    (foment
     (import (scheme cxr))
     (include "srfi-1/predicates.scm"
@@ -37,8 +35,6 @@
              "srfi-1/deletion.scm"
              "srfi-1/alists.scm"
              "srfi-1/lset.scm"))
-   (gauche (import (srfi 1)))
-   (sagittarius (import (srfi 1)))
-   ))
-
+   (else
+    (import (srfi 1)))))
 

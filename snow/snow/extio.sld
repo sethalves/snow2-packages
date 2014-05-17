@@ -34,6 +34,7 @@
   (import (snow snowlib)
           (snow bytevector)
           (snow srfi-60-integers-as-bits)
+          (snow srfi-13-strings)
           )
   (begin
 
@@ -50,7 +51,8 @@
         (let loop ((strings '()))
           (let ((s (read-string 4000 port)))
             (cond ((eof-object? s)
-                   (apply string-append (reverse strings)))
+                   ;; (apply string-append (reverse strings))
+                   (string-concatenate-reverse strings))
                   (else
                    (loop (cons s strings)))))))
 
@@ -603,7 +605,8 @@
         (let loop ((i 0)
                    (segments '()))
           (define (return-result)
-            (open-input-string (apply string-append (reverse segments))))
+            ;; (open-input-string (apply string-append (reverse segments)))
+            (open-input-string (string-concatenate-reverse segments)))
           (if (= i len)
               (return-result)
               (let* ((to-read (if (> (+ i 25) len) (- len i) 25))
@@ -858,16 +861,16 @@
 
     (cond-expand
 
-     (chicken
-      (define (textual-port->binary-port port)
-        (make-input-port
-         (lambda () ; read-char
-           (read-char port))
-         (lambda () ; char-ready?
-           (char-ready? port))
-         (lambda () #t) ; close
-         (lambda () ; peek-char
-           (peek-char port)))))
+     ;; (chicken
+     ;;  (define (textual-port->binary-port port)
+     ;;    (make-input-port
+     ;;     (lambda () ; read-char
+     ;;       (read-char port))
+     ;;     (lambda () ; char-ready?
+     ;;       (char-ready? port))
+     ;;     (lambda () #t) ; close
+     ;;     (lambda () ; peek-char
+     ;;       (peek-char port)))))
 
      (chibi
       (define (textual-port->binary-port port)

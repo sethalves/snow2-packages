@@ -1,8 +1,8 @@
-#! /usr/bin/env chibi-scheme
+#! /usr/bin/env foment
 
 (import (scheme base)
         (scheme write)
-        (snow bignum))
+        (snow binio))
 (include "test-common.scm")
 (display (main-program))
 (newline)

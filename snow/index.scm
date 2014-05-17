@@ -67,7 +67,7 @@
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/bytevector.tgz")
     (size 13847)
-    (checksum (md5 "194ebeea7b9b99d68764ed47348b1658"))
+    (checksum (md5 "276d83f8b25cd6877bf854580766ef81"))
     (library
       (name (snow bytevector))
       (path "snow/bytevector.sld")
@@ -77,7 +77,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "bytevector compatibility layer")
       (license bsd)
-      (depends (snow gauche-bv-string-utils)))
+      (depends (snow srfi-1-lists) (snow gauche-bv-string-utils)))
     (library
       (name (snow gauche-bv-string-utils))
       (path "snow/gauche-bv-string-utils.sld")

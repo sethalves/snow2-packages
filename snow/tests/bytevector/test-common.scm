@@ -27,7 +27,6 @@
            (string->latin-1 "")))
     "abc")
 
-
    (equal?
     (reverse-bytevector-list->latin-1-string
      (list (string->latin-1 "")
@@ -38,7 +37,6 @@
     (reverse-bytevector-list->latin-1-string
      (list))
     "")
-
 
    (equal?
     (reverse-bytevector-list->bytevector
@@ -53,10 +51,14 @@
    (equal? (hex-string->bytes "")
            (bytevector))
 
-   (equal? (bytes->hex-string (bytevector #xa7 #x45 #xff #x12))
-           "a745ff12")
+   (begin
+     (display (bytes->hex-string (bytevector #xa7 #x45 #xff #x12)))
+     (newline)
+     (equal? (bytes->hex-string (bytevector #xa7 #x45 #xff #x12))
+             "a745ff12"))
 
    (equal? (bytes->hex-string (bytevector)) "")
 
+   #t
 
    ))

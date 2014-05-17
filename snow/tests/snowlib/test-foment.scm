@@ -2,7 +2,7 @@
 
 (import (scheme base))
 (import (scheme write))
-(import (snow bytevector))
+(import (snow snowlib))
 (include "test-common.scm")
 (display (main-program))
 (newline)
