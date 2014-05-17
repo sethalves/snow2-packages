@@ -36,7 +36,7 @@
 
   (begin
 
-    (define (make-package-archive local-repository package)
+    (define (make-package-archive local-repository package verbose)
       ;; create the .tgz file that gets uploaded to a repository.
       ;; update the size and md5 sum and depends in the package meta-data
       ;; in index.scm.
@@ -138,9 +138,11 @@
           ;; get a list of libraries this package depends on and
           ;; set library names.
           (for-each (lambda (lib lib-sexp)
+                      (cond (verbose
+                             (display (format "-- depends for ~a --\n"
+                                              (snow2-library-path lib)))))
                       (set-snow2-library-depends!
-                       lib (r7rs-get-imported-library-names lib-sexp))
-
+                       lib (r7rs-get-imported-library-names lib-sexp verbose))
                       (cond ((or (not (snow2-library-name lib))
                                  (null? (snow2-library-name lib)))
                              (set-snow2-library-name!
@@ -175,7 +177,7 @@
               (set-snow2-package-checksum!
                package `(md5 ,local-package-md5))
               (set-snow2-package-dirty! package #t)
-              )))))
+              (set-snow2-repository-dirty! local-repository #t))))))
 
 
     (define (conditional-put-object! credentials bucket s3-path local-filename)
@@ -335,7 +337,14 @@
           ;; (write (uri-path (snow2-repository-url repository)))
           ;; (newline)
           (cond (repository
-                 (op repository))
+                 (op repository)
+                 ;; update index.scm if the repository is "dirty"
+                 (cond ((snow2-repository-dirty repository)
+                        (let ((p (open-output-file
+                                  (local-repository->in-fs-index-filename
+                                   repository))))
+                          (snow-pretty-print (repository->sexp repository) p)
+                          (close-output-port p)))))
                 (else
                  (error
                   "Unable to determine which repository to operate on."))))))
@@ -390,23 +399,13 @@
            result))))
 
 
-    (define (make-package-archives repositories package-metafiles)
+    (define (make-package-archives repositories package-metafiles verbose)
       ;; call make-package-archive for each of packages-files
       (local-packages-operation
        repositories package-metafiles
        (lambda (local-repository package-metafile package)
          (refresh-package-from-filename local-repository package-metafile)
-         (make-package-archive local-repository package)))
-
-      (for-each
-       (lambda (local-repository)
-         (cond ((snow2-repository-dirty local-repository)
-                (let ((p (open-output-file
-                          (local-repository->in-fs-index-filename
-                           local-repository))))
-                  (snow-pretty-print (repository->sexp local-repository) p)
-                  (close-output-port p)))))
-       (filter snow2-repository-local repositories)))
+         (make-package-archive local-repository package verbose))))
 
 
     (define (list-replace-last lst new-elt)

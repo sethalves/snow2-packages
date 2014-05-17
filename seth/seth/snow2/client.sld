@@ -443,7 +443,7 @@
              #f ;; initial value of operation
              '() ;; initial value of repos
              #f ;; initial value of use-symlinks
-             '() ;; initial value of libs
+             '() ;; initial value of args
              #f ;; initial value of verbose
              )))
         (let ((repository-urls
@@ -462,7 +462,7 @@
                 ((member operation '("package"))
                  (let ((repositories (get-repositories-and-siblings
                                       '() repository-urls)))
-                   (make-package-archives repositories args)))
+                   (make-package-archives repositories args verbose)))
                 ;; upload a tgz package file
                 ((member operation '("s3-upload" "upload-s3" "upload"))
                  (let ((repositories (get-repositories-and-siblings

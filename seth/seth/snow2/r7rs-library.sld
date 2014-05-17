@@ -131,10 +131,17 @@
         (uniq (r7rs-extract-clause-cdr lib-sans-ce 'import))))
 
 
-    (define (r7rs-get-imported-library-names lib-sexp)
+    (define (r7rs-get-imported-library-names lib-sexp verbose)
       ;; return a list of library-names that may be imported by this library
       (let* ((lib-imports-all (r7rs-get-import-decls lib-sexp))
              (lib-imports-clean (map r7rs-import-set->libs lib-imports-all)))
+        (cond (verbose
+               (display "  lib-imports-all=")
+               (write lib-imports-all)
+               (newline)
+               (display "  lib-imports-clean=")
+               (write lib-imports-clean)
+               (newline)))
         (r7rs-filter-known-imports (uniq lib-imports-clean))))
 
 
