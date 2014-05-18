@@ -8,6 +8,13 @@
 
 (define (append! . lists) (concatenate! lists))
 
+(define (reverse! lis)
+  (let lp ((lis lis) (ans '()))
+    (if (null-list? lis) ans
+        (let ((tail (cdr lis)))
+          (set-cdr! lis ans)
+          (lp tail lis)))))
+
 (define (concatenate lists)
   (let lp ((ls (reverse lists)) (res '()))
     (if (null? ls) res (lp (cdr ls) (append (car ls) res)))))

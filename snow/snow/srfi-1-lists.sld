@@ -4,7 +4,8 @@
 
 (define-library (snow srfi-1-lists)
   (export
-   xcons cons* make-list list-tabulate list-copy circular-list iota
+   xcons cons*
+   list-tabulate circular-list iota
    proper-list? circular-list? dotted-list? not-pair? null-list? list=
    first second third fourth fifth sixth seventh eighth ninth tenth
    car+cdr take drop take-right drop-right take! drop-right! split-at split-at!
@@ -20,7 +21,11 @@
    alist-cons alist-copy alist-delete alist-delete!
    lset<= lset= lset-adjoin lset-union lset-union! lset-intersection
    lset-intersection! lset-difference lset-difference! lset-xor lset-xor!
-   lset-diff+intersection lset-diff+intersection!)
+   lset-diff+intersection lset-diff+intersection!
+   ;; these are in r7rs (scheme base)
+   ;; make-list
+   ;; list-copy
+   )
 
   (import (scheme base))
   (cond-expand

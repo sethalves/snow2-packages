@@ -13,16 +13,8 @@
 
 
 (define-library (snow bytevector)
-  (export bytevector
-          make-bytevector
-          bytevector?
-          bytevector->u8-list
+  (export bytevector->u8-list
           u8-list->bytevector
-          bytevector-length
-          bytevector-u8-ref
-          bytevector-u8-set!
-          utf8->string
-          string->utf8
           latin-1->string
           string->latin-1
           bytevector-copy-partial
@@ -40,6 +32,17 @@
           bytes->hex-string
 
           bytevector-map
+
+          ;; these are in r7rs
+          ;; bytevector
+          ;; make-bytevector
+          ;; bytevector?
+          ;; bytevector-length
+          ;; bytevector-u8-ref
+          ;; bytevector-u8-set!
+          ;; utf8->string
+          ;; string->utf8
+
           )
   (import (scheme base)
           (snow srfi-1-lists))
@@ -290,7 +293,8 @@
           (cond ((= i (bytevector-length bv))
                  result)
                 (else
-                 (let ((s (number->string (bytevector-u8-ref bv i) 16)))
+                 (let ((s (string-downcase
+                           (number->string (bytevector-u8-ref bv i) 16))))
                    (cond ((= (string-length s) 2)
                           (string-set! result (* i 2) (string-ref s 0))
                           (string-set! result (+ (* i 2) 1) (string-ref s 1)))
