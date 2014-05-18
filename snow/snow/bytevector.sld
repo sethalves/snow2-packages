@@ -45,11 +45,12 @@
 
           )
   (import (scheme base)
+          (scheme char)
           (snow srfi-1-lists))
   (cond-expand
    (chibi (import (chibi io)))
    (chicken (import (chicken) (srfi 4)))
-   (foment (import (scheme char)))
+   (foment)
    (gauche (import (gauche uvector)
                    (snow gauche-bv-string-utils)))
    (sagittarius (import (util bytevector)))
