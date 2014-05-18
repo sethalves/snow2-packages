@@ -141,7 +141,7 @@ exec csi -s $0 "$@"
           (string-append repo-name "/" package-name "/test/test-foment.scm"))))
     (format test-foment-hndl
             (string-append
-             "#! /usr/bin/env foment-scheme\n"
+             "#! /usr/bin/env foment\n"
              "\n"
              "(import (scheme base)\n"
              "        (scheme write)\n"
