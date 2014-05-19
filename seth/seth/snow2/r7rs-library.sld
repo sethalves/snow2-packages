@@ -113,6 +113,8 @@
              (r7rs-import-set->libs (cadr r7rs-import)))
             ((eq? (car r7rs-import) 'prefix)
              (r7rs-import-set->libs (cadr r7rs-import)))
+            ((eq? (car r7rs-import) 'rename)
+             (r7rs-import-set->libs (cadr r7rs-import)))
             (else r7rs-import)))
 
 
@@ -154,7 +156,34 @@
         r7rs-exports))
 
 
+
+
     (define (r7rs-get-exports-from-import-set repositories import-set)
+
+      (define (r7rs-get-exports-from-import-set-prefix repositories import-set)
+        (let ((prefix (symbol->string (caddr import-set))))
+          (let-values (((sub-lib sub-identifiers)
+                        (r7rs-get-exports-from-import-set
+                         repositories (cadr import-set))))
+            (values sub-lib
+                    (map (lambda (identifier)
+                           (string->symbol
+                            (string-append
+                             prefix (symbol->string identifier))))
+                         sub-identifiers)))))
+
+      (define (r7rs-get-exports-from-import-set-rename repositories import-set)
+        (let ((renames (cddr import-set)))
+          (let-values (((sub-lib sub-identifiers)
+                        (r7rs-get-exports-from-import-set
+                         repositories (cadr import-set))))
+            (values sub-lib
+                    (map (lambda (identifier)
+                           (let ((rename (assq identifier renames)))
+                             (cond (rename (cadr rename))
+                                   (else identifier))))
+                         sub-identifiers)))))
+
       (cond ((not (list? import-set))
              (error "import-set isn't a list"))
             ((null? import-set)
@@ -163,18 +192,9 @@
              (let ((lib (car (r7rs-import-set->libs (list (cadr import-set))))))
                (values lib (cddr import-set))))
             ((eq? (car import-set) 'prefix)
-             (let ((prefix (symbol->string (caddr import-set))))
-               (let-values (((sub-lib sub-identifiers)
-                             (r7rs-get-exports-from-import-set
-                              repositories (cadr import-set))))
-                 (values sub-lib
-                         (map (lambda (identifier)
-                                (string->symbol
-                                 (string-append
-                                  prefix (symbol->string identifier))))
-                              sub-identifiers)))))
+             (r7rs-get-exports-from-import-set-prefix repositories import-set))
             ((eq? (car import-set) 'rename)
-             (error "write this"))
+             (r7rs-get-exports-from-import-set-rename repositories import-set))
             (else
              (let* ((local-repos (filter snow2-repository-local repositories))
                     (libs (find-libraries-by-name local-repos import-set))

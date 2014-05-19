@@ -1,9 +1,7 @@
 (define-library (seth snow2 manage)
   (export make-package-archives
           upload-packages-to-s3
-          check-packages
-          ;; check-packages~
-          )
+          check-packages)
 
   (import (scheme base)
           (scheme read)
@@ -447,7 +445,7 @@
 
 
     (define (check-packages credentials repositories package-metafiles
-                            show-who-imports-what)
+                            verbose)
       (local-packages-operation
        repositories package-metafiles
        (lambda (local-repository package-metafile package)
@@ -493,7 +491,8 @@
                      ;; read in the .sld s-expression
                      (lib-sexp (r7rs-library-file->sexp lib-filename))
                      ;; extract the names of imported libraries from lib-sexp
-                     (lib-imports (r7rs-get-imported-library-names lib-sexp))
+                     (lib-imports
+                      (r7rs-get-imported-library-names lib-sexp verbose))
                      (pkg-depends (snow2-library-depends lib))
                      (deps-unneeded
                       (lset-difference equal? pkg-depends lib-imports))
@@ -532,7 +531,7 @@
 
                      (cond ((and
                              imported-lib-name
-                             show-who-imports-what
+                             verbose
                              (not (is-system-import? imported-lib-name)))
                             (display "  in ")
                             (write (snow2-library-path lib))
