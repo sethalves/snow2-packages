@@ -107,15 +107,29 @@
            (cond ((and pkg-md5-sum
                        (not (eq? pkg-md5-sum
                                  (filename->md5 local-package-tgz-file))))
-                  (error "checksum mismatch"
-                         local-package-tgz-file
-                         pkg-md5-sum))
+                  (display
+                   (format
+                    (string-append "Error: checksum mismatch on ~a (~a) -- "
+                                   "expected ~a and got ~a\n")
+                    (uri->string (snow2-package-url package))
+                    local-package-tgz-file
+                    pkg-md5-sum (filename->md5 local-package-tgz-file))
+                   (current-error-port))
+                  (exit 1))
+
                  ((and pkg-tgz-size
                        (not (= pkg-tgz-size
                                (snow-file-size local-package-tgz-file))))
-                  (error "filesize mismatch"
-                         local-package-tgz-file
-                         pkg-tgz-size)))
+                  (display
+                   (format
+                    (string-append "Error: size mismatch on ~a (~a) -- "
+                                   "expected ~a and got ~a\n")
+                    (uri->string (snow2-package-url package))
+                    local-package-tgz-file
+                    pkg-tgz-size
+                    (snow-file-size local-package-tgz-file))
+                   (current-error-port))
+                  (exit 1)))
 
            (let* ((bin-port (binio-open-input-file
                              local-package-tgz-file))
