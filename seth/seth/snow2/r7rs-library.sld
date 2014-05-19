@@ -29,21 +29,24 @@
   (begin
 
     (define (r7rs-explode-cond-expand r7rs-lib)
-      ;; XXX this only works on top-level cond-expands
-      (let loop ((r7rs-lib r7rs-lib)
-                 (result '()))
-        (cond ((null? r7rs-lib) result)
-              (else
-               (let ((term (car r7rs-lib)))
-                 (cond ((and (pair? term)
-                             (eq? (car term) 'cond-expand))
-                        (let* ((ce-terms (cdr term))
-                               (childs (map cdr ce-terms))
-                               (childs-flat (apply append childs)))
-                          (loop (cdr r7rs-lib) (append result childs-flat))))
-                       (else
-                        (loop (cdr r7rs-lib)
-                              (append result (list term))))))))))
+      (cond ((not (list? r7rs-lib)) r7rs-lib)
+            (else
+             (let loop ((r7rs-lib r7rs-lib)
+                        (result '()))
+               (cond ((null? r7rs-lib)
+                      (map r7rs-explode-cond-expand result))
+                     (else
+                      (let ((term (car r7rs-lib)))
+                        (cond ((and (pair? term)
+                                    (eq? (car term) 'cond-expand))
+                               (let* ((ce-terms (cdr term))
+                                      (childs (map cdr ce-terms))
+                                      (childs-flat (apply append childs)))
+                                 (loop (cdr r7rs-lib)
+                                       (append result childs-flat))))
+                              (else
+                               (loop (cdr r7rs-lib)
+                                     (append result (list term))))))))))))
 
 
     (define (r7rs-drop-body r7rs-lib)
@@ -318,7 +321,7 @@
                    ;; XXX this assumes relative include paths
                    (snow-combine-filename-parts
                     (append base-path filename-path))))
-               (r7rs-get-includes lib-sexp)))))
+               (r7rs-get-includes (r7rs-explode-cond-expand lib-sexp))))))
 
 
     ))
