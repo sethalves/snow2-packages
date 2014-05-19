@@ -133,7 +133,7 @@
           (equal? (string-pad "abc" 2) "abc")
           (equal? (string-pad-right "abc" 5) "abc  ")
           (equal? (string-pad-right "abc" 2) "abc")
-          (equal? (string-pad "abcdefg" 5 1 3) "   bc")
+          (equal? (string-pad "abcdefg" 5 #\space 1 3) "   bc")
           ))
 
         )

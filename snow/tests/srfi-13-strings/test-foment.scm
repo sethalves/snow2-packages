@@ -2,8 +2,10 @@
 
 (import (scheme base)
         (scheme write)
-        (scheme char))
-(import (snow srfi-13-strings))
+        (scheme char)
+        (snow srfi-13-strings)
+        (snow srfi-14-character-sets)
+        )
 
 (include "test-common.scm")
 
