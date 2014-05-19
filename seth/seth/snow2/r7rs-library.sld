@@ -23,12 +23,13 @@
           )
 
   (cond-expand
-   (chibi (import (only (srfi 1) filter find drop-right)))
+   (chibi (import (only (srfi 1) filter find drop-right fold)))
    (else (import (srfi 1))))
 
   (begin
 
     (define (r7rs-explode-cond-expand r7rs-lib)
+      ;; XXX this only works on top-level cond-expands
       (let loop ((r7rs-lib r7rs-lib)
                  (result '()))
         (cond ((null? r7rs-lib) result)
@@ -50,14 +51,6 @@
       (filter
        (lambda (term)
          (not (and (pair? term) (eq? (car term) 'begin))))
-       r7rs-lib))
-
-
-    (define (r7rs-body r7rs-lib)
-      ;; return (begin ...)
-      (find
-       (lambda (term)
-         (and (pair? term) (eq? (car term) 'begin)))
        r7rs-lib))
 
 
@@ -227,14 +220,81 @@
         (cons (car lst) (flatten (cdr lst))))))
 
 
-    (define (r7rs-get-referenced-symbols lib-sexp)
-      (let ((body (r7rs-body lib-sexp)))
-        (cond (body
-               (sort
-                (uniq (filter symbol? (flatten body)))
-                (lambda (a b)
-                  (string-ci<? (symbol->string a) (symbol->string b)))))
-              (else '()))))
+    (define (list-replace-last lst new-elt)
+      ;; what's the srfi-1 one-liner for this?
+      (reverse (cons new-elt (cdr (reverse lst)))))
+
+
+    (define (r7rs-get-referenced-symbols lib-filename lib-sexp)
+      ;; XXX this wont chase includes found inside body or
+      ;; an library-included file.
+      (let ((lib-sexp (r7rs-explode-cond-expand lib-sexp)))
+
+        (define (symbols-from-body body)
+          ;; extract a flat sorted and uniqued list of symols from an s-exp
+          (sort
+           (uniq (filter symbol? (flatten body)))
+           (lambda (a b)
+             (string-ci<? (symbol->string a)
+                          (symbol->string b)))))
+
+        (define (chase-library-include-file rel-include-filename)
+          ;; handle a single included file.  scan it for symbols
+          ;; and return a list.
+          (let* ((lib-filepath (snow-split-filename lib-filename))
+                 (include-path (snow-split-filename rel-include-filename))
+                 (include-filepath (append
+                                    (drop-right lib-filepath 1)
+                                    include-path))
+                 (include-filename
+                  (snow-combine-filename-parts include-filepath)))
+            (let ((h (open-input-file include-filename)))
+              (let loop ((body-syms '()))
+                (let ((body (read h)))
+                  (cond ((eof-object? body)
+                         (close-input-port h)
+                         body-syms)
+                        (else
+                         (loop (append (symbols-from-body body)
+                                       body-syms)))))))))
+
+        (define (chase-library-include term)
+          ;; handle (include <filename1> ...)
+          (fold append '() (map chase-library-include-file (cdr term))))
+
+        (define (chase-library-includes)
+          ;; look for library-includes in lib-sexp
+          (let loop ((lib-sexp lib-sexp)
+                     (result '()))
+            (cond ((null? lib-sexp) result)
+                  (else
+                   (let ((term (car lib-sexp)))
+                     (cond ((and (pair? term) (eq? (car term) 'include))
+                            (loop (cdr lib-sexp)
+                                  (append (chase-library-include term)
+                                          result)))
+                           (else
+                            (loop (cdr lib-sexp) result))))))))
+
+        (uniq
+         (append
+          ;; look for (begin ...) at the library definition level
+          (let loop ((lib-sexp lib-sexp)
+                     (result '()))
+            (cond ((null? lib-sexp) result)
+                  (else
+                   (let ((term (car lib-sexp)))
+                     (cond ((and (pair? term) (eq? (car term) 'begin))
+                            (let ((body (cdr term)))
+                              (loop (cdr lib-sexp)
+                                    (append
+                                     (symbols-from-body body)
+
+                                     result))))
+                           (else
+                            (loop (cdr lib-sexp) result)))))))
+
+          (chase-library-includes)))))
 
 
     (define (r7rs-get-includes lib-sexp)

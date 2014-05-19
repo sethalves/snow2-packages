@@ -496,7 +496,8 @@
                      (pkg-depends (snow2-library-depends lib))
                      (deps-unneeded
                       (lset-difference equal? pkg-depends lib-imports))
-                     (lib-body-symbols (r7rs-get-referenced-symbols lib-sexp))
+                     (lib-body-symbols
+                      (r7rs-get-referenced-symbols lib-filename lib-sexp))
                      (import-decls (r7rs-get-import-decls lib-sexp))
                      )
 
