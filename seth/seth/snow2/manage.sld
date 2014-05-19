@@ -158,14 +158,25 @@
                             ))
                     libraries lib-sexps)
 
+          ;; find the most recent file mtime and set the mtimes of
+          ;; all the directories to this.  this keeps the md5 of
+          ;; the .tgz file from changing as often.
+          (let ((newest-mtime (apply max (map tar-rec-mtime file-tar-recs))))
+            (for-each
+             (lambda (dir-tar-rec)
+               (tar-rec-mtime-set! dir-tar-rec newest-mtime))
+             dir-tar-recs))
+
           (display "writing ")
           (display local-package-path)
           (newline)
 
+          ;; if the .tgz file already exists, delete it
           (cond ((or (snow-file-exists? local-package-filename)
                      (snow-file-symbolic-link? local-package-filename))
                  (snow-delete-file local-package-filename)))
 
+          ;; save out the new .tgz file
           (let* ((tar-data (tar-pack-u8vector all-tar-recs))
                  (tgz-data (gzip-u8vector tar-data))
                  (out-p (open-binary-output-file local-package-filename)))
