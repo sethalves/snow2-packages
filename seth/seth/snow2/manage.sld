@@ -136,17 +136,26 @@
           ;; get a list of libraries this package depends on and
           ;; set library names.
           (for-each (lambda (lib lib-sexp)
-                      (cond (verbose
-                             (display (format "-- depends for ~a --\n"
-                                              (snow2-library-path lib)))))
+                      ;; (cond (verbose
+                      ;;        (display (format "-- depends for ~a --\n"
+                      ;;                         (snow2-library-path lib)))))
                       (set-snow2-library-depends!
                        lib (r7rs-get-imported-library-names lib-sexp verbose))
                       (cond ((or (not (snow2-library-name lib))
                                  (null? (snow2-library-name lib)))
+                             (cond (verbose
+                                    (display
+                                     (format "  setting library name to ~a\n"
+                                             (lib-sexp->name lib-sexp)))))
+                             (set-snow2-package-dirty! package #t)
                              (set-snow2-library-name!
-                              lib (lib-sexp->name lib-sexp))))
-
-                      )
+                              lib (lib-sexp->name lib-sexp)))
+                            (else
+                             (cond (verbose
+                                    (display
+                                     (format "  keeping library name of ~a\n"
+                                             (snow2-library-name lib))))))
+                            ))
                     libraries lib-sexps)
 
           (display "writing ")
@@ -171,11 +180,20 @@
               (display (format "  size=~a md5=~a\n"
                                local-package-size local-package-md5))
 
-              (set-snow2-package-size! package local-package-size)
-              (set-snow2-package-checksum!
-               package `(md5 ,local-package-md5))
-              (set-snow2-package-dirty! package #t)
-              (set-snow2-repository-dirty! local-repository #t))))))
+              (cond ((not (= (snow2-package-size package) local-package-size))
+                     (set-snow2-package-size! package local-package-size)
+                     (set-snow2-package-dirty! package #t)
+                     (display "setting package dirty due to size\n")))
+              (cond ((not (equal? (snow2-package-checksum package)
+                                  `(md5 ,local-package-md5)))
+                     (set-snow2-package-checksum!
+                      package `(md5 ,local-package-md5))
+                     (set-snow2-package-dirty! package #t)
+                     (display "setting package dirty due to md5\n")))
+
+              ;; (set-snow2-package-dirty! package #t)
+              ;; (set-snow2-repository-dirty! local-repository #t)
+              )))))
 
 
     (define (conditional-put-object! credentials bucket s3-path local-filename)
@@ -315,7 +333,7 @@
           (all-package-metafiles local-repository)))))
 
 
-    (define (local-repository-operation repositories op)
+    (define (local-repository-operation repositories op verbose)
       ;; decide which local repository is intended.
       ;; call (op local-repository)
       (let ((repositories (filter snow2-repository-local repositories)))
@@ -335,12 +353,17 @@
           ;; (write (uri-path (snow2-repository-url repository)))
           ;; (newline)
           (cond (repository
+                 (sanity-check-repository repository)
                  (op repository)
+                 (sanity-check-repository repository)
                  ;; update index.scm if the repository is "dirty"
                  (cond ((snow2-repository-dirty repository)
-                        (let ((p (open-output-file
-                                  (local-repository->in-fs-index-filename
-                                   repository))))
+                        (let* ((index-scm-filename
+                                (local-repository->in-fs-index-filename
+                                 repository))
+                               (p (open-output-file index-scm-filename)))
+                          (if verbose (display (format "rewriting ~a\n"
+                                                       index-scm-filename)))
                           (snow-pretty-print (repository->sexp repository) p)
                           (close-output-port p)))))
                 (else
@@ -348,7 +371,7 @@
                   "Unable to determine which repository to operate on."))))))
 
 
-    (define (local-packages-operation repositories package-metafiles op)
+    (define (local-packages-operation repositories package-metafiles op verbose)
       ;; decide which local repository is intended.
       ;; call (op local-repo package) for each package-file.
       ;; return a list of results.
@@ -372,29 +395,22 @@
                     (let* ((package
                             ;; (package-from-filename package-metafile)
                             (refresh-package-from-filename
-                             local-repository package-metafile))
+                             local-repository package-metafile verbose))
                            (result (op local-repository
                                        package-metafile
                                        package)))
 
                       ;; if the package changed, we'll need to rewrite index.scm
                       (cond ((snow2-package-dirty package)
-                             (set-snow2-repository-dirty! local-repository #t)))
-
-                      ;; rewrite package meta-file to sync any changes
-                      ;; (cond ((snow2-package-dirty package)
-                      ;;        (let ((p (open-output-file package-metafile)))
-                      ;;          (snow-pretty-print
-                      ;;           (package->sexp package #t) p)
-                      ;;          (close-output-port p)
-                      ;;          (set-snow2-repository-dirty!
-                      ;;           local-repository #t))))
-
-
+                             (set-snow2-repository-dirty! local-repository #t)
+                             (if verbose
+                                 (display "set repo dirty because package is\n")
+                             )))
                       result))
                   package-metafiles)))
 
-           result))))
+           result))
+       verbose))
 
 
     (define (make-package-archives repositories package-metafiles verbose)
@@ -402,8 +418,10 @@
       (local-packages-operation
        repositories package-metafiles
        (lambda (local-repository package-metafile package)
-         (refresh-package-from-filename local-repository package-metafile)
-         (make-package-archive local-repository package verbose))))
+         (refresh-package-from-filename
+          local-repository package-metafile verbose)
+         (make-package-archive local-repository package verbose))
+       verbose))
 
 
     (define (list-replace-last lst new-elt)
@@ -411,7 +429,8 @@
       (reverse (cons new-elt (cdr (reverse lst)))))
 
 
-    (define (upload-packages-to-s3 credentials repositories package-metafiles)
+    (define (upload-packages-to-s3 credentials repositories
+                                   package-metafiles verbose)
       (local-packages-operation
        repositories package-metafiles
        (lambda (local-repository package-metafile package)
@@ -435,7 +454,8 @@
            (conditional-put-object!
             credentials index-bucket
             index-s3-path
-            (local-repository->in-fs-index-filename local-repository))))))
+            (local-repository->in-fs-index-filename local-repository))))
+       verbose))
 
 
     (define (import-is-needed? imported-lib-exports lib-body-symbols)
@@ -559,12 +579,13 @@
                             (write imported-lib-name)
                             (newline)
 
-                            (write imported-lib-exports)
-                            (newline)
+                            ;; (write imported-lib-exports)
+                            ;; (newline)
 
                             ))))
                  import-decls)
                 ))
-            (snow2-package-libraries package))))))
+            (snow2-package-libraries package))))
+       verbose))
 
     ))

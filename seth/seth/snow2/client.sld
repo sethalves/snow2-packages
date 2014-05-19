@@ -345,7 +345,7 @@
                (for-each
                 (lambda (repository)
                   (display "  " (current-error-port))
-                  (display (snow2-repository-url repository)
+                  (display (uri->string (snow2-repository-url repository))
                            (current-error-port))
                   (newline (current-error-port)))
                 repositories)))
@@ -468,7 +468,8 @@
                  (let ((repositories (get-repositories-and-siblings
                                       '() repository-urls))
                        (credentials #f))
-                   (upload-packages-to-s3 credentials repositories args)))
+                   (upload-packages-to-s3 credentials repositories
+                                          args verbose)))
                 ((member operation '("check" "lint"))
                  (let ((repositories (get-repositories-and-siblings
                                       '() repository-urls))
