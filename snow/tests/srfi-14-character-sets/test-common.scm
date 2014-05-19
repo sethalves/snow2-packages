@@ -42,9 +42,13 @@
        (= 4 (char-set-fold (lambda (c i) (+ i 1)) 0
                            (char-set #\e #\i #\o #\u #\e #\e)))
 
+       ;; chibi has a lot more than 10 characters in char-set:digit
        (char-set= (string->char-set "eiaou2468013579999")
                   (char-set-unfold null? car cdr '(#\a #\e #\i #\o #\u #\u #\u)
-                                   char-set:digit))
+                                   ;; char-set:digit
+                                   (char-set-intersection
+                                    char-set:ascii char-set:digit)
+                                   ))
 
        (char-set= (string->char-set "eiaou246801357999")
                   (char-set-unfold! null? car cdr '(#\a #\e #\i #\o #\u)
@@ -53,6 +57,7 @@
        (not (char-set= (string->char-set "eiaou246801357")
                        (char-set-unfold! null? car cdr '(#\a #\e #\i #\o #\u)
                                          (string->char-set "0123456789"))))
+
 
        (let ((cs (string->char-set "0123456789")))
          (char-set-for-each (lambda (c) (set! cs (char-set-delete cs c)))
@@ -96,6 +101,7 @@
 
        (char-set= (string->char-set "aeiou12345")
                   (char-set-filter! vowel? char-set:ascii (string->char-set "12345")))
+
        (not (char-set= (string->char-set "aeou12345")
                        (char-set-filter! vowel? char-set:ascii (string->char-set "12345"))))
 
@@ -145,14 +151,20 @@
                               (cons (char-upcase (char-set-ref cs cur)) ans))))))
 
 
+
        (char-set= (char-set-adjoin (->char-set "123") #\x #\a)
                   (->char-set "123xa"))
+
        (not (char-set= (char-set-adjoin (->char-set "123") #\x #\a)
                        (->char-set "123x")))
+
        (char-set= (char-set-adjoin! (->char-set "123") #\x #\a)
                   (->char-set "123xa"))
        (not (char-set= (char-set-adjoin! (->char-set "123") #\x #\a)
                        (->char-set "123x")))
+
+
+
 
        (char-set= (char-set-delete (->char-set "123") #\2 #\a #\2)
                   (->char-set "13"))
@@ -163,8 +175,12 @@
        (not (char-set= (char-set-delete! (->char-set "123") #\2 #\a #\2)
                        (->char-set "13a")))
 
+
+
        (char-set= (char-set-intersection char-set:hex-digit (char-set-complement char-set:digit))
                   (->char-set "abcdefABCDEF"))
+
+
        (char-set= (char-set-intersection! (char-set-complement! (->char-set "0123456789"))
                                           char-set:hex-digit)
                   (->char-set "abcdefABCDEF"))
@@ -204,4 +220,6 @@
            (and (char-set= d (->char-set "0123456789"))
                 (char-set= i (->char-set "abcdefABCDEF"))))))
 
-      )))
+      ))
+
+)

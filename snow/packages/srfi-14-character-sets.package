@@ -1,7 +1,6 @@
   (package
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/srfi-14-character-sets.tgz")
     (library
-      (name (snow srfi-14-character-sets))
       (path "snow/srfi-14-character-sets.sld")
       (version "1.0")
       (homepage "https://github.com/sethalves")
