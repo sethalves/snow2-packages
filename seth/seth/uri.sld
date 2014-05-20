@@ -46,7 +46,7 @@
             (sagittarius io)
             (srfi 1)
             (srfi 14))))
-  (import (snow snowlib)
+  (import ;; (snow snowlib)
           (snow srfi-13-strings)
           (seth string-read-write))
 

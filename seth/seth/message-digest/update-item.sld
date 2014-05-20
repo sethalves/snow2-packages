@@ -16,7 +16,7 @@
    (scheme base)
    (scheme file)
    (snow snowlib)
-   (snow bytevector)
+   ;; (snow bytevector)
    (seth message-digest parameters)
    (seth message-digest primitive)
    (seth message-digest type)

@@ -34,7 +34,7 @@
             (srfi 13)
             (srfi 14)
             (only (rnrs) make-custom-binary-input-port))))
-  (import (snow snowlib)
+  (import ;; (snow snowlib)
           (snow bytevector)
           (snow binio)
           (snow srfi-29-format)

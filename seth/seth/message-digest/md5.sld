@@ -7,7 +7,7 @@
   (export md5-primitive)
   (import (scheme base)
           (scheme write)
-          (snow bytevector)
+          ;; (snow bytevector)
           (snow srfi-60-integers-as-bits)
           (seth message-digest primitive)
           )

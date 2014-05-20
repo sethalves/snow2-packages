@@ -12,7 +12,7 @@
    )
   (import (scheme base)
           (scheme write)
-          (snow snowlib)
+          ;; (snow snowlib)
           (snow bytevector)
           (snow srfi-13-strings)
           (snow extio)

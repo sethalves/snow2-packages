@@ -7,7 +7,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/aws.tgz")
     (size 19991)
-    (checksum (md5 "b3e33c46ee3c3f6773b86217297d7060"))
+    (checksum (md5 "bbc1f58848bfddf5c9940f13158420b2"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -18,7 +18,6 @@
       (description "aws")
       (license BSD-style)
       (depends
-        (snow snowlib)
         (snow bytevector)
         (snow srfi-13-strings)
         (snow extio)
@@ -161,7 +160,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/http.tgz")
     (size 19479)
-    (checksum (md5 "d7cd83a5e8b22aed7bd8237cb4ec65a3"))
+    (checksum (md5 "bfdc4a9b3d62e4e3d8a94368eacb1d87"))
     (library
       (name (seth http))
       (path "seth/http.sld")
@@ -173,7 +172,6 @@
       (license bsd)
       (depends
         (snow gauche-extio-utils)
-        (snow snowlib)
         (snow bytevector)
         (snow binio)
         (snow srfi-29-format)
@@ -209,7 +207,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/message-digest.tgz")
     (size 54807)
-    (checksum (md5 "10ff7a4326f3d3b8ebbfe44c4908cb20"))
+    (checksum (md5 "4491fd8172f4d41c54d60e84a40f0ead"))
     (library
       (name (seth message-digest parameters))
       (path "seth/message-digest/parameters.sld")
@@ -287,7 +285,6 @@
       (license BSD)
       (depends
         (snow snowlib)
-        (snow bytevector)
         (seth message-digest parameters)
         (seth message-digest primitive)
         (seth message-digest type)))
@@ -301,7 +298,6 @@
       (description "message-digest")
       (license BSD)
       (depends
-        (snow bytevector)
         (snow srfi-60-integers-as-bits)
         (seth message-digest primitive)))
     (library
@@ -362,7 +358,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/port-extras.tgz")
     (size 7703)
-    (checksum (md5 "603aa73a67e58b03eb568e229a61af8a"))
+    (checksum (md5 "4db7d3990a0129a2024c076e54da3c97"))
     (library
       (name (seth port-extras))
       (path "seth/port-extras.sld")
@@ -372,7 +368,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "port-extras")
       (license bsd)
-      (depends (snow bytevector) (snow binio))))
+      (depends (snow bytevector))))
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/quoted-printable.tgz")
@@ -583,7 +579,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/uri.tgz")
     (size 45591)
-    (checksum (md5 "a17efa5592d144ff31b992c2b255c84c"))
+    (checksum (md5 "f937b189189405aa12114295102bcd4f"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
@@ -593,15 +589,12 @@
       (authors "Ivan Raikov" "Peter Bex")
       (description "uri")
       (license bsd)
-      (depends
-        (snow snowlib)
-        (snow srfi-13-strings)
-        (seth string-read-write))))
+      (depends (snow srfi-13-strings) (seth string-read-write))))
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/uuid.tgz")
     (size 5655)
-    (checksum (md5 "e40f912f96ea674c8be1806b846b645a"))
+    (checksum (md5 "ebf7fbc174b5c0dcd31ce29bed1fd09b"))
     (library
       (name (seth uuid))
       (path "seth/uuid.sld")
@@ -612,7 +605,6 @@
       (description "parse and generate uuids")
       (license bsd)
       (depends
-        (snow bytevector)
         (snow srfi-60-integers-as-bits)
         (seth binary-pack)
         (snow srfi-13-strings)
