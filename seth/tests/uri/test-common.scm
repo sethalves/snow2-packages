@@ -48,11 +48,11 @@
   (syntax-rules ()
     ((test-error name test-body ...)
      (begin
-       (snow-with-exception-catcher
-        (lambda (exn) #t)
-        (lambda ()
+       (guard
+        (exn (#t #t))
+        (begin
           (begin test-body ...)
-          (snow-error #f)))))))
+          (error #f)))))))
 
 
 (define (test-end name)

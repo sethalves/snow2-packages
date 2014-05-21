@@ -388,8 +388,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
-    (size 105500)
-    (checksum (md5 "dd6ec869dd7490482f7f604ae59f5b5c"))
+    (size 103964)
+    (checksum (md5 "3fe872aafbbc4ef79be61ea269562372"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -400,7 +400,6 @@
       (description "snow2-utils")
       (license bsd)
       (depends
-        (snow snowlib)
         (snow srfi-13-strings)
         (snow filesys)
         (snow binio)
@@ -428,7 +427,6 @@
       (description "snow2 types")
       (license bsd)
       (depends
-        (snow snowlib)
         (snow bytevector)
         (snow tar)
         (snow zlib)
@@ -463,10 +461,10 @@
       (description "snow2-utils")
       (license bsd)
       (depends
-        (snow snowlib)
         (snow extio)
         (snow srfi-13-strings)
         (seth srfi-69-hash-tables)
+        (snow srfi-29-format)
         (snow filesys)
         (seth http)
         (seth uri)

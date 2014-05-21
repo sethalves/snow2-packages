@@ -9,6 +9,7 @@ exec csi -s $0 "$@"
 
 
 (include "snow/snowlib.sld")
+(include "snow/srfi-1-lists.sld")
 (include "snow/bytevector.sld")
 (include "snow/srfi-13-strings.sld")
 (include "snow/srfi-19-time.sld")

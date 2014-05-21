@@ -41,10 +41,8 @@
 
 
 (define (main-program)
-  (snow-with-exception-catcher
-   (lambda (exn)
-     (snow-display-error exn)
-     (newline)
-     )
-   (lambda ()
-     (run-tests))))
+  (guard
+   (exn (#t
+         (display (error-object-message exn))
+         (newline)))
+   (run-tests)))
