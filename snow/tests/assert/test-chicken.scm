@@ -6,9 +6,7 @@ exec csi -s $0 "$@"
 (use r7rs)
 (import-for-syntax r7rs)
 
-(include "snow/snowlib.sld")
-(import (snow snowlib))
-
+(import (scheme base))
 
 (include "snow/assert.sld")
 (import (snow assert))

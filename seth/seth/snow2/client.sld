@@ -10,11 +10,8 @@
           (scheme process-context))
   (cond-expand
    (chibi (import (only (srfi 1) filter make-list any fold)
-                  ;; (only (chibi) read)
                   ))
-   (else (import ;; (scheme read)
-                 (srfi 1)
-                 )))
+   (else (import (srfi 1))))
   (cond-expand
    (chibi (import (chibi filesystem)))
    (else))

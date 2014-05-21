@@ -32,15 +32,6 @@
       (= (read-u8 p-del) 12)
       (eof-object? (read-u8 p-del))))
 
-
-;   (snow-with-exception-catcher
-;    (lambda (exn)
-;      ;; (write exn (current-error-port))
-;      (snow-display-error exn)
-;      (newline)
-;      )
-;     (lambda ()
-
    (let* ((data-str (string-append
                      "blah blah blah"
                      (string (integer->char #x40a)

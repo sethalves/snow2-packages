@@ -14,7 +14,6 @@
           )
   (import (scheme base)
           (scheme write) ;; XXX delete
-          (snow snowlib)
           (snow filesys)
           (snow extio)
           )
@@ -182,8 +181,7 @@
       (snow-subprocess-wait p)
       (cond ((and (string? errput)
                   (> (string-length errput) 0))
-             (snow-raise (make-snow-error-condition
-                          "stderr-output" (list errput output))))
+             (error "stderr-output" (list errput output)))
             (else
              output)))))
 

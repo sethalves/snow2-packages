@@ -1,4 +1,4 @@
-TEST_DEPS="(snow assert)" "(snow snowlib)"
+TEST_DEPS="(snow assert)"
 include ../../../makefiles/test.make
 
 clean-extra:

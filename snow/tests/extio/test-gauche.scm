@@ -10,8 +10,6 @@ exec gosh \
         (scheme write)
         (scheme file)
         (snow extio))
-
 (include "test-common.scm")
-
 (display (main-program))
 (newline)

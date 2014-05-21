@@ -219,7 +219,7 @@
                (display (format "[~a unchanged]\n" local-filename)))
               (else
                (display (format "[~a --> s3:~a~a]\n"
-                                local-filename buckets3-path))
+                                local-filename bucket s3-path))
                (guard
                 (err (#t
                       (display
