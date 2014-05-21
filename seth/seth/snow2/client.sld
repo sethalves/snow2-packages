@@ -18,8 +18,7 @@
   (cond-expand
    (chibi (import (chibi filesystem)))
    (else))
-  (import ;; (snow snowlib)
-          (snow srfi-13-strings)
+  (import (snow srfi-13-strings)
           (snow filesys) (snow binio) (snow genport) (snow zlib) (snow tar)
           (snow srfi-29-format)
           (prefix (seth http) http-)

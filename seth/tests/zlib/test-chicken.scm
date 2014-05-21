@@ -10,17 +10,15 @@ exec csi -s $0 "$@"
         (scheme write)
         (scheme file))
 
-(include "snow/snowlib.sld")
+(include "snow/srfi-1-lists.sld")
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "snow/genport.sld")
-(include "seth/string-read-write.sld")
 (include "seth/port-extras.sld")
 (include "seth/zlib.sld")
 
 
-(import (snow snowlib)
-        (snow genport)
+(import (snow genport)
         (seth port-extras)
         (seth zlib))
 

@@ -8,7 +8,6 @@ exec gosh \
 
 (import (scheme base)
         (scheme write)
-        (snow snowlib)
         (snow srfi-13-strings)
         (snow extio)
         (snow assert)

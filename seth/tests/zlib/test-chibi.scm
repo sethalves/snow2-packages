@@ -3,7 +3,6 @@
 (import (scheme base)
         (scheme write)
         (scheme file)
-        (snow snowlib)
         (snow genport)
         (seth port-extras)
         (seth zlib))

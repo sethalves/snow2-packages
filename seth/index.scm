@@ -7,7 +7,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/aws.tgz")
     (size 19991)
-    (checksum (md5 "bbc1f58848bfddf5c9940f13158420b2"))
+    (checksum (md5 "c8f989813df575cb88ba262e80e55e07"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -160,7 +160,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/http.tgz")
     (size 19479)
-    (checksum (md5 "bfdc4a9b3d62e4e3d8a94368eacb1d87"))
+    (checksum (md5 "ca7b19afa69972256beae551e5b4e1b3"))
     (library
       (name (seth http))
       (path "seth/http.sld")
@@ -207,7 +207,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/message-digest.tgz")
     (size 54807)
-    (checksum (md5 "4491fd8172f4d41c54d60e84a40f0ead"))
+    (checksum (md5 "0816f02584a281914e566e0972b2140c"))
     (library
       (name (seth message-digest parameters))
       (path "seth/message-digest/parameters.sld")
@@ -237,10 +237,7 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends
-        (snow snowlib)
-        (snow bytevector)
-        (seth message-digest primitive)))
+      (depends (snow bytevector) (seth message-digest primitive)))
     (library
       (name (seth message-digest support))
       (path "seth/message-digest/support.sld")
@@ -284,7 +281,6 @@
       (description "message-digest")
       (license BSD)
       (depends
-        (snow snowlib)
         (seth message-digest parameters)
         (seth message-digest primitive)
         (seth message-digest type)))
@@ -389,7 +385,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
     (size 103964)
-    (checksum (md5 "3fe872aafbbc4ef79be61ea269562372"))
+    (checksum (md5 "a3703f2ce8c5d396dc4a4a1408dad7dd"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -577,7 +573,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/uri.tgz")
     (size 45591)
-    (checksum (md5 "f937b189189405aa12114295102bcd4f"))
+    (checksum (md5 "686c49804a2f43b959815b9b036020eb"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
@@ -626,7 +622,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/xml.tgz")
     (size 332336)
-    (checksum (md5 "d367dd2b3fec86257ec094761735d81d"))
+    (checksum (md5 "b2085ae61237d962ff9dcb772947bcc6"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
@@ -646,11 +642,7 @@
       (authors)
       (description "XML parser")
       (license public-domain)
-      (depends
-        (snow snowlib)
-        (snow assert)
-        (snow srfi-13-strings)
-        (snow extio))))
+      (depends (snow assert) (snow srfi-13-strings) (snow extio))))
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/zlib.tgz")

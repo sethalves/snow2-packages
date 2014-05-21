@@ -57,7 +57,7 @@
   (begin
 
     (define (depend-from-sexp depend-sexp)
-      ;; depend-sexp will be a library name, like (snow snowlib)
+      ;; depend-sexp will be a library name, like (snow hello)
       depend-sexp)
 
     (define (depend->sexp depend)

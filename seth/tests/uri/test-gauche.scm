@@ -10,7 +10,6 @@ exec gosh \
         (scheme write)
         (srfi 1)
         (srfi 29)
-        (snow snowlib)
         (seth string-read-write))
 (import (seth uri))
 (include "test-common.scm")

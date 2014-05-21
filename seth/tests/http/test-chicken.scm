@@ -9,13 +9,13 @@ exec csi -s $0 "$@"
         (scheme time)
         (scheme file))
 
-(include "snow/snowlib.sld")
+(include "snow/srfi-1-lists.sld")
 (include "snow/bytevector.sld")
 (include "snow/srfi-60-integers-as-bits.sld")
 (include "snow/binio.sld")
+(include "snow/srfi-13-strings.sld")
 (include "snow/extio.sld")
 (include "snow/srfi-29-format.sld")
-(include "snow/srfi-13-strings.sld")
 
 (include "seth/string-read-write.sld")
 (include "seth/quoted-printable.sld")

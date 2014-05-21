@@ -2,7 +2,6 @@
 
 (import (scheme base)
         (scheme write)
-        (snow snowlib)
         (only (chibi) call-with-input-string)
         (snow srfi-13-strings)
         (snow extio)

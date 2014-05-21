@@ -15,12 +15,9 @@
   (import
    (scheme base)
    (scheme file)
-   (snow snowlib)
-   ;; (snow bytevector)
    (seth message-digest parameters)
    (seth message-digest primitive)
    (seth message-digest type)
-   ;; (seth message-digest support)
    )
 
 (begin
@@ -62,7 +59,7 @@
     (lambda (x) (do-byte-source-update loc ctx x updt)))
    ;; too complicated bytes
    (else
-    (snow-error "indigestible object" loc src))))
+    (error "indigestible object" loc src))))
 
 (define (do-procedure-update loc md proc)
   (let ((updt (get-update md))
@@ -141,7 +138,7 @@
     (with-exception-handler
      (lambda (exn)
        (close-input-port in)
-       (snow-error "message-digest-update-file" exn))
+       (error "message-digest-update-file" exn))
      (lambda ()
        (do-port-update 'message-digest-update-file md in)))
     (close-input-port in) ) )

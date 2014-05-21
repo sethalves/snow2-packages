@@ -21,7 +21,6 @@
    setup-message-digest-buffer!)
 
   (import (scheme base)
-          (snow snowlib)
           (snow bytevector)
           (seth message-digest primitive)
           )
@@ -41,7 +40,7 @@
 
 (define (error-result-form loc obj)
   ;; (error-argument-type loc obj "symbol in {string hex blob u8vector}" 'result-form)
-  (snow-error "result-form -- symbol in {string hex blob u8vector}" loc obj)
+  (error "result-form -- symbol in {string hex blob u8vector}" loc obj)
   )
 
 ;perform any conversion necessary for final result representation
@@ -74,7 +73,7 @@
     ((u8vector)                 (blob->u8vector/shared res) )
     (else
       ;; (error-result-form loc rt)
-     (snow-error "(message-digest type) unexpected return type" loc rt)
+     (error "(message-digest type) unexpected return type" loc rt)
       ) ) )
 
 
@@ -98,7 +97,7 @@
     (if (procedure? ctx-info) (ctx-info)
         (begin
           ;; (set-finalizer! (allocate ctx-info) free)
-          (snow-error "can't do set-finalizer! here.")
+          (error "can't do set-finalizer! here.")
           )
         ) ) )
 

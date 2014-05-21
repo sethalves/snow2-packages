@@ -8,7 +8,6 @@ exec csi -s $0 "$@"
 (import (scheme base))
 
 
-(include "snow/snowlib.sld")
 (include "snow/srfi-1-lists.sld")
 (include "snow/bytevector.sld")
 (include "snow/srfi-13-strings.sld")
@@ -32,8 +31,7 @@ exec csi -s $0 "$@"
 (include "seth/http.sld")
 (include "seth/aws/common.sld")
 (include "seth/aws/s3.sld")
-(import (snow snowlib)
-        (snow srfi-13-strings)
+(import (snow srfi-13-strings)
         (only (seth http) log-http-to-stderr)
         (seth crypt md5)
         (seth aws common)
