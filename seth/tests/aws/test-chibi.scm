@@ -1,8 +1,7 @@
 #! /bin/sh
 #| -*- scheme -*-
-CHIBI_MODULE_PATH="$CHIBI_MODULE_PATH" exec chibi-scheme -A /usr/local/share/scheme -A . -s $0 "$@"
+CHIBI_MODULE_PATH="" exec chibi-scheme -A . -s $0 "$@"
 |#
-
 
 (import (scheme base)
         (scheme write)
@@ -13,9 +12,6 @@ CHIBI_MODULE_PATH="$CHIBI_MODULE_PATH" exec chibi-scheme -A /usr/local/share/sch
         (seth crypt md5)
         (seth aws common)
         (seth aws s3))
-
-
 (include "test-common.scm")
-
 (display (main-program))
 (newline)

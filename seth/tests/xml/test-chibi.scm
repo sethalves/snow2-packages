@@ -1,4 +1,7 @@
-#! /usr/bin/env chibi-scheme
+#! /bin/sh
+#| -*- scheme -*-
+CHIBI_MODULE_PATH="" exec chibi-scheme -A . -s $0 "$@"
+|#
 
 (import (scheme base)
         (scheme write)
@@ -13,8 +16,6 @@
         (chibi io)
         (seth xml ssax)
         (seth xml sxpath))
-
 (include "test-common.scm")
-
 (display (main-program))
 (newline)

@@ -1,8 +1,11 @@
-#! /usr/bin/env chibi-scheme
+#! /bin/sh
+#| -*- scheme -*-
+CHIBI_MODULE_PATH="" exec chibi-scheme -A . -s $0 "$@"
+|#
 
-(import (scheme base) (scheme write) (seth port-extras))
-
+(import (scheme base)
+        (scheme write)
+        (seth port-extras))
 (include "test-common.scm")
-
 (display (main-program))
 (newline)
