@@ -28,14 +28,23 @@
           (seth aws s3)
           (seth snow2 types)
           (seth snow2 utils)
-          (seth snow2 r7rs-library))
+          (seth snow2 r7rs-library)
+          (snow srfi-95-sort)
+          )
 
   (begin
 
-    (define (make-package-archive local-repository package verbose)
+    (define (make-package-archive
+             repositories local-repository package verbose)
       ;; create the .tgz file that gets uploaded to a repository.
       ;; update the size and md5 sum and depends in the package meta-data
       ;; in index.scm.
+
+      (cond
+       (verbose
+        (display (format "-- packaging ~a\n"
+                         (uri->string (snow2-package-url package))))))
+
       (let* ((repo-path (uri-path (snow2-repository-url local-repository))))
 
         (define (lib-file->tar-recs lib-filename)
@@ -134,11 +143,28 @@
           ;; get a list of libraries this package depends on and
           ;; set library names.
           (for-each (lambda (lib lib-sexp)
-                      ;; (cond (verbose
-                      ;;        (display (format "-- depends for ~a --\n"
-                      ;;                         (snow2-library-path lib)))))
-                      (set-snow2-library-depends!
-                       lib (r7rs-get-imported-library-names lib-sexp verbose))
+
+                      ;; if the depends have changes from what's in index.scm
+                      ;; mark the package dirty
+                      (let* ((all-deps (r7rs-get-imported-library-names
+                                        lib-sexp verbose))
+                             ;; remove dependencies that we can't find
+                             ;; packages for.
+                             (deps
+                              (filter
+                               (lambda (dep-lib-name)
+                                 (find-package-with-library
+                                  repositories dep-lib-name))
+                               all-deps)))
+                        (cond
+                         ((not (equal? (sort (snow2-library-depends lib))
+                                       (sort deps)))
+                          (set-snow2-package-dirty! package #t)
+                          (set-snow2-library-depends! lib deps)
+                          (if verbose
+                              (display
+                               (format "  setting depends to ~a\n" deps))))))
+
                       (cond ((or (not (snow2-library-name lib))
                                  (null? (snow2-library-name lib)))
                              (cond (verbose
@@ -189,7 +215,9 @@
               (display (format "  size=~a md5=~a\n"
                                local-package-size local-package-md5))
 
-              (cond ((not (= (snow2-package-size package) local-package-size))
+              (cond ((and (number? (snow2-package-size package))
+                          (not (= (snow2-package-size package)
+                                  local-package-size)))
                      (set-snow2-package-size! package local-package-size)
                      (set-snow2-package-dirty! package #t)
                      (display "setting package dirty due to size\n")))
@@ -223,8 +251,10 @@
                (guard
                 (err (#t
                       (display
-                       (format "error uploading ~a to s3.\n~a\n"
-                               local-filename (error-object-message err))
+                       (format "error uploading ~a to s3.\n~a\n~a\n"
+                               local-filename
+                               (error-object-message err)
+                               (error-object-irritants err))
                        (current-error-port))))
                 (put-object! credentials bucket s3-path local-p
                              #f ;; (snow-file-size local-filename)
@@ -269,7 +299,10 @@
              (packages-dirname (snow-make-filename repo-dirname "packages")))
         (map (lambda (package-filename)
                (snow-make-filename packages-dirname package-filename))
-             (snow-directory-files packages-dirname))))
+             (filter
+              (lambda (filename)
+                (not (string-suffix? "~" filename)))
+              (snow-directory-files packages-dirname)))))
 
 
     (define (resolve-package-metafile local-repository package-metafile)
@@ -422,7 +455,9 @@
        (lambda (local-repository package-metafile package)
          (refresh-package-from-filename
           local-repository package-metafile verbose)
-         (make-package-archive local-repository package verbose))
+         (make-package-archive
+          (cons local-repository repositories)
+          local-repository package verbose))
        verbose))
 
 

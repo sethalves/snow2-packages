@@ -87,13 +87,14 @@
            (memq (car lib-name)
                  '(scheme chibi r7rs gauche sagittarius
                           ports tcp rnrs use openssl udp posix
-                          srfi chicken ssax sxml sxpath txpath
+                          chicken ssax sxml sxpath txpath
                           sxpath-lolevel text md5 rfc math sha1 sha2
                           util memcached matchable match
                           extras http-client uri-generic intarweb
                           message-digest file z3 base64 hmac
                           binary input-parse foment
-                          srfi-27 srfi-95))))
+                          ;; srfi srfi-27 srfi-95
+                          ))))
 
 
     (define (r7rs-filter-known-imports r7rs-imports)
