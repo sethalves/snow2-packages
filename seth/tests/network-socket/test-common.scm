@@ -18,7 +18,7 @@
     (flush-output-port (socket:outbound-write-port client-sock))
     (let ((client-sent
            (utf8->string
-            (read-n-u8 3 (socket:inbound-read-port server-sock)))))
+            (read-bytevector 3 (socket:inbound-read-port server-sock)))))
       (cond ((equal? client-sent "ok\n")
              (display "hi\n" (socket:outbound-write-port server-sock))
              (socket:send-eof server-sock)

@@ -9,6 +9,7 @@ exec csi -s $0 "$@"
         (scheme time)
         (scheme file))
 
+(include "srfi/60.sld")
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "snow/extio.sld")

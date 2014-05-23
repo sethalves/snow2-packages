@@ -7,7 +7,6 @@
   (export md5-primitive)
   (import (scheme base)
           (scheme write)
-          ;; (snow bytevector)
           (srfi 60)
           (seth message-digest primitive)
           )
@@ -393,8 +392,6 @@
                 )))))
 
         (define (update data n)
-
-          (write `(update data ,n)) (newline)
 
           (define (maybe-process-block)
             (cond ((= buf-i 64)

@@ -5,9 +5,7 @@ exec csi -s $0 "$@"
 
 (use r7rs)
 (import-for-syntax r7rs)
-
-(use srfi-4)
-
+(import (scheme base))
 (include "snow/bytevector.sld")
 (include "seth/binary-pack.sld")
 (import (snow bytevector))

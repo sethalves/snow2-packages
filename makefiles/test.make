@@ -25,9 +25,13 @@ download-deps:
 
 test: link-deps
 	./test-chicken.scm
+	@echo
 	./test-chibi.scm
+	@echo
 	./test-gauche.scm
-	./test-sash.scm
+	@echo
+	./test-sagittarius.scm
+	@echo
 
 clean:
 	rm -f *~

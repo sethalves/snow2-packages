@@ -2,12 +2,9 @@
 
 (define-library (seth port-extras)
   (export read-all-chars
-          ;; read-all-latin-1-chars
           read-all-u8
           read-available-chars
           read-available-u8
-          ;; read-n
-          ;; read-n-u8
           read-0
           consume-whitespace
           read-word

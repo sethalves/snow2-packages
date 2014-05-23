@@ -12,7 +12,7 @@ exec csi -s $0 "$@"
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "seth/string-read-write.sld")
-(include "seth/port-extras.sld")
+;; (include "seth/port-extras.sld")
 (include "seth/base64.sld")
 (include "seth/cout.sld")
 (include "seth/network-socket.sld")

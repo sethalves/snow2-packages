@@ -5,7 +5,7 @@ CHIBI_MODULE_PATH="" exec chibi-scheme -A . -s $0 "$@"
 
 (import (scheme base)
         (scheme write)
-        (seth snow2-utils))
+        (seth snow2 client))
 (include "test-common.scm")
 (display (main-program))
 (newline)

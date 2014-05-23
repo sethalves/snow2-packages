@@ -7,7 +7,7 @@ exec csi -s $0 "$@"
 (import-for-syntax r7rs)
 (import (scheme base)
         (scheme write))
-
+(include "srfi/60.sld")
 (include "snow/bytevector.sld")
 (include "seth/gensym.sld")
 (include "seth/variable-item.sld")

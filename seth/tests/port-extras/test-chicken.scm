@@ -10,8 +10,6 @@ exec csi -s $0 "$@"
 (define flush-output-port flush-output)
 
 (include "snow/bytevector.sld")
-(include "snow/binio.sld")
-(include "seth/string-read-write.sld")
 (include "seth/port-extras.sld")
 (import (seth port-extras))
 

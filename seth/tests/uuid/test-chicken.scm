@@ -5,9 +5,8 @@ exec csi -s $0 "$@"
 
 (use r7rs)
 (import-for-syntax r7rs)
-
-(use srfi-4)
-
+(import (scheme base))
+(include "srfi/60.sld")
 (include "snow/bytevector.sld")
 (include "seth/binary-pack.sld")
 (include "seth/uuid.sld")

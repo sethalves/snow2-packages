@@ -8,7 +8,7 @@ exec csi -s $0 "$@"
 (import (scheme base)
         (scheme file)
         )
-
+(include "srfi/60.sld")
 (include "snow/bytevector.sld")
 (include "seth/crypt/sha-1.sld")
 (include "seth/crypt/sha-2.sld")

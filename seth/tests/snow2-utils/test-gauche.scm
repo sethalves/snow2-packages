@@ -7,7 +7,7 @@ exec gosh \
 |#
 
 (import (scheme base) (scheme write))
-(import (seth snow2-utils))
+(import (seth snow2 client))
 (include "test-common.scm")
 (display (main-program))
 (newline)
