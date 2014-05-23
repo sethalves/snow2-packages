@@ -1,7 +1,7 @@
 (define (main-program)
 
-;  (display (snow-directory-subfiles "." '(directory)))
-;  (newline)
+  (write (snow-directory-subfiles "." '(directory)))
+  (newline)
 
   (and
    (member "Makefile" (snow-directory-files "."))
@@ -61,17 +61,19 @@
 
    (equal? (snow-make-filename "/tmp" "hi") "/tmp/hi")
 
-   (equal? (snow-directory-subfiles "." '(directory)) '("." "./snow"))
+   (lset= equal?
+          (snow-directory-subfiles "." '(directory))
+          '("." "./srfi" "./srfi/srfi-1" "./snow"))
 
    (snow-filename-relative? "../ok/fuh")
    (not (snow-filename-relative? "/ok/fuh"))
 
-   (equal? (snow-file-size "Makefile") 78)
+   (equal? (snow-file-size "Makefile") 89)
 
-   ;; (begin
-   ;;   (write (snow-file-mtime "test-common.scm"))
-   ;;   (newline)
-   ;;   #t)
+   ;; ;; (begin
+   ;; ;;   (write (snow-file-mtime "test-common.scm"))
+   ;; ;;   (newline)
+   ;; ;;   #t)
 
    (> (snow-file-mtime "test-common.scm") 1398705085)
 

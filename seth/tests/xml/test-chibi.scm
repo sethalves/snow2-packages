@@ -3,7 +3,7 @@
 (import (scheme base)
         (scheme write)
         (only (chibi) call-with-input-string)
-        (snow srfi-13-strings)
+        (srfi 13)
         (snow extio)
         (snow assert)
         (only (chibi string) string-null?)

@@ -25,7 +25,7 @@
    (sagittarius)
    (else))
   (import (snow bytevector)
-          (snow srfi-13-strings)
+          (srfi 13)
           (snow binio)
           (seth network-socket)
           (seth string-read-write)

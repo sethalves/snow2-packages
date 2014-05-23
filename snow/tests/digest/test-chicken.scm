@@ -6,9 +6,9 @@ exec csi -s $0 "$@"
 (use r7rs)
 (import-for-syntax r7rs)
 
+(include "srfi/60.sld")
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
-(include "snow/srfi-60-integers-as-bits.sld")
 (include "snow/digest.sld")
 (import (snow digest))
 

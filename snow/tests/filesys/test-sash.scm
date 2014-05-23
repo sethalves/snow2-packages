@@ -1,11 +1,12 @@
 #! /bin/sh
 #| -*- scheme -*-
-exec sash -L . -S .sld $0 "$@"
+exec sash -A . -S .sld $0 "$@"
 |#
 
 (import (scheme base)
         (scheme file)
         (scheme write)
+        (srfi 1)
         (snow filesys))
 
 

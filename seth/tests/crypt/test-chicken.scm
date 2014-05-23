@@ -10,7 +10,6 @@ exec csi -s $0 "$@"
         )
 
 (include "snow/bytevector.sld")
-(include "snow/srfi-60-integers-as-bits.sld")
 (include "seth/crypt/sha-1.sld")
 (include "seth/crypt/sha-2.sld")
 (include "seth/crypt/md5.sld")

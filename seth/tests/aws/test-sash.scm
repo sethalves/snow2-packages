@@ -1,11 +1,11 @@
 #! /bin/sh
 #| -*- scheme -*-
-exec sash -L . -S .sld $0 "$@"
+exec sash -A . -S .sld $0 "$@"
 |#
 
 (import (scheme base)
         (scheme write)
-        (snow srfi-13-strings)
+        (srfi 13)
         (seth crypt md5)
         (seth http)
         (seth aws common)

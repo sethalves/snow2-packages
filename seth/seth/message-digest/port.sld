@@ -19,11 +19,8 @@
   (cond-expand
    (chicken (import (ports)))
    (else))
-  (import (seth srfi-69-hash-tables)
-          ;; (seth message-digest primitive)
+  (import (srfi 69)
           (seth message-digest type)
-          ;; (only ports make-output-port with-input-from-port)
-          ;; (only srfi-13 string-suffix-length-ci)
           (seth message-digest bv))
 
   (begin

@@ -6,6 +6,7 @@
   (import (scheme base)
           (scheme read)
           (scheme write)
+          (scheme char)
           (scheme file)
           (scheme time)
           (scheme process-context)
@@ -19,9 +20,9 @@
           (snow tar)
           (snow zlib)
           (snow filesys)
-          (snow srfi-13-strings)
+          (srfi 13)
           (snow extio)
-          (snow srfi-29-format)
+          (srfi 29)
           (seth uri)
           (seth crypt md5)
           (seth aws common)
@@ -29,7 +30,8 @@
           (seth snow2 types)
           (seth snow2 utils)
           (seth snow2 r7rs-library)
-          (snow srfi-95-sort)
+          (srfi 95)
+          (seth string-read-write)
           )
 
   (begin
@@ -42,8 +44,9 @@
 
       (cond
        (verbose
-        (display (format "-- packaging ~a\n"
-                         (uri->string (snow2-package-url package))))))
+        (display "-- packaging ")
+        (write (uri->string (snow2-package-url package)))
+        (newline)))
 
       (let* ((repo-path (uri-path (snow2-repository-url local-repository))))
 
@@ -156,30 +159,36 @@
                                  (find-package-with-library
                                   repositories dep-lib-name))
                                all-deps)))
+
+                        (define (lib-name<? a b)
+                          (string-ci<? (write-to-string a)
+                                       (write-to-string b)))
+
                         (cond
-                         ((not (equal? (sort (snow2-library-depends lib))
-                                       (sort deps)))
+                         ((not (equal?
+                                (sort (snow2-library-depends lib) lib-name<?)
+                                (sort deps lib-name<?)))
                           (set-snow2-package-dirty! package #t)
                           (set-snow2-library-depends! lib deps)
-                          (if verbose
-                              (display
-                               (format "  setting depends to ~a\n" deps))))))
+                          (cond (verbose
+                                 (display "  setting depends to ")
+                                 (write deps)
+                                 (newline))))))
 
                       (cond ((or (not (snow2-library-name lib))
                                  (null? (snow2-library-name lib)))
                              (cond (verbose
-                                    (display
-                                     (format "  setting library name to ~a\n"
-                                             (lib-sexp->name lib-sexp)))))
+                                    (display "  setting library name to ")
+                                    (write (lib-sexp->name lib-sexp))
+                                    (newline)))
                              (set-snow2-package-dirty! package #t)
                              (set-snow2-library-name!
                               lib (lib-sexp->name lib-sexp)))
                             (else
                              (cond (verbose
-                                    (display
-                                     (format "  keeping library name of ~a\n"
-                                             (snow2-library-name lib))))))
-                            ))
+                                    (display "  keeping library name of ")
+                                    (write (snow2-library-name lib))
+                                    (newline))))))
                     libraries lib-sexps)
 
           ;; find the most recent file mtime and set the mtimes of
@@ -212,8 +221,12 @@
                    (bytes->hex-string
                     (filename->md5 local-package-filename)))
                   (local-package-size (snow-file-size local-package-filename)))
-              (display (format "  size=~a md5=~a\n"
-                               local-package-size local-package-md5))
+
+              (display "  size=")
+              (write local-package-size)
+              (display " md5=")
+              (write local-package-md5)
+              (newline)
 
               (cond ((and (number? (snow2-package-size package))
                           (not (= (snow2-package-size package)
@@ -244,18 +257,27 @@
         ;; (display "md5-on-s3=") (write md5-on-s3) (newline)
 
         (cond ((equal? md5-on-s3 local-md5)
-               (display (format "[~a unchanged]\n" local-filename)))
+               (display "[")
+               (write local-filename)
+               (display " unchanged]\n"))
               (else
-               (display (format "[~a --> s3:~a~a]\n"
-                                local-filename bucket s3-path))
+               (display "[")
+               (write local-filename)
+               (display " --> s3:")
+               (display bucket)
+               (display s3-path)
+               (display "]\n")
                (guard
                 (err (#t
-                      (display
-                       (format "error uploading ~a to s3.\n~a\n~a\n"
-                               local-filename
-                               (error-object-message err)
-                               (error-object-irritants err))
-                       (current-error-port))))
+                      (display "error uploading ")
+                      (write local-filename)
+                      (display " to s3.\n")
+                      (write (error-object-message err))
+                      (newline)
+                      (write (error-object-irritants err))
+                      (newline)
+                      (raise err)
+                      ))
                 (put-object! credentials bucket s3-path local-p
                              #f ;; (snow-file-size local-filename)
                              "application/octet-stream"
@@ -397,8 +419,10 @@
                                 (local-repository->in-fs-index-filename
                                  repository))
                                (p (open-output-file index-scm-filename)))
-                          (if verbose (display (format "rewriting ~a\n"
-                                                       index-scm-filename)))
+                          (cond (verbose
+                                 (display "rewriting ")
+                                 (write index-scm-filename)
+                                 (newline)))
                           (snow-pretty-print (repository->sexp repository) p)
                           (close-output-port p)))))
                 (else
@@ -516,12 +540,11 @@
            (for-each
             (lambda (unwanted-clause-name)
               (cond ((get-child-by-type meta-data unwanted-clause-name #f)
-                     (display
-                      (format
-                       "package meta-file ~a has (~a ...).\n"
-                       package-metafile
-
-                       unwanted-clause-name)))))
+                     (display "package meta-file ")
+                     (write package-metafile)
+                     (display " has (")
+                     (display unwanted-clause-name)
+                     (display " ...).\n"))))
             (list 'size 'checksum))
 
            (for-each
@@ -530,12 +553,13 @@
                (lambda (unwanted-clause-name)
                  (cond ((get-child-by-type
                          lib-meta-sexp unwanted-clause-name #f)
-                        (display
-                         (format
-                          "in package meta-file ~a library ~a has (~a ...)\n"
-                          package-metafile
-                          (cadr (get-child-by-type lib-meta-sexp 'path))
-                          unwanted-clause-name)))))
+                        (display "in package meta-file ")
+                        (write package-metafile)
+                        (display " library ")
+                        (write (cadr (get-child-by-type lib-meta-sexp 'path)))
+                        (display " has (")
+                        (display unwanted-clause-name)
+                        (display " ...)\n"))))
                (list 'name 'depends)))
             (get-children-by-type meta-data 'library))
 

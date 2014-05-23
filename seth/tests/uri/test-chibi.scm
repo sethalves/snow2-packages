@@ -3,7 +3,7 @@
 (import (scheme base)
         (scheme write)
         (srfi 1)
-        (snow srfi-29-format)
+        (srfi 29)
         (seth string-read-write)
         )
 (import (seth uri))

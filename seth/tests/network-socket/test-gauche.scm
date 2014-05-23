@@ -7,7 +7,7 @@ exec gosh \
 |#
 
 (import (scheme base) (r7rs) (scheme read) (scheme write)
-        (seth srfi-27-random)
+        (srfi 27)
         (seth port-extras)
         )
 

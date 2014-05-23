@@ -6,8 +6,6 @@ exec csi -s $0 "$@"
 (use r7rs)
 (import-for-syntax r7rs)
 
-(include "snow/srfi-13-strings.sld")
-(include "snow/srfi-60-integers-as-bits.sld")
 (include "seth/quoted-printable.sld")
 (import (seth quoted-printable))
 

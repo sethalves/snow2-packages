@@ -7,7 +7,6 @@ exec csi -s $0 "$@"
 (import-for-syntax r7rs)
 (import (scheme base)
         (scheme file))
-(include "snow/srfi-13-strings.sld")
 (include "snow/filesys.sld")
 (import (snow filesys))
 

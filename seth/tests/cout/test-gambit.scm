@@ -22,8 +22,6 @@ exec gsi -:S $0 "$@"
 ;; (display (main-program))
 ;; (newline)
 
-;; (import srfi-1)
-
 
 (define-macro (macro-expand mac)
   (let ((port (gensym))

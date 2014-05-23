@@ -4,11 +4,11 @@
 
 all:
 
-package: index
-	snow2 -r . package packages/*.package
+package:
+	snow2 -r . -r ../snow -r ../../r7rs-srfis package
 
-upload:
-	snow2 -r . s3-upload packages/*.package
+upload: package
+	snow2 upload
 
 clean:
 	rm -f *~ */*~ */*/*~ */*/*/*~

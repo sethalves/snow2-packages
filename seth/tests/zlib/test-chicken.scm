@@ -10,7 +10,6 @@ exec csi -s $0 "$@"
         (scheme write)
         (scheme file))
 
-(include "snow/srfi-1-lists.sld")
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "snow/genport.sld")

@@ -6,10 +6,8 @@ exec csi -s $0 "$@"
 (use r7rs)
 (import-for-syntax r7rs)
 
-(include "snow/srfi-1-lists.sld")
+(include "srfi/60.sld")
 (include "snow/bytevector.sld")
-(include "snow/srfi-13-strings.sld")
-(include "snow/srfi-60-integers-as-bits.sld")
 (include "snow/extio.sld")
 (import (scheme base)
         (scheme read)

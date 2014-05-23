@@ -10,7 +10,7 @@ snow2=/usr/local/bin/snow2
 # REPODIR=$(shell dirname $(PACKAGEDIR))
 # REPONAME=$(shell basename $(REPODIR))
 
-REPOS=-r ../../../snow -r ../../../seth
+REPOS=-r ../../../snow -r ../../../seth -r ../../../../r7rs-srfis
 
 all:
 
@@ -34,5 +34,5 @@ clean:
 #	for DEP in $(DEPS) ; do \
 #		$(snow2) uninstall $(TEST_DEPS); \
 #	done
-	rm -rf seth snow
+	rm -rf seth snow srfi
 	make clean-extra

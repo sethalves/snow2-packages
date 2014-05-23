@@ -8,12 +8,8 @@ exec csi -s $0 "$@"
 (import (scheme base)
         (scheme write))
 
-(include "snow/srfi-1-lists.sld")
 (include "snow/bytevector.sld")
-(include "snow/srfi-60-integers-as-bits.sld")
 (include "seth/gensym.sld")
-;; (include "seth/string-read-write.sld")
-(include "seth/srfi-69-hash-tables.sld")
 (include "seth/variable-item.sld")
 (include "seth/message-digest/parameters.sld")
 (include "seth/message-digest/primitive.sld")

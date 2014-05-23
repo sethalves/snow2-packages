@@ -5,11 +5,10 @@
   (cond-expand
    (sagittarius (import (rnrs)))
    (else))
-  (import ;; (snow bytevector)
-          (snow srfi-60-integers-as-bits)
+  (import (srfi 60)
           (seth binary-pack)
-          (snow srfi-13-strings)
-          (seth srfi-27-random))
+          (srfi 13)
+          (srfi 27))
   (begin
 
     (cond-expand

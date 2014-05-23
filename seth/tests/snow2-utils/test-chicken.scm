@@ -6,7 +6,6 @@ exec csi -s $0 "$@"
 (use r7rs)
 (import-for-syntax r7rs)
 
-(include "seth/srfi-69-hash-tables.sld")
 (include "seth/tar.sld")
 (include "seth/http.sld")
 (include "seth/temporary-file.sld")

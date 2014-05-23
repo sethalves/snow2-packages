@@ -14,11 +14,8 @@
    message-digest-string)
 
   (import (scheme base)
-          ;; (seth message-digest primitive)
           (seth message-digest type)
-          (seth message-digest support)
-          ;; (only (snow srfi-13-strings) substring/shared)
-          )
+          (seth message-digest support))
 
 (begin
 

@@ -9,7 +9,6 @@ exec csi -s $0 "$@"
 (use memcached)
 (use base64)
 
-(include "snow/srfi-13-strings.sld")
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "seth/string-read-write.sld")

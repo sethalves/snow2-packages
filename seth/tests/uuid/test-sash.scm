@@ -7,7 +7,7 @@ exec sash -L . -S .sld $0 "$@"
         (scheme write)
         (snow bytevector)
         (seth uuid)
-        (seth srfi-27-random))
+        (srfi 27))
 (include "test-common.scm")
 (display (main-program))
 (newline)

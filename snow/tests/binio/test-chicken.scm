@@ -6,7 +6,6 @@ exec csi -s $0 "$@"
 (use r7rs)
 (import-for-syntax r7rs)
 
-(include "snow/srfi-1-lists.sld")
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (import (snow binio))

@@ -8,7 +8,7 @@
   (import (scheme base)
           (scheme write)
           ;; (snow bytevector)
-          (snow srfi-60-integers-as-bits)
+          (srfi 60)
           (seth message-digest primitive)
           )
   (begin

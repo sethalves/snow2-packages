@@ -9,7 +9,6 @@ exec csi -s $0 "$@"
 
 (define flush-output-port flush-output)
 
-;; (use srfi-4)
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "seth/string-read-write.sld")

@@ -15,8 +15,8 @@
           (scheme file)
           (scheme process-context)
           (snow filesys)
-          (snow srfi-29-format)
-          (snow srfi-95-sort)
+          (srfi 29)
+          (srfi 95)
           (seth snow2 types)
           (seth snow2 utils)
           )
@@ -93,7 +93,6 @@
                           extras http-client uri-generic intarweb
                           message-digest file z3 base64 hmac
                           binary input-parse foment
-                          ;; srfi srfi-27 srfi-95
                           ))))
 
 
@@ -124,9 +123,12 @@
     (define (r7rs-library-file->sexp filename)
       (guard
        (err (#t
-             (display (format "unable to read sld file: ~a ~a\n"
-                              filename
-                              (error-object-message err)))
+             (display "unable to read sld file: ")
+             (write filename)
+             (newline)
+             (write (error-object-message err))
+             (newline)
+             (write (error-object-irritants err))
              (exit 1)))
        (let* ((p (open-input-file filename))
               (lib-sexp (read p)))

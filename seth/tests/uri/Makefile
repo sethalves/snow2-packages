@@ -1,4 +1,4 @@
-TEST_DEPS="(seth uri)" "(snow srfi-29-format)"
+TEST_DEPS="(seth uri)"
 include ../../../makefiles/test.make
 
 clean-extra:

@@ -8,7 +8,7 @@ exec gosh \
 
 (import (scheme base)
         (scheme write)
-        (snow srfi-13-strings)
+        (srfi 13)
         (snow extio)
         (snow assert)
         (seth xml ssax)
