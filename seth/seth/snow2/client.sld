@@ -443,12 +443,12 @@
              '() ;; initial value of args
              #f ;; initial value of verbose
              )))
-        (let ((repository-urls
-               (if (null? repository-urls)
-                   (list
-                    (uri-reference
-                     "http://snow2.s3-website-us-east-1.amazonaws.com/"))
-                   repository-urls)))
+        (let* ((default-repo-url
+                 "http://snow2.s3-website-us-east-1.amazonaws.com/index.scm")
+               (repository-urls
+                (if (null? repository-urls)
+                    (list (uri-reference default-repo-url))
+                    repository-urls)))
           (cond ((not operation) (usage ""))
                 ;; search operation
                 ((member operation '("search"))
@@ -491,6 +491,3 @@
                    (client repository-urls operation
                            library-names use-symlinks verbose))
                  )))))))
-
-;; "http://snow2.s3-website-us-east-1.amazonaws.com/"
-;; "http://snow-repository.s3-website-us-east-1.amazonaws.com/"
