@@ -23,6 +23,8 @@
 
           local-repository->in-fs-index-path
           local-repository->in-fs-index-filename
+          local-repository->in-fs-html-path
+          local-repository->in-fs-html-filename
           local-repository->in-fs-tgz-path
           local-repository->in-fs-tgz-filename
           local-repository->in-fs-lib-path
@@ -30,6 +32,8 @@
 
           sanity-check-repository
           sanity-check-package
+
+          repository->html
           )
 
   (import (scheme base)
@@ -213,6 +217,9 @@
         ,@(map sibling->sexp (snow2-repository-siblings repository))
         ,@(map package->sexp (snow2-repository-packages repository))
         ))
+
+    (define (repository->html repository)
+      "<html><body> test </body></html>")
 
 
     (define (read-repository in-port)
@@ -559,6 +566,21 @@
       ;; path and filename of index.scm
       (snow-combine-filename-parts
        (local-repository->in-fs-index-path local-repository)))
+
+
+    (define (local-repository->in-fs-html-path local-repository)
+      ;; given an on-disk repository, return a path to index.html
+      (let* ((repo-path (uri-path (snow2-repository-url local-repository))))
+        (append repo-path (list "index.html"))))
+
+    (define (local-repository->in-fs-html-filename local-repository)
+      ;; given an on-disk repository, return the (perhaps relative)
+      ;; path and filename of index.html
+      (snow-combine-filename-parts
+       (local-repository->in-fs-html-path local-repository)))
+
+
+
 
     (define (local-repository->in-fs-tgz-path local-repository package)
       ;; within a local repository, return a path on the filesystem to

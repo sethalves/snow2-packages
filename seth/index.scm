@@ -379,8 +379,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
-    (size 106012)
-    (checksum (md5 "4c24fc66c70959fdc6197fb2c5e88f8f"))
+    (size 108060)
+    (checksum (md5 "a1bb23d6f6454a935c4d70ed6d772acf"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
