@@ -620,8 +620,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/xml.tgz")
-    (size 332336)
-    (checksum (md5 "02eac38c8cb05806b18a3e9af102b672"))
+    (size 427573)
+    (checksum (md5 "404f609339736fa1e79e3cd843d99595"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
@@ -641,7 +641,17 @@
       (authors)
       (description "XML parser")
       (license public-domain)
-      (depends (srfi 1) (snow assert) (srfi 13) (snow extio))))
+      (depends (srfi 1) (snow assert) (srfi 13) (snow extio)))
+    (library
+      (name (seth xml sxml-serializer))
+      (path "seth/xml/sxml-serializer.sld")
+      (version "1.0")
+      (homepage "http://wiki.call-cc.org/eggref/4/sxml-serializer")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Dmitry Lizorkin" "Jim Ursetto")
+      (description "Serialize SXML to XML")
+      (license bsd)
+      (depends (srfi 1) (srfi 13))))
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/zlib.tgz")

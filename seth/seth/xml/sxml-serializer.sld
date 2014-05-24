@@ -12,10 +12,10 @@
 ;; are assigned the default namespace xmlns="..." and elements with
 ;; no namespace reset the default to xmlns="".
 
-(module sxml-serializer
- (serialize-sxml
-  conventional-ns-prefixes
-  allow-prefix-redeclarations?
+(define-library (seth xml sxml-serializer)
+ (export serialize-sxml
+         conventional-ns-prefixes
+         allow-prefix-redeclarations?
 
   ;; These currently offer little benefit over plain serialize-sxml.
   ;; sxml->xml
@@ -25,12 +25,19 @@
   
   )
 
-(import scheme chicken)
-(require-library srfi-1 srfi-13)
-(import (only srfi-1 filter)
-        (only srfi-13 string-concatenate))
+(import (scheme base)
+        (scheme char)
+        (scheme write)
+        (scheme cxr)
+        (scheme file)
+        (only (srfi 1) filter)
+        (only (srfi 13) string-concatenate))
 
 (include "serializer.scm")
+
+(begin
+
+(define uri-error error)
 
 (define sxml->xml srl:sxml->xml)
 (define sxml->xml/noindent srl:sxml->xml-noindent)
@@ -78,14 +85,13 @@
 ;; Currently disallows xml-declaration emission because the interface is silly and
 ;; it doesn't provide an "encoding" option, and because if there is a (*PI* xml ...)
 ;; in the document it will either emit two, or omit only one.
-(define (serialize-sxml sxml-obj
-                        #!key
-                        (output #f)
-                        (cdata-section-elements '())
-                        (indent "  ")
-                        (method 'xml)
-                        (ns-prefixes conventional-ns-prefixes)
-                        (allow-prefix-redeclarations (allow-prefix-redeclarations?)))
+(define (serialize-sxml~ sxml-obj
+                         output
+                         cdata-section-elements
+                         indent
+                         method
+                         ns-prefixes
+                         allow-prefix-redeclarations)
   (let ((omit-xml-declaration #t)       ;; Force omission of xml-declaration
         (standalone 'omit)
         (version "1.0")
@@ -104,6 +110,39 @@
                             method ns-prefixes
                             omit-xml-declaration standalone version)
           ))))
+
+
+(define (serialize-sxml sxml-obj . args)
+  (let loop ((key/values args)
+             (output #f)
+             (cdata-section-elements '())
+             (indent "  ")
+             (method 'xml)
+             (ns-prefixes conventional-ns-prefixes)
+             (allow-prefix-redeclarations (allow-prefix-redeclarations?)))
+    (cond
+     ((null? key/values)
+      (serialize-sxml~ sxml-obj output cdata-section-elements indent method
+                       ns-prefixes allow-prefix-redeclarations))
+     ((null? (cdr key/values))
+      (uri-error "malformed arguments to serialize-sxml"))
+     ((not (memq (car key/values)
+                 '(output cdata-section-elements indent method ns-prefixes
+                          allow-prefix-redeclarations)))
+      (uri-error "unknown argument keyword to serialize-sxml" (car key/values)))
+     (else
+      (let ((key (car key/values))
+            (value (cadr key/values)))
+        (loop (cddr key/values)
+              (if (eq? key 'output) value output)
+              (if (eq? key 'cdata-section-elements)
+                  value cdata-section-elements)
+              (if (eq? key 'indent) value indent)
+              (if (eq? key 'method) value method)
+              (if (eq? key 'ns-prefixes) value ns-prefixes)
+              (if (eq? key 'allow-prefix-redeclarations)
+                  value allow-prefix-redeclarations)))))))
+
 
 
 
@@ -127,15 +166,16 @@
 ;; Returns a new list with (key . val) consed onto the front;
 ;; if KEY already exists in the alist, that pair is omitted from the
 ;; returned list.  Currently traverses the entire list and removes all matching keys.
-(define (alist-update key val alist #!optional (cmp eqv?))
-  (cons (cons key val)
-        (let loop ((alist alist) (res '()))
-          (cond ((null? alist)
-                 (reverse res))
-                ((cmp key (caar alist))
-                 (loop (cdr alist) res))
-                (else
-                 (loop (cdr alist) (cons (car alist) res)))))))
+(define (alist-update key val alist . maybe-cmp)
+  (let ((cmp (if (pair? maybe-cmp) (car maybe-cmp) eqv?)))
+    (cons (cons key val)
+          (let loop ((alist alist) (res '()))
+            (cond ((null? alist)
+                   (reverse res))
+                  ((cmp key (caar alist))
+                   (loop (cdr alist) res))
+                  (else
+                   (loop (cdr alist) (cons (car alist) res))))))))
 
 ;; Changes: When declaring a namespace prefix, remove any existing matching prefixes
 ;; from the declaration list, so new URIs shadow old ones with the same prefix.
@@ -667,7 +707,7 @@
     ((or (pair? obj)  ; non-atomic type
          (string? obj)) obj)
     ((null? obj)   "")
-    ((char? obj)   (##sys#char->utf8-string obj))
+    ((char? obj)   (string obj))
     ((symbol? obj) (symbol->string obj))
     ((number? obj) (number->string obj))
     ((boolean? obj)
@@ -677,8 +717,7 @@
      obj)))
 
 
-)
-
+))
 
 
 
