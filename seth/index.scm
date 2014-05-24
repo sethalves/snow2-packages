@@ -1,7 +1,7 @@
 (repository
   (sibling
     (name "Snow Repository")
-    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/")
+    (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/index.scm")
     (trust 1.0))
   (package
     (name ())
