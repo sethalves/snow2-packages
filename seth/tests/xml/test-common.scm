@@ -14,16 +14,78 @@
     (newline))
 
 
-(display
+  (display
 
- ((sxpath '((chapter ((equal? (title "Introduction"))))))
-  '(text  (chapter (title "Introduction"))  (chapter "No title for this chapter")  (chapter (title "Conclusion"))))
+   ((sxpath '((chapter ((equal? (title "Introduction"))))))
+    '(text  (chapter (title "Introduction"))  (chapter "No title for this chapter")  (chapter (title "Conclusion"))))
 
-)
+   )
 
- ;; => ((chapter (title "Introduction")))
+  ;; => ((chapter (title "Introduction")))
 
-(newline)
+  (newline)
 
+
+
+  (display
+   (serialize-sxml
+    '(*TOP* (@ (*NAMESPACES* (atom "http://www.w3.org/2005/Atom")))
+            (atom:feed))
+    'ns-prefixes '((atom . "http://www.w3.org/2005/Atom"))))
+  (newline)
+
+  (display
+   (serialize-sxml
+    '(*TOP* (@ (*NAMESPACES* (atom "http://www.w3.org/2005/Atom")))
+            (atom:feed))
+    'ns-prefixes '((*default* . "http://www.w3.org/2005/Atom"))))
+  (newline)
+
+  (display
+   (serialize-sxml
+    '(*TOP* (@ (*NAMESPACES* (atom "http://www.w3.org/2005/Atom")))
+            (atom:feed (atom:id) (orphan)))
+    'ns-prefixes '((*default* . "http://www.w3.org/2005/Atom"))))
+  (newline)
+
+  (display
+   (serialize-sxml
+    '(*TOP* (@ (*NAMESPACES* (atom "http://www.w3.org/2005/Atom")
+                             (xhtml "http://www.w3.org/1999/xhtml")))
+            (atom:feed (atom:entry
+                        (atom:content (@ (type "xhtml"))
+                                      (xhtml:div
+                                       (xhtml:p "I'm invincible!"))))))
+    'ns-prefixes '((*default* . "http://www.w3.org/2005/Atom")
+                   (*default* . "http://www.w3.org/1999/xhtml"))))
+  (newline)
+
+
+  (display
+   (serialize-sxml
+    '((*TOP* (http://foo:one (http://bar:two))
+             (http://bar:three)))
+    'ns-prefixes '((BAZ . "http://foo") (BAZ . "http://bar"))))
+  (newline)
+
+
+  (display
+   (serialize-sxml
+    '((*TOP* (http://foo:one (http://bar:two))
+             (http://bar:three)))
+    'ns-prefixes '((BAZ . "http://foo") (BAZ . "http://bar"))
+    'allow-prefix-redeclarations #f))
+  (newline)
+
+
+  (display
+   (serialize-sxml
+    '(*TOP* (http://foo:one
+             (http://bar:two
+              (http://bar:three)
+              (http://foo:four)
+              (five (six (http://foo:seven))))))
+    'ns-prefixes '((*default* . "http://foo") (*default* . "http://bar"))))
+  (newline)
 
   #t)

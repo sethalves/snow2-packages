@@ -14,6 +14,9 @@ upload:
 	(cd seth && make $@)
 	(cd snow && make $@)
 
+test:
+	(cd seth && make $@)
+	(cd snow && make $@)
 
 clean:
 	(cd seth && make $@)

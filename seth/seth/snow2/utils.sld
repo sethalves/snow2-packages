@@ -25,6 +25,8 @@
           local-repository->in-fs-index-filename
           local-repository->in-fs-html-path
           local-repository->in-fs-html-filename
+          local-repository->in-fs-css-path
+          local-repository->in-fs-css-filename
           local-repository->in-fs-tgz-path
           local-repository->in-fs-tgz-filename
           local-repository->in-fs-lib-path
@@ -55,8 +57,10 @@
           (srfi 29)
           (snow filesys)
           (prefix (seth http) http-)
+          (seth string-read-write)
           (seth uri)
-          (seth snow2 types))
+          (seth snow2 types)
+          (seth xml sxml-serializer))
 
   (begin
 
@@ -86,6 +90,13 @@
         (name ,(snow2-sibling-name sibling))
         (url ,(uri->string (snow2-sibling-url sibling)))
         (trust ,(snow2-sibling-trust sibling))))
+
+
+    (define (sibling->html sibling)
+      (let ((name (snow2-sibling-name sibling))
+            (url (uri->string (snow2-sibling-url sibling)))
+            (trust (snow2-sibling-trust sibling)))
+        `(html:p "sibling: " (html:a (@ (href ,url)) ,name) " " ,trust)))
 
 
     (define (library-from-sexp library-sexp)
@@ -136,6 +147,33 @@
         ))
 
 
+    (define (library->html library)
+      (let ((name (snow2-library-name library))
+            (path (snow2-library-path library))
+            (version (snow2-library-version library))
+            (homepage (cond ((pair? (snow2-library-homepage library))
+                             (car (snow2-library-homepage library)))
+                            (else #f)))
+            (maintainers (snow2-library-maintainers library))
+            (authors (snow2-library-authors library))
+            (description (snow2-library-description library))
+            (license (snow2-library-license library))
+            (depends (snow2-library-depends library)))
+        `(html:li
+          (html:p
+           ,@(if homepage
+                 `((html:a (@ (href ,homepage)) ,(display-to-string name)))
+                 `())
+           " -- "
+           ,description)
+          (html:p "Version: " ,(display-to-string version))
+          (html:p "Authors: " ,(display-to-string authors))
+          (html:p "Maintainers: " ,(display-to-string maintainers))
+          (html:p "License: " ,(display-to-string license))
+          (html:p "Depends: " ,(display-to-string depends))
+          )))
+
+
     (define (package-from-sexp package-sexp)
       ;; convert a s-exp into a package record
       (let ((url (get-string-by-type package-sexp 'url ""))
@@ -165,6 +203,20 @@
         ,@(let ((checksum (snow2-package-checksum package)))
             (if (not (eq? checksum 'unset)) `((checksum ,checksum)) '()))
         ,@(map library->sexp (snow2-package-libraries package))))
+
+
+    (define (package->html package)
+      `(html:tr
+        (@ (class "package-tr"))
+        (html:td
+         (@ (class "package-td"))
+         (html:a
+          (@ (class "package-a")
+             (href ,(uri->string (snow2-package-url package))))
+          ,(snow2-package-get-readable-name package)))
+        (html:td
+         (html:ul
+          ,@(map library->html (snow2-package-libraries package))))))
 
 
     (define (package-from-metafile-name package-filename)
@@ -219,7 +271,19 @@
         ))
 
     (define (repository->html repository)
-      "<html><body> test </body></html>")
+      (serialize-sxml
+       `(*TOP* (@ (*NAMESPACES* (html "http://www.w3.org/1999/xhtml")))
+               (html:html
+                (html:head (html:link (@ (rel "stylesheet")
+                                         (type "text/css")
+                                         (href "index.css"))))
+                (html:body
+                 ,@(map sibling->html (snow2-repository-siblings repository))
+                 (html:table
+                  (tr (th "Package") (th "Libraries"))
+                  ,@(map package->html (snow2-repository-packages repository))
+                  ))))
+       'ns-prefixes '((*default* . "http://www.w3.org/1999/xhtml"))))
 
 
     (define (read-repository in-port)
@@ -578,6 +642,18 @@
       ;; path and filename of index.html
       (snow-combine-filename-parts
        (local-repository->in-fs-html-path local-repository)))
+
+
+    (define (local-repository->in-fs-css-path local-repository)
+      ;; given an on-disk repository, return a path to index.css
+      (let* ((repo-path (uri-path (snow2-repository-url local-repository))))
+        (append repo-path (list "index.css"))))
+
+    (define (local-repository->in-fs-css-filename local-repository)
+      ;; given an on-disk repository, return the (perhaps relative)
+      ;; path and filename of index.css
+      (snow-combine-filename-parts
+       (local-repository->in-fs-css-path local-repository)))
 
 
 
