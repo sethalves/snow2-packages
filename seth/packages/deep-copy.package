@@ -1,0 +1,12 @@
+(package
+  (name ())
+  (url "http://snow2.s3-website-us-east-1.amazonaws.com/deep-copy.tgz")
+  (library
+    (path "seth/deep-copy.sld")
+    (version "1.0")
+    (homepage "https://github.com/sethalves")
+    (maintainers "Seth Alves <seth@hungry.com>")
+    (authors "every scheme student, ever")
+    (description "Copy a potentially nested structure containing any of the base types.")
+    (license bsd)
+    ))
