@@ -1,6 +1,6 @@
 (repository
   (sibling
-    (name "Snow Repository")
+    (name "r7rs srfis")
     (url "http://r7rs-srfis.s3-website-us-east-1.amazonaws.com/index.scm")
     (trust 1.0))
   (package
@@ -195,7 +195,7 @@
   (package
     (name ())
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/pi.tgz")
-    (checksum (md5 "05c1c04d42394f77c36bf6a7e1d316ea"))
+    (checksum (md5 "e1bc09850aa111d174a754f09fb49ecc"))
     (library
       (name (snow pi))
       (path "snow/pi.sld")

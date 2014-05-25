@@ -92,11 +92,21 @@
         (trust ,(snow2-sibling-trust sibling))))
 
 
+    (define (list-replace-last lst new-elt)
+      ;; what's the srfi-1 one-liner for this?
+      (reverse (cons new-elt (cdr (reverse lst)))))
+
     (define (sibling->html sibling)
-      (let ((name (snow2-sibling-name sibling))
-            (url (uri->string (snow2-sibling-url sibling)))
-            (trust (snow2-sibling-trust sibling)))
-        `(html:p "sibling: " (html:a (@ (href ,url)) ,name) " " ,trust)))
+      (let* ((name (snow2-sibling-name sibling))
+             ;; adjust url to point to index.html rather than index.scm
+             (scm-uri (snow2-sibling-url sibling))
+             (scm-path (uri-path scm-uri))
+             (html-path (list-replace-last scm-path "index.html"))
+             (html-uri (update-uri scm-uri 'path html-path))
+             ;; trust level
+             (trust (snow2-sibling-trust sibling)))
+        `(html:p (html:a (@ (href ,(uri->string html-uri))) ,name)
+                 " trust=" ,trust)))
 
 
     (define (library-from-sexp library-sexp)
@@ -154,24 +164,38 @@
             (homepage (cond ((pair? (snow2-library-homepage library))
                              (car (snow2-library-homepage library)))
                             (else #f)))
-            (maintainers (snow2-library-maintainers library))
-            (authors (snow2-library-authors library))
+            (maintainers
+             (string-join
+              (map write-to-string (snow2-library-maintainers library))
+              ", "))
+            (authors
+             (string-join
+              (map write-to-string (snow2-library-authors library))
+              ", "))
             (description (snow2-library-description library))
             (license (snow2-library-license library))
-            (depends (snow2-library-depends library)))
+            (depends
+             (string-join
+              (map display-to-string (snow2-library-depends library))
+              " ")))
         `(html:li
           (html:p
            ,@(if homepage
-                 `((html:a (@ (href ,homepage)) ,(display-to-string name)))
+                 `((html:a (@ (class "lib-a") (href ,homepage))
+                           ,(display-to-string name)))
                  `())
            " -- "
            ,description)
-          (html:p "Version: " ,(display-to-string version))
-          (html:p "Authors: " ,(display-to-string authors))
-          (html:p "Maintainers: " ,(display-to-string maintainers))
-          (html:p "License: " ,(display-to-string license))
-          (html:p "Depends: " ,(display-to-string depends))
-          )))
+          (html:p (@ (class "lib-details"))
+                  "Version: " ,(display-to-string version))
+          (html:p (@ (class "lib-details"))
+                  "Authors: " ,(display-to-string authors))
+          (html:p (@ (class "lib-details"))
+                  "Maintainers: " ,(display-to-string maintainers))
+          (html:p (@ (class "lib-details"))
+                  "License: " ,(display-to-string license))
+          (html:p (@ (class "lib-details"))
+                  "Depends: " ,depends))))
 
 
     (define (package-from-sexp package-sexp)
@@ -215,6 +239,7 @@
              (href ,(uri->string (snow2-package-url package))))
           ,(snow2-package-get-readable-name package)))
         (html:td
+         (@ (class "library-td"))
          (html:ul
           ,@(map library->html (snow2-package-libraries package))))))
 
@@ -278,11 +303,18 @@
                                          (type "text/css")
                                          (href "index.css"))))
                 (html:body
+                 (html:h1 "Snow2 Repository")
+
+                 (html:h2 "Siblings")
                  ,@(map sibling->html (snow2-repository-siblings repository))
+
+                 (html:h2 "Packages")
                  (html:table
-                  (tr (th "Package") (th "Libraries"))
-                  ,@(map package->html (snow2-repository-packages repository))
-                  ))))
+                  (html:thead
+                   (html:tr (html:th "Packages") (html:th "Libraries")))
+                  (html:tbody
+                   ,@(map package->html (snow2-repository-packages repository))
+                   )))))
        'ns-prefixes '((*default* . "http://www.w3.org/1999/xhtml"))))
 
 

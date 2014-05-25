@@ -56,7 +56,7 @@
       ((null? str-lst) "")
       ((null? (cdr str-lst)) (car str-lst))
       (else  ; at least two members
-       (let ((middle (inexact->exact (round (/ (length str-lst) 2)))))
+       (let ((middle (exact (round (/ (length str-lst) 2)))))
          (string-append
           (srl:apply-string-append (srl:list-head str-lst middle))
           (srl:apply-string-append (list-tail str-lst middle)))))))

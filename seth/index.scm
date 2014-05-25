@@ -379,8 +379,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
-    (size 111132)
-    (checksum (md5 "84c8559333a1797bf76fdaf20120f195"))
+    (size 113180)
+    (checksum (md5 "c33322e90db75b78522beaa4b90cfd71"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -577,8 +577,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/xml.tgz")
-    (size 429109)
-    (checksum (md5 "24b6364390c8085cbcd7f9d6b200ad46"))
+    (size 428085)
+    (checksum (md5 "cb68122809d886b44572bb0b4dd522ca"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
