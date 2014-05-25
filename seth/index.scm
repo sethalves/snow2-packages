@@ -5,6 +5,21 @@
     (trust 1.0))
   (package
     (name ())
+    (url "http://snow2.s3-website-us-east-1.amazonaws.com/deep-copy.tgz")
+    (checksum (md5 "0d1eec918a213a20b6b297bd177814bf"))
+    (library
+      (name (seth deep-copy))
+      (path "seth/deep-copy.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "every scheme student, ever")
+      (description
+        "Copy a potentially nested structure containing any of the base types.")
+      (license bsd)
+      (depends)))
+  (package
+    (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/aws.tgz")
     (size 19991)
     (checksum (md5 "3e3fa1293089dc834d47b25b9c39882c"))
@@ -379,8 +394,8 @@
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
-    (size 113180)
-    (checksum (md5 "c33322e90db75b78522beaa4b90cfd71"))
+    (size 114204)
+    (checksum (md5 "6db61057a08e22d0198589faa6a4bd4b"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -467,7 +482,8 @@
         (seth string-read-write)
         (seth uri)
         (seth snow2 types)
-        (seth xml sxml-serializer)))
+        (seth xml sxml-serializer)
+        (seth deep-copy)))
     (library
       (name (seth snow2 r7rs-library))
       (path "seth/snow2/r7rs-library.sld")
