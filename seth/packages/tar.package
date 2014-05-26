@@ -1,12 +1,12 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/tar.tgz")
+  (url "tar.tgz")
   (library
     (path "seth/tar.sld")
     (version "1.3")
     (homepage "https://github.com/sethalves")
     (maintainers "Seth Alves <seth@hungry.com>")
     (authors "Seth Alves <seth@hungry.com>")
-    (description "shell out to tar")
+    (description "shell out to tar.")
     (license bsd)
     ))

@@ -248,11 +248,15 @@
         (for-each
          (lambda (package)
            (let* ((package-repo (snow2-package-repository package))
-                  (url (snow2-package-url package))
+                  (url (snow2-package-absolute-url package))
                   (success
                    (cond
                     ((snow2-repository-local package-repo)
-                     (install-from-directory package-repo package url))
+                     (install-from-directory
+                      package-repo package
+                      ;; url
+                      (snow2-repository-local package-repo)
+                      ))
                     (else
                      (install-from-http package-repo package url)))))
              (cond

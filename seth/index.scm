@@ -1,8 +1,24 @@
 (repository
+  (url "http://snow2.s3-website-us-east-1.amazonaws.com/index.scm")
+  (name "Seth Repository")
   (sibling
     (name "Snow Repository")
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/index.scm")
     (trust 1.0))
+  (package
+    (name ())
+    (url "tar.tgz")
+    (checksum (md5 "8a7ab983416282d3f0515fb4a5ad1c9e"))
+    (library
+      (name (seth tar))
+      (path "seth/tar.sld")
+      (version "1.3")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "shell out to tar.")
+      (license bsd)
+      (depends)))
   (package
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/deep-copy.tgz")
@@ -395,7 +411,7 @@
     (name ())
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/snow2-utils.tgz")
     (size 114204)
-    (checksum (md5 "6db61057a08e22d0198589faa6a4bd4b"))
+    (checksum (md5 "05af10113efc3f9a300d721fff471967"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
