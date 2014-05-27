@@ -184,7 +184,14 @@
     (cond-expand
      ((or chibi chicken foment sagittarius))
      (gauche
-      (define current-directory sys-getcwd)
+      (define current-directory sys-getcwd)))
+
+
+    (cond-expand
+     ((or chibi chicken foment))
+     (sagittarius
+      (define change-directory current-directory))
+     (gauche
       (define change-directory sys-chdir)))
 
 

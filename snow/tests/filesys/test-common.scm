@@ -77,5 +77,9 @@
 
    (> (snow-file-mtime "test-common.scm") 1398705085)
 
+   (let ((here (snow-split-filename (current-directory))))
+     (change-directory "..")
+     (let ((up (snow-split-filename (current-directory))))
+       (equal? (cdr (reverse here)) (reverse up))))
 
    #t))
