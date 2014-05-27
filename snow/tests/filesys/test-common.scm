@@ -7,8 +7,8 @@
    (member "Makefile" (snow-directory-files "."))
    (not (member ".." (snow-directory-files ".")))
 
-   (snow-file-exists? "Makefile")
-   (not (snow-file-exists? "not-a-file"))
+   (file-exists? "Makefile")
+   (not (file-exists? "not-a-file"))
 
    (snow-file-directory? "snow")
    (not (snow-file-directory? "Makefile"))
@@ -18,12 +18,12 @@
      (close-output-port hndl)
      (snow-rename-file "rename-me" "delete-me")
      (and
-      (not (snow-file-exists? "rename-me"))
-      (snow-file-exists? "delete-me")))
+      (not (file-exists? "rename-me"))
+      (file-exists? "delete-me")))
 
    (begin
-     (snow-delete-file "delete-me")
-     (not (snow-file-exists? "delete-me")))
+     (delete-file "delete-me")
+     (not (file-exists? "delete-me")))
 
    (begin
      (snow-create-directory "a-directory")
@@ -31,16 +31,16 @@
 
    (begin
      (snow-delete-directory "a-directory")
-     (not (snow-file-exists? "a-directory")))
+     (not (file-exists? "a-directory")))
 
    (begin
-     (cond ((snow-file-exists? "symlink-test-file")
-            (snow-delete-file "symlink-test-file")))
+     (cond ((file-exists? "symlink-test-file")
+            (delete-file "symlink-test-file")))
      (snow-create-symbolic-link "Makefile" "symlink-test-file")
      (let ((r (and (snow-file-symbolic-link? "symlink-test-file")
-                   (snow-file-exists? "symlink-test-file")
+                   (file-exists? "symlink-test-file")
                    (not (snow-file-symbolic-link? "Makelie")))))
-       (snow-delete-file "symlink-test-file")
+       (delete-file "symlink-test-file")
        r))
 
 

@@ -593,7 +593,7 @@
                         (newline)
                         (exit 1))
                        (else #f)))
-               (cond ((or (not (snow-file-exists? tests-dirname))
+               (cond ((or (not (file-exists? tests-dirname))
                           (not (snow-file-directory? tests-dirname)))
                       (bad-local-repo "missing tests subdirectory"))
                      ((or (not (file-exists? packages-dirname))

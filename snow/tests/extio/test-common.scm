@@ -96,6 +96,23 @@
      )
 
 
+
+
+
+   (let* ((p (open-input-string (string-append "okokok\n"
+                                               "blerg\r\n"
+                                               "foo bar baz")))
+          (line0 (read-line p))
+          (line1 (read-line p))
+          (line2 (read-line p)))
+     (display "-----\n")
+     (write line0) (newline)
+     (write line1) (newline)
+     (write line2) (newline)
+     )
+
+
+
    (let* ((p (open-binary-input-file "Makefile"))
           (t0 (snow-port-position p)))
      (read-u8 p)
@@ -103,6 +120,11 @@
        (read-u8 p)
        (let ((t2 (snow-port-position p)))
          (close-input-port p)
+
+         (display "positions: ")
+         (write (list t0 t1 t2))
+         (newline)
+
          (and (= t0 0)
               (= t1 1)
               (= t2 2)))))
@@ -160,5 +182,7 @@
                 (= t2 91)
                 (= t3 86)
                 )))))
+
+
 
    #t))
