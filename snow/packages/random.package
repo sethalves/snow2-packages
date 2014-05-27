@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/random.tgz")
+  (url "random.tgz")
   (library
     (path "snow/random.sld")
     (version "1.0.1")

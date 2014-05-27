@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/cout.tgz")
+  (url "cout.tgz")
   (library
     (path "seth/cout.sld")
     (version "1.0")

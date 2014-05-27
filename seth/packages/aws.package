@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/aws.tgz")
+  (url "aws.tgz")
   (library
     (path "seth/aws/s3.sld")
     (version "1.0")

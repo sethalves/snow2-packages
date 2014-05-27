@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/processio.tgz")
+  (url "processio.tgz")
   (library
     (path "snow/processio.sld")
     (version "1.0.0")

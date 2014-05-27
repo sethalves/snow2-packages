@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/xml.tgz")
+  (url "xml.tgz")
   (library
     (path "seth/xml/ssax.sld")
     (version "1.0")

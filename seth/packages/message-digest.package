@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/message-digest.tgz")
+  (url "message-digest.tgz")
   (library
     (path "seth/message-digest/parameters.sld")
     (version "1.0")

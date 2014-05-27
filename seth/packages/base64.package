@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/base64.tgz")
+  (url "base64.tgz")
   (library
     (path "seth/base64.sld")
     (version "1.0")

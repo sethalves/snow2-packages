@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/port-extras.tgz")
+  (url "port-extras.tgz")
   (library
     (path "seth/port-extras.sld")
     (version "1.0")

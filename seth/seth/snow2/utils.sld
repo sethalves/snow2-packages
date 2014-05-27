@@ -12,6 +12,7 @@
           gather-depends
 
           snow2-package-absolute-url
+          snow2-package-absolute-path
           repo-path->file-path
           repo-url->file-url
 
@@ -76,14 +77,10 @@
       (reverse (cons new-elt (cdr (reverse lst)))))
 
 
-    (define (snow2-package-absolute-url package)
-      ;; the url for a package may be relative to the repository's url.
-      ;; this will return an absolute version.
-      (let* ((pkg-url (snow2-package-url package))
-             (repository (snow2-package-repository package))
-             (repo-url (snow2-repository-url repository)))
+    (define (snow2-package-absolute-url/path repo-url package)
+      (let* ((pkg-url (snow2-package-url package)))
         (cond ((absolute-uri? pkg-url) pkg-url)
-              ((and (uri-path repo-url)
+              ((and repo-url
                     (pair? (uri-path repo-url))
                     (eq? '/ (car (uri-path repo-url))))
                (uri-relative-to pkg-url repo-url))
@@ -92,20 +89,26 @@
                 pkg-url
                 'path (append (uri-path repo-url) (uri-path pkg-url)))))))
 
-    (define (snow2-package-absolute-url~ package)
-      (display "------------\n")
-      (display "package-url=")
-      (write (snow2-package-url package))
-      (newline)
-      (display "repo-url=")
-      (write (snow2-repository-url (snow2-package-repository package)))
-      (newline)
-      (let ((r (snow2-package-absolute-url~ package)))
-        (display "answer=")
-        (write r)
-        (newline)
-        (display "------------\n")
-        r))
+
+    (define (snow2-package-absolute-url package)
+      ;; the url for a package may be relative to the repository's url.
+      ;; this will return an absolute version.
+      (let ((repository (snow2-package-repository package)))
+        (cond ((not (snow2-repository-url repository)) #f)
+              (else
+               (snow2-package-absolute-url/path
+                (snow2-repository-url repository) package)))))
+
+
+    (define (snow2-package-absolute-path package)
+      ;; combine a local repsitory's in-filesystem path
+      ;; with the package url
+      (let ((repository (snow2-package-repository package)))
+        (cond ((not (snow2-repository-local repository)) #f)
+              (else
+               (snow2-package-absolute-url/path
+                (snow2-repository-local repository) package)))))
+
 
     (define (depend-from-sexp depend-sexp)
       ;; depend-sexp will be a library name, like (snow hello)
@@ -362,7 +365,12 @@
                                          (type "text/css")
                                          (href "index.css"))))
                 (html:body
-                 (html:h1 "Snow2 Repository")
+                 (html:h1
+                  (if (and
+                       (snow2-repository-name repository)
+                       (not (equal? "" (snow2-repository-name repository))))
+                      (snow2-repository-name repository)
+                      "Snow2 Repository"))
 
                  (html:h2 "Siblings")
                  ,@(map sibling->html (snow2-repository-siblings repository))
@@ -775,8 +783,9 @@
     (define (local-repository->in-fs-tgz-path local-repository package)
       ;; within a local repository, return a path on the filesystem to
       ;; a tgz for the given package
+      ;; XXX this isn't right
       (let* ((repo-path (uri-path (snow2-repository-local local-repository)))
-             (url (snow2-package-absolute-url package)))
+             (url (snow2-package-absolute-path package)))
         (reverse (cons (last (uri-path url)) (reverse repo-path)))))
 
     (define (local-repository->in-fs-tgz-filename local-repository package)
@@ -853,3 +862,4 @@
 
 
     ))
+

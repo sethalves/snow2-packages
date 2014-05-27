@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/tar.tgz")
+  (url "tar.tgz")
   (library
     (path "snow/tar.sld")
     (version "1.0.1")

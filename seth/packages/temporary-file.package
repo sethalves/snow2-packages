@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/temporary-file.tgz")
+  (url "temporary-file.tgz")
   (library
     (path "seth/temporary-file.sld")
     (version "1.0")

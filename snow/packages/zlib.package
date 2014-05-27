@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/zlib.tgz")
+  (url "zlib.tgz")
   (library
     (path "snow/zlib.sld")
     (version "1.0.1")

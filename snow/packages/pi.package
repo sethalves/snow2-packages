@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/pi.tgz")
+  (url "pi.tgz")
   (library
     (path "snow/pi.sld")
     (version "1.0.1")

@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/deep-copy.tgz")
+  (url "deep-copy.tgz")
   (library
     (path "seth/deep-copy.sld")
     (version "1.0")

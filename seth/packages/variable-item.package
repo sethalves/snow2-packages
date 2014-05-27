@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/variable-item.tgz")
+  (url "variable-item.tgz")
   (library
     (path "seth/variable-item.sld")
     (version "1.0")

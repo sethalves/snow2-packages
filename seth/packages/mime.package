@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/mime.tgz")
+  (url "mime.tgz")
   (library
     (path "seth/mime.sld")
     (version "1.0")

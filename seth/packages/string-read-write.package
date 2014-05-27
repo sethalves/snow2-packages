@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/string-read-write.tgz")
+  (url "string-read-write.tgz")
   (library
     (path "seth/string-read-write.sld")
     (version "1.0")

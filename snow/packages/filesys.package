@@ -1,6 +1,6 @@
 (package
  (name ())
- (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/filesys.tgz")
+ (url "filesys.tgz")
  (library
   (path "snow/filesys.sld")
   (version "1.0.4")

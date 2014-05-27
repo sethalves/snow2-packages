@@ -134,7 +134,7 @@
                ;; combine them
                (all-tar-recs (append dir-tar-recs file-tar-recs))
                ;; figure out the name of the tgz file within the local repo
-               (package-url (snow2-package-absolute-url package))
+               (package-url (snow2-package-absolute-path package))
                (package-filename
                 (if (and package-url (pair? (uri-path package-url)))
                     (last (uri-path package-url))
@@ -231,9 +231,9 @@
               (write local-package-md5)
               (newline)
 
-              (cond ((and (number? (snow2-package-size package))
-                          (not (= (snow2-package-size package)
-                                  local-package-size)))
+              (cond ((or (not (number? (snow2-package-size package)))
+                         (not (= (snow2-package-size package)
+                                 local-package-size)))
                      (set-snow2-package-size! package local-package-size)
                      (set-snow2-package-dirty! package #t)
                      (set-snow2-repository-dirty! local-repository #t)
@@ -244,8 +244,7 @@
                       package `(md5 ,local-package-md5))
                      (set-snow2-package-dirty! package #t)
                      (set-snow2-repository-dirty! local-repository #t)
-                     (display "setting package dirty due to md5\n")))
-              )))))
+                     (display "setting package dirty due to md5\n"))))))))
 
 
     (define (conditional-put-object! credentials bucket s3-path local-filename)
@@ -290,18 +289,23 @@
 
 
     (define (upload-package-to-s3 credentials local-repository package)
-      (let* ((url (snow2-package-absolute-url package))
-             (bucket (uri->bucket url))
-             (s3-path (uri->path-string url)))
-        (cond (bucket
-               (conditional-put-object!
-                (if credentials credentials
-                    (get-credentials-for-s3-bucket bucket))
-                bucket s3-path
-                (local-repository->in-fs-tgz-filename
-                 local-repository package)))
+      (let ((url (snow2-package-absolute-url package)))
+        (cond (url
+               (let* ((bucket (uri->bucket url))
+                      (s3-path (uri->path-string url)))
+                 (cond (bucket
+                        (conditional-put-object!
+                         (if credentials credentials
+                             (get-credentials-for-s3-bucket bucket))
+                         bucket s3-path
+                         (local-repository->in-fs-tgz-filename
+                          local-repository package)))
+                       (else
+                        (error "unable to determine s3 bucket from url"
+                               (uri->string (snow2-package-url package)))))))
               (else
-               (error "unable to determine s3 bucket from url"
+               (error "can't determine packages absolute url."
+                      (uri->string (snow2-repository-url local-repository))
                       (uri->string (snow2-package-url package)))))))
 
 
@@ -325,7 +329,7 @@
     (define (all-package-metafiles local-repository)
       ;; return a list of package-metafile filenames for the given
       ;; local repository
-      (let* ((repo-path (uri-path (snow2-repository-url local-repository)))
+      (let* ((repo-path (uri-path (snow2-repository-local local-repository)))
              (repo-dirname (snow-combine-filename-parts repo-path))
              (packages-dirname (snow-make-filename repo-dirname "packages")))
         (map (lambda (package-filename)
@@ -364,7 +368,7 @@
       ;; look at the current working directory and see if
       ;; the user intends to operate on a specific package in the
       ;; repository, or on all of them.
-      (let* ((repo-path (uri-path (snow2-repository-url local-repository)))
+      (let* ((repo-path (uri-path (snow2-repository-local local-repository)))
              (cwd (get-environment-variable "PWD"))
              (cwd-parts (snow-split-filename cwd))
              (cwd-parts-len (length cwd-parts))

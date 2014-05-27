@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/memcache-client.tgz")
+  (url "memcache-client.tgz")
   (library
     (path "seth/memcache-client.sld")
     (version "1.0")

@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/binary-pack.tgz")
+  (url "binary-pack.tgz")
   (library
     (path "seth/binary-pack.sld")
     (version "1.0")

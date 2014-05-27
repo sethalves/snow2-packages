@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/network-socket.tgz")
+  (url "network-socket.tgz")
   (library
     (path "seth/network-socket.sld")
     (version "1.0")

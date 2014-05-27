@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/uuid.tgz")
+  (url "uuid.tgz")
   (library
     (path "seth/uuid.sld")
     (version "1.0")

@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow2.s3-website-us-east-1.amazonaws.com/gensym.tgz")
+  (url "gensym.tgz")
   (library
     (path "seth/gensym.sld")
     (version "1.0")

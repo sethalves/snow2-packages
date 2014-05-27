@@ -1,6 +1,6 @@
 (package
   (name ())
-  (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/input-parse.tgz")
+  (url "input-parse.tgz")
   (library
     (path "snow/input-parse.sld")
     (version "1.0.1")
