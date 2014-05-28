@@ -23,7 +23,7 @@
 
     (cond-expand
 
-     ((or chibi chicken gauche sagittarius)
+     ((or chibi chicken foment gauche sagittarius)
 
       ;; on chibi, calling make-random-source resets the generator
       ;; and it will produce the sequence again
