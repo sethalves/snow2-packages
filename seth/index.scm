@@ -558,7 +558,8 @@
   (package
     (name ())
     (url "base64.tgz")
-    (checksum (md5 "a5967bb12145c9d46e81033f4e61922e"))
+    (size 13847)
+    (checksum (md5 "cdf5702dae0dfc89beceb5c0189ea369"))
     (library
       (name (seth base64))
       (path "seth/base64.sld")
@@ -568,7 +569,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "base64")
       (license lgpl/v2.1)
-      (depends (snow bytevector) (srfi 1))))
+      (depends (snow bytevector) (srfi 1) (srfi 60))))
   (package
     (name ())
     (url "http.tgz")
