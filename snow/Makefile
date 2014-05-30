@@ -13,7 +13,20 @@ upload: package
 test:
 	ls tests | while read I; do make -C tests/$$I $@; done
 
-#	ls tests | while read I; do (cd tests/$$I && make test); done
+test-chibi:
+	ls tests | while read I; do make -C tests/$$I $@; done
+
+test-chicken:
+	ls tests | while read I; do make -C tests/$$I $@; done
+
+test-foment:
+	ls tests | while read I; do make -C tests/$$I $@; done
+
+test-gauche:
+	ls tests | while read I; do make -C tests/$$I $@; done
+
+test-sagittarius:
+	ls tests | while read I; do make -C tests/$$I $@; done
 
 clean:
 	rm -f *~ */*~ */*/*~ */*/*/*~
