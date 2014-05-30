@@ -7,13 +7,9 @@
 
 (define-library (seth cout)
   (export cout)
-
-  (import (scheme base) (scheme write))
-  (cond-expand
-   (sagittarius (import (srfi 1)))
-   (foment)
-   (else (import (srfi 1))))
-
+  (import (scheme base)
+          (scheme write)
+          (srfi 1))
   (begin
 
     (define (cout . items-maybe-port)

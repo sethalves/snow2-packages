@@ -152,7 +152,6 @@
     (let loop ((tests tests))
       (cond ((null? tests) #t)
             (else
-             ;; (display "-----------\n")
              (let* ((test (car tests))
                     (text (car test))
                     (expected-digest (cadr test))
@@ -1240,7 +1239,6 @@
     (let loop ((tests tests))
       (cond ((null? tests) #t)
             (else
-             ;; (display "-----------\n")
              (let* ((test (car tests))
                     (text (car test))
                     (expected-digest (cadr test))

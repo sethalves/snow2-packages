@@ -9,6 +9,8 @@
     (import (srfi 33) (snow bytevector) (chibi io)))
    (chicken
     (import (chicken) (snow bytevector) (srfi 4)))
+   (foment
+    (import (srfi 60) (snow bytevector)))
    (gauche
     (import (srfi 60) (snow bytevector)))
    (sagittarius
