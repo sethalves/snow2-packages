@@ -24,14 +24,39 @@ download-deps:
 	snow2 install $(TEST_DEPS)
 
 test: link-deps
-	./test-chicken.scm
-	@echo
 	./test-chibi.scm
 	@echo
+	./test-chicken.scm
+	@echo
+	./test-foment.scm
+	@ echo
 	./test-gauche.scm
 	@echo
 	./test-sagittarius.scm
 	@echo
+
+
+test-chibi:
+	./test-chibi.scm
+	@ echo
+
+test-chicken:
+	./test-chicken.scm
+	@ echo
+
+test-foment:
+	./test-foment.scm
+	@ echo
+
+test-gauche:
+	./test-gauche.scm
+	@ echo
+
+test-sagittarius:
+	./test-sagittarius.scm
+	@ echo
+
+
 
 clean:
 	rm -f *~

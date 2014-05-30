@@ -2,22 +2,6 @@
 #
 #
 
-all:
-	(cd seth && make $@)
-	(cd snow && make $@)
-
-package:
-	(cd seth && make $@)
-	(cd snow && make $@)
-
-upload:
-	(cd seth && make $@)
-	(cd snow && make $@)
-
-test:
-	(cd seth && make $@)
-	(cd snow && make $@)
-
-clean:
+all package upload test test-chibi test-chicken test-foment test-gauche test-sagittarius clean:
 	(cd seth && make $@)
 	(cd snow && make $@)
