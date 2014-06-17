@@ -8,6 +8,7 @@
   (package
     (name ())
     (url "uuid.tgz")
+    (size 5655)
     (checksum (md5 "43a0a15fc9e0dcc15111211d69c0a5fd"))
     (library
       (name (seth uuid))
@@ -22,7 +23,8 @@
   (package
     (name ())
     (url "binary-pack.tgz")
-    (checksum (md5 "828cc94f9e28fd92f2b2d6cb17b2c0a0"))
+    (size 5143)
+    (checksum (md5 "f15044acb0ee6b02798ded5587ecf45f"))
     (library
       (name (seth binary-pack))
       (path "seth/binary-pack.sld")
@@ -36,7 +38,8 @@
   (package
     (name ())
     (url "port-extras.tgz")
-    (checksum (md5 "3652cd6908f1b6735ca8428c0f1a1de2"))
+    (size 7191)
+    (checksum (md5 "2b11e652eb0861078350f8272f171845"))
     (library
       (name (seth port-extras))
       (path "seth/port-extras.sld")
@@ -50,6 +53,7 @@
   (package
     (name ())
     (url "aws.tgz")
+    (size 19991)
     (checksum (md5 "f5a561239d164c2df4614f67ea51f74a"))
     (library
       (name (seth aws s3))
@@ -95,6 +99,7 @@
   (package
     (name ())
     (url "tar.tgz")
+    (size 3607)
     (checksum (md5 "8a7ab983416282d3f0515fb4a5ad1c9e"))
     (library
       (name (seth tar))
@@ -109,7 +114,8 @@
   (package
     (name ())
     (url "xml.tgz")
-    (checksum (md5 "cb68122809d886b44572bb0b4dd522ca"))
+    (size 429109)
+    (checksum (md5 "dfa418e9ccb7496b1d5c96bc8c12f66c"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
@@ -143,6 +149,7 @@
   (package
     (name ())
     (url "message-digest.tgz")
+    (size 54807)
     (checksum (md5 "095d1fa8bef325c87f25925c7399c0ee"))
     (library
       (name (seth message-digest parameters))
@@ -240,6 +247,7 @@
   (package
     (name ())
     (url "string-read-write.tgz")
+    (size 4119)
     (checksum (md5 "07a223b908d7f985582b4eb8d1bd3923"))
     (library
       (name (seth string-read-write))
@@ -254,6 +262,7 @@
   (package
     (name ())
     (url "temporary-file.tgz")
+    (size 5655)
     (checksum (md5 "f414f18400add9ab5cf0e257c4b949b1"))
     (library
       (name (seth temporary-file))
@@ -268,6 +277,7 @@
   (package
     (name ())
     (url "variable-item.tgz")
+    (size 5655)
     (checksum (md5 "6f5518842f108e2c8a23776c4cf1a223"))
     (library
       (name (seth variable-item))
@@ -282,7 +292,8 @@
   (package
     (name ())
     (url "cout.tgz")
-    (checksum (md5 "4b5c711d51be631b1a4d4ec489d97eda"))
+    (size 4119)
+    (checksum (md5 "5248fa86eec37a08165ca3c35d190adf"))
     (library
       (name (seth cout))
       (path "seth/cout.sld")
@@ -296,7 +307,8 @@
   (package
     (name ())
     (url "crypt.tgz")
-    (checksum (md5 "aa91e09208de0629d84b311ccd0daaef"))
+    (size 52247)
+    (checksum (md5 "b116a6637dee36bcb7781a84e99d4e82"))
     (library
       (name (seth crypt md5))
       (path "seth/crypt/md5.sld")
@@ -344,7 +356,8 @@
   (package
     (name ())
     (url "snow2-utils.tgz")
-    (checksum (md5 "617b15afb53693636938a1dd1cbf908f"))
+    (size 117788)
+    (checksum (md5 "3605f295fba0d183b81972d86872f41c"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -452,6 +465,7 @@
   (package
     (name ())
     (url "memcache-client.tgz")
+    (size 16919)
     (checksum (md5 "866f407be127dd4428515f94b781de23"))
     (library
       (name (seth memcache-client))
@@ -472,6 +486,7 @@
   (package
     (name ())
     (url "network-socket.tgz")
+    (size 27671)
     (checksum (md5 "bc86a8137834cbd05b53fe796bfc85ae"))
     (library
       (name (seth network-socket))
@@ -496,6 +511,7 @@
   (package
     (name ())
     (url "quoted-printable.tgz")
+    (size 9751)
     (checksum (md5 "a29881eb0c48b503f9400f03268bd519"))
     (library
       (name (seth quoted-printable))
@@ -511,6 +527,7 @@
   (package
     (name ())
     (url "zlib.tgz")
+    (size 6679)
     (checksum (md5 "9dab820d9fed9377da9d01b761a362e9"))
     (library
       (name (seth zlib))
@@ -530,6 +547,7 @@
   (package
     (name ())
     (url "gensym.tgz")
+    (size 3095)
     (checksum (md5 "5df4613075ae5de6eace0dc4fd157879"))
     (library
       (name (seth gensym))
@@ -544,7 +562,8 @@
   (package
     (name ())
     (url "uri.tgz")
-    (checksum (md5 "82996f2314342f8249dd870c719111ff"))
+    (size 46103)
+    (checksum (md5 "6d010a605fbff051171cb4445ab28208"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
@@ -573,6 +592,7 @@
   (package
     (name ())
     (url "http.tgz")
+    (size 19479)
     (checksum (md5 "e29b1f0cd14e839b8a343ae8768850af"))
     (library
       (name (seth http))
@@ -600,6 +620,7 @@
   (package
     (name ())
     (url "deep-copy.tgz")
+    (size 3095)
     (checksum (md5 "0d1eec918a213a20b6b297bd177814bf"))
     (library
       (name (seth deep-copy))
@@ -615,6 +636,7 @@
   (package
     (name ())
     (url "mime.tgz")
+    (size 18967)
     (checksum (md5 "7228df3b75d07820e2c9d2be55560e39"))
     (library
       (name (seth mime))
