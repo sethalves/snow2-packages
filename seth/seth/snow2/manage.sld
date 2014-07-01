@@ -37,7 +37,7 @@
   (begin
 
     (define (make-package-archive
-             repositories local-repository package verbose)
+             repositories local-repository package-metafile package verbose)
       ;; create the .tgz file that gets uploaded to a repository.
       ;; update the size and md5 sum and depends in the package meta-data
       ;; in index.scm.
@@ -48,7 +48,12 @@
         (write (uri->string (snow2-package-url package)))
         (newline)))
 
-      (let* ((repo-path (uri-path (snow2-repository-local local-repository))))
+      (let* ((repo-path (uri-path (snow2-repository-local local-repository)))
+             ;; put everything inside a toplevel directory to avoid
+             ;; the resulting tgz being a tar bomb.
+             (container-dirname
+              (string-append (snow2-package-get-readable-name package)
+                             "-" (snow2-package-version package))))
 
         (define (lib-file->tar-recs lib-filename)
           ;; create a tar-rec for a file
@@ -66,7 +71,10 @@
                      (cond ((not (= (length tar-recs) 1))
                             (error "unexpected tar-rec count"
                                    lib-filename tar-recs)))
-                     (tar-rec-name-set! (car tar-recs) lib-filename)
+                     (tar-rec-name-set!
+                      (car tar-recs)
+                      (snow-combine-filename-parts
+                       (cons container-dirname lib-rel-path)))
                      (car tar-recs))))))
 
         (define (lib-dir->tar-recs lib-dirname)
@@ -75,11 +83,10 @@
                  (tar-rec
                   (make-tar-rec
                    (snow-combine-filename-parts
-                    (append lib-rel-path (list "")))
+                    (append (list container-dirname) lib-rel-path (list "")))
                    493 ;; mode
                    0 ;; uid
                    0 ;; gid
-                   ;; (exact (floor (current-second))) ;; mtime
                    (snow-file-mtime
                     (snow-combine-filename-parts
                      (repo-path->file-path repo-path lib-rel-path)))
@@ -112,6 +119,17 @@
            (fold append '() (map file->directories manifest))
            equal?))
 
+        (define (make-package-meta-tar-rec)
+          (let ((rel-meta-name (snow-combine-filename-parts
+                                (list container-dirname "package.scm")))
+                (tar-recs (tar-read-file package-metafile)))
+            (cond ((not (= (length tar-recs) 1))
+                   (error "unexpected tar-rec count"
+                          rel-meta-name tar-recs)))
+            (tar-rec-name-set! (car tar-recs) rel-meta-name)
+            (car tar-recs)))
+
+
         (let* ((libraries (snow2-package-libraries package))
                ;; read in the files indicated by the (path ...) clauses
                ;; in the library definitions.
@@ -131,8 +149,12 @@
                (dir-tar-recs (fold append '() (map lib-dir->tar-recs dirs)))
                ;; make tar records for the files
                (file-tar-recs (map lib-file->tar-recs manifest))
+               ;; throw in a package.scm file
+               (package-meta-tar-rec (make-package-meta-tar-rec))
                ;; combine them
-               (all-tar-recs (append dir-tar-recs file-tar-recs))
+               (all-tar-recs (append dir-tar-recs
+                                     (list package-meta-tar-rec)
+                                     file-tar-recs))
                ;; figure out the name of the tgz file within the local repo
                (package-url (snow2-package-absolute-path package))
                (package-filename
@@ -496,7 +518,7 @@
           local-repository package-metafile verbose)
          (make-package-archive
           (cons local-repository repositories)
-          local-repository package verbose))
+          local-repository package-metafile package verbose))
        verbose))
 
 

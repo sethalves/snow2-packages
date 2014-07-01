@@ -1,6 +1,7 @@
 (package
   (name ())
   (url "bignum.tgz")
+  (version "1.0.1")
   (library
     (path "snow/bignum.sld")
     (version "1.0.1")

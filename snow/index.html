@@ -3,7 +3,14 @@
     <link rel="stylesheet" type="text/css" href="index.css" />
   </head>
   <body>
-    <h1>Snow2 Repository</h1>
+    <h1>
+      <if xmlns=""><and>
+        <snow2-repository-name>repository</snow2-repository-name>
+        <not>
+          <equal?><snow2-repository-name>repository</snow2-repository-name></equal?>
+        </not>
+      </and><snow2-repository-name>repository</snow2-repository-name>Snow2 Repository</if>
+    </h1>
     <h2>Siblings</h2>
     <p><a href="http://r7rs-srfis.s3-website-us-east-1.amazonaws.com/index.html">r7rs srfis</a> trust=1.0</p>
     <h2>Packages</h2>

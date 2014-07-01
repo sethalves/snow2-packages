@@ -7,9 +7,10 @@
     (trust 1.0))
   (package
     (name ())
+    (version "1.0")
     (url "tar.tgz")
     (size 24599)
-    (checksum (md5 "ba17c53e18f1d8068d3a209965b971cf"))
+    (checksum (md5 "6ad39233b1bb4d44093c70197ef7d972"))
     (library
       (name (snow tar))
       (path "snow/tar.sld")
@@ -27,9 +28,10 @@
         (snow filesys))))
   (package
     (name ())
+    (version "1.0")
     (url "bignum.tgz")
     (size 39447)
-    (checksum (md5 "afb83d372958e7a3933416cbdf9c6978"))
+    (checksum (md5 "893c3a63729cbcb88edd9087fd52f549"))
     (library
       (name (snow bignum))
       (path "snow/bignum.sld")
@@ -42,9 +44,10 @@
       (depends (snow bytevector))))
   (package
     (name ())
+    (version "1.0")
     (url "processio.tgz")
     (size 8727)
-    (checksum (md5 "5df8344dc79cca145db708dfa8c63dab"))
+    (checksum (md5 "eb1e1a255b40351159666b317cb1acf2"))
     (library
       (name (snow processio))
       (path "snow/processio.sld")
@@ -59,9 +62,10 @@
       (depends (snow filesys) (snow extio))))
   (package
     (name ())
+    (version "1.0")
     (url "genport.tgz")
     (size 13847)
-    (checksum (md5 "b4e776bb9e36cfa6c622a45af0290510"))
+    (checksum (md5 "483929f65054e73ed4887f9309815ea7"))
     (library
       (name (snow genport))
       (path "snow/genport.sld")
@@ -84,9 +88,10 @@
       (depends)))
   (package
     (name ())
+    (version "1.0")
     (url "filesys.tgz")
-    (size 17431)
-    (checksum (md5 "94147c8252d5361c2f4ff9e2e06c2975"))
+    (size 15895)
+    (checksum (md5 "47002c73bf0b388c8701698d36aa45d7"))
     (library
       (name (snow filesys))
       (path "snow/filesys.sld")
@@ -109,9 +114,10 @@
       (depends)))
   (package
     (name ())
+    (version "1.0")
     (url "pi.tgz")
     (size 4631)
-    (checksum (md5 "e1bc09850aa111d174a754f09fb49ecc"))
+    (checksum (md5 "8bef249b66c565a104b966c4ef258c75"))
     (library
       (name (snow pi))
       (path "snow/pi.sld")
@@ -124,9 +130,10 @@
       (depends (snow bignum))))
   (package
     (name ())
+    (version "1.0")
     (url "hello.tgz")
     (size 3095)
-    (checksum (md5 "d0b2db2306af1536a291d35104d95ef3"))
+    (checksum (md5 "65fc5363fddae4ec71917b9950008928"))
     (library
       (name (snow hello))
       (path "snow/hello.sld")
@@ -139,9 +146,10 @@
       (depends (snow pi))))
   (package
     (name ())
+    (version "1.0")
     (url "extio.tgz")
-    (size 40471)
-    (checksum (md5 "518f7f958a3a399b5fc8aba3aecbe318"))
+    (size 40983)
+    (checksum (md5 "1ba8c8eb3a6cb5c5a79fc59811919472"))
     (library
       (name (snow extio))
       (path "snow/extio.sld")
@@ -168,9 +176,10 @@
       (depends)))
   (package
     (name ())
+    (version "1.0")
     (url "zlib.tgz")
     (size 45079)
-    (checksum (md5 "79a551bd1a1ce8a346510d5af73f4036"))
+    (checksum (md5 "22d136f751978a920d8946d55e02dcae"))
     (library
       (name (snow zlib))
       (path "snow/zlib.sld")
@@ -189,9 +198,10 @@
       (depends (snow bytevector) (snow digest) (srfi 60) (snow genport))))
   (package
     (name ())
+    (version "1.0")
     (url "random.tgz")
     (size 5143)
-    (checksum (md5 "2bccde6cb2a612f723cf870646d19ad3"))
+    (checksum (md5 "b4b6cc7cd275fa17e7e060a76bdf2959"))
     (library
       (name (snow random))
       (path "snow/random.sld")
@@ -204,9 +214,10 @@
       (depends (srfi 27) (snow bytevector) (snow binio) (snow bignum))))
   (package
     (name ())
+    (version "1.0")
     (url "bytevector.tgz")
-    (size 13847)
-    (checksum (md5 "e8eccc5cd61f07976841ea9cd6484393"))
+    (size 15383)
+    (checksum (md5 "80a638bee292ce667736b44281b28523"))
     (library
       (name (snow bytevector))
       (path "snow/bytevector.sld")
@@ -229,9 +240,10 @@
       (depends)))
   (package
     (name ())
+    (version "1.0")
     (url "input-parse.tgz")
-    (size 11799)
-    (checksum (md5 "a7ce46975fbfaa80f98849f858c20a27"))
+    (size 12311)
+    (checksum (md5 "a7e3a84e4f4623758e55474da02554ac"))
     (library
       (name (snow input-parse))
       (path "snow/input-parse.sld")
@@ -245,9 +257,10 @@
       (depends (srfi 1) (srfi 13))))
   (package
     (name ())
+    (version "1.0")
     (url "binio.tgz")
     (size 8215)
-    (checksum (md5 "db235e03974903a3466b6d1b5ab57465"))
+    (checksum (md5 "ed2405048d29f081cc557f21b685c5ec"))
     (library
       (name (snow binio))
       (path "snow/binio.sld")
@@ -260,9 +273,10 @@
       (depends (snow bytevector))))
   (package
     (name ())
+    (version "1.0")
     (url "assert.tgz")
     (size 2583)
-    (checksum (md5 "b3ae3d93aaff6944737ff77c06a45e08"))
+    (checksum (md5 "66dfac7328b64aed2aba300a9112fa69"))
     (library
       (name (snow assert))
       (path "snow/assert.sld")
@@ -275,9 +289,10 @@
       (depends)))
   (package
     (name ())
+    (version "1.0")
     (url "digest.tgz")
     (size 64023)
-    (checksum (md5 "2716ae2fcbb12cbaddc141115ed6abfd"))
+    (checksum (md5 "197db909174a2b992137a1270aab8056"))
     (library
       (name (snow digest))
       (path "snow/digest.sld")
