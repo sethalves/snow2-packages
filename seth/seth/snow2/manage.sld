@@ -120,6 +120,9 @@
            equal?))
 
         (define (make-package-meta-tar-rec)
+          ;; make a tar-rec for the metafile for the package.  set
+          ;; the name so it ends up in the same place as in chibi's
+          ;; packages: container-dirname/package.scm
           (let ((rel-meta-name (snow-combine-filename-parts
                                 (list container-dirname "package.scm")))
                 (tar-recs (tar-read-file package-metafile)))
