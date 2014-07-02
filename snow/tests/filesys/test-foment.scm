@@ -3,6 +3,7 @@
 (import (scheme base)
         (scheme file)
         (scheme write)
+        (srfi 1)
         (snow filesys))
 
 
