@@ -120,44 +120,43 @@
                                          (eq? (car checksum) 'md5))
                                     (cadr checksum))
                                    (else #f))))
-           ;; if the package metadata had (size ...) or (checksum ...)
-           ;; make sure the provided values match those of what we're about
-           ;; to untar.
-           (cond ((and pkg-md5-sum
-                       (not (eq? pkg-md5-sum
-                                 (filename->md5 local-package-tgz-file))))
-                  (display "Error: checksum mismatch on ")
-                  (display (uri->string (snow2-package-url package)))
-                  (display " (")
-                  (display local-package-tgz-file)
-                  (display ") -- expected ")
-                  (write pkg-md5-sum)
-                  (display " and got ")
-                  (write (filename->md5 local-package-tgz-file))
-                  (newline)
-                  (exit 1))
 
-                 ((and (number? pkg-tgz-size)
-                       (not (= pkg-tgz-size
-                               (snow-file-size local-package-tgz-file))))
-                  (display "Error: size mismatch on ")
-                  (display (uri->string (snow2-package-url package)))
-                  (display " (")
-                  (display local-package-tgz-file)
-                  (display ") -- expected ")
-                  (write pkg-tgz-size)
-                  (display " and got ")
-                  (write (snow-file-size local-package-tgz-file))
-                  (newline)
-                  (exit 1)))
-
-           (let* ((bin-port (binio-open-input-file
-                             local-package-tgz-file))
-                  (zipped-p (genport-native-input-port->genport bin-port))
+           (let* ((zipped-p (genport-open-input-file local-package-tgz-file))
                   (unzipped-p (gunzip-genport zipped-p))
-                  (tar-recs (tar-unpack-genport unzipped-p)))
-             (genport-close-input-port unzipped-p)
-             (write-tar-recs-to-disk tar-recs)))))
+                  (tar-data (genport-read-u8vector unzipped-p)))
+
+             ;; if the package metadata had (size ...) or (checksum ...)
+             ;; make sure the provided values match those of what we've
+             ;; un-gzipped.
+             (cond ((and pkg-md5-sum (not (eq? pkg-md5-sum (md5 tar-data))))
+                    (display "Error: checksum mismatch on ")
+                    (display (uri->string (snow2-package-url package)))
+                    (display " (")
+                    (display local-package-tgz-file)
+                    (display ") -- expected ")
+                    (write pkg-md5-sum)
+                    (display " and got ")
+                    (write (md5 tar-data))
+                    (newline)
+                    (exit 1))
+
+                   ((and (number? pkg-tgz-size)
+                         (not (= pkg-tgz-size (bytevector-length tar-data))))
+                    (display "Error: size mismatch on ")
+                    (display (uri->string (snow2-package-url package)))
+                    (display " (")
+                    (display local-package-tgz-file)
+                    (display ") -- expected ")
+                    (write pkg-tgz-size)
+                    (display " and got ")
+                    (write (bytevector-length tar-data))
+                    (newline)
+                    (exit 1)))
+
+             (let* ((tarred-p (genport-open-input-u8vector tar-data))
+                    (tar-recs (tar-unpack-genport tarred-p)))
+               (genport-close-input-port tarred-p)
+               (write-tar-recs-to-disk tar-recs))))))
 
 
       (define (install-from-http repo package url)

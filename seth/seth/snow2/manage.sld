@@ -245,10 +245,8 @@
             (write-bytevector tgz-data out-p)
             (close-output-port out-p)
 
-            (let ((local-package-md5
-                   (bytes->hex-string
-                    (filename->md5 local-package-filename)))
-                  (local-package-size (snow-file-size local-package-filename)))
+            (let ((local-package-md5 (bytes->hex-string (md5 tar-data)))
+                  (local-package-size (bytevector-length tar-data)))
 
               (display "  size=")
               (write local-package-size)
