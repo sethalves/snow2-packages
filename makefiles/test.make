@@ -63,5 +63,5 @@ clean:
 #	for DEP in $(DEPS) ; do \
 #		$(snow2) uninstall $(TEST_DEPS); \
 #	done
-	rm -rf seth snow srfi
+	rm -rf seth snow srfi chibi
 	make clean-extra
