@@ -62,7 +62,7 @@
 
 
 (cond-expand
- ((or chibi gauche sagittarius)
+ ((or chibi foment gauche sagittarius)
   (define (conc . args)
     (apply string-append (map display-to-string args))))
  (else))

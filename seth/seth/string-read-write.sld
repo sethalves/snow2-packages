@@ -48,7 +48,7 @@
     (define ->string display-to-string)
 
     (cond-expand
-     (foment
+     ((or chibi foment)
       (define (call-with-output-string func)
         (let ((out-port (open-output-string)))
           (func out-port)

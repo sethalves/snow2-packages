@@ -586,7 +586,7 @@
     (version "1.0")
     (url "uri.tgz")
     (size 47104)
-    (checksum (md5 "99ad22fe1f72c48f2743f87b56c7c2bc"))
+    (checksum (md5 "b44e76b93d0e759737b35c308cda76b5"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
@@ -618,7 +618,7 @@
     (version "1.0")
     (url "http.tgz")
     (size 20480)
-    (checksum (md5 "d3a5a0fe23f3ed7152438a891958a522"))
+    (checksum (md5 "86d05350295315e4fe513f70bba170be"))
     (library
       (name (seth http))
       (path "seth/http.sld")
