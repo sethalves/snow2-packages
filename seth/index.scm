@@ -62,7 +62,7 @@
     (version "1.0")
     (url "aws.tgz")
     (size 21504)
-    (checksum (md5 "6e5856408e81a9a95a1736d346cf4d5e"))
+    (checksum (md5 "f7310141827acbf5580fc9720e982bec"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -259,8 +259,8 @@
     (name ())
     (version "1.0")
     (url "string-read-write.tgz")
-    (size 5120)
-    (checksum (md5 "4bbb68389a6268a52205b9e5f53334b5"))
+    (size 5632)
+    (checksum (md5 "fb3fc11de0c7a9058d489f24e4cf195b"))
     (library
       (name (seth string-read-write))
       (path "seth/string-read-write.sld")
@@ -373,8 +373,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 123392)
-    (checksum (md5 "c3fe11c44e7e00cc1fb768279710078f"))
+    (size 123904)
+    (checksum (md5 "f89293ca856709b130270b6449a133c1"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -505,8 +505,8 @@
     (name ())
     (version "1.0")
     (url "network-socket.tgz")
-    (size 29184)
-    (checksum (md5 "e8572b2c2c8f6778dab081587d785c28"))
+    (size 32256)
+    (checksum (md5 "353097feebfeae7858bf0930e453f5e7"))
     (library
       (name (seth network-socket))
       (path "seth/network-socket.sld")
@@ -586,7 +586,7 @@
     (version "1.0")
     (url "uri.tgz")
     (size 47104)
-    (checksum (md5 "b44e76b93d0e759737b35c308cda76b5"))
+    (checksum (md5 "01475754fcdd68079f3d028adaf5aeb2"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
@@ -664,7 +664,7 @@
     (version "1.0")
     (url "mime.tgz")
     (size 19968)
-    (checksum (md5 "61017c182af2f30eb3d8288c61449afc"))
+    (checksum (md5 "f11d2028c5a2557308ff172f85cd9614"))
     (library
       (name (seth mime))
       (path "seth/mime.sld")
