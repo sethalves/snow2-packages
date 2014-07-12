@@ -7,6 +7,10 @@
  (else))
 
 
+(define (u8display str port)
+  (write-bytevector (string->utf8 str) port))
+
+
 (define (test0)
   (let* ((port-no (+ (random-integer 20000) 10000))
          (listen-sock
@@ -14,13 +18,13 @@
          (client-sock
           (open-network-client `((host "localhost") (port ,port-no))))
          (server-sock (open-network-server listen-sock)))
-    (display "ok\n" (socket:outbound-write-port client-sock))
+    (u8display "ok\n" (socket:outbound-write-port client-sock))
     (flush-output-port (socket:outbound-write-port client-sock))
     (let ((client-sent
            (utf8->string
             (read-bytevector 3 (socket:inbound-read-port server-sock)))))
       (cond ((equal? client-sent "ok\n")
-             (display "hi\n" (socket:outbound-write-port server-sock))
+             (u8display "hi\n" (socket:outbound-write-port server-sock))
              (socket:send-eof server-sock)
              (let ((server-sent
                     (utf8->string
@@ -60,7 +64,7 @@
           (socket:udp-outbound-write-port client-sock))
          )
 
-    (display "ok\n" client-outbout-port)
+    (u8display "ok\n" client-outbout-port)
     (flush-output-port client-outbout-port)
 
     (let* (;; (msg (read (socket:udp-inbound-read-port server-sock)))

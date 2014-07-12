@@ -33,7 +33,13 @@
             (srfi 1)
             (srfi 13)
             (srfi 14)
-            (only (rnrs) make-custom-binary-input-port))))
+            (only (rnrs) make-custom-binary-input-port)))
+
+   (foment
+    ;; (import (foment base))
+    ))
+
+
   (import (snow bytevector)
           (snow binio)
           (srfi 29)

@@ -36,6 +36,7 @@
             (srfi 1)
             (srfi 14))
     )
+   (foment)
    (gauche
     (import (scheme cxr)
             (util match)

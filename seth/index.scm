@@ -532,7 +532,7 @@
     (version "1.0")
     (url "quoted-printable.tgz")
     (size 10752)
-    (checksum (md5 "fe5f2640bfcc798aaebd180429a50b39"))
+    (checksum (md5 "f6a6f9cd735dac39e0d997761a710f16"))
     (library
       (name (seth quoted-printable))
       (path "seth/quoted-printable.sld")
@@ -543,7 +543,7 @@
       (description
         "RFC 2045 quoted printable encoding and decoding utilities.  This API is backwards compatible with the Gauche library rfc.quoted-printable.")
       (license BSD-style "http://synthcode.com/license.txt")
-      (depends (srfi 60) (srfi 13))))
+      (depends (srfi 60) (srfi 13) (seth string-read-write))))
   (package
     (name ())
     (version "1.0")
@@ -664,7 +664,7 @@
     (version "1.0")
     (url "mime.tgz")
     (size 19968)
-    (checksum (md5 "db1c6ffddd6e569e21f487abb12092fe"))
+    (checksum (md5 "61017c182af2f30eb3d8288c61449afc"))
     (library
       (name (seth mime))
       (path "seth/mime.sld")
@@ -674,4 +674,9 @@
       (authors "Alex Shinn")
       (description "RFC2045 MIME library")
       (license BSD-style "http://synthcode.com/license.txt")
-      (depends (seth base64) (seth quoted-printable) (srfi 13) (snow binio)))))
+      (depends
+        (seth base64)
+        (seth quoted-printable)
+        (seth string-read-write)
+        (srfi 13)
+        (snow binio)))))
