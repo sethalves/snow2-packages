@@ -2,6 +2,8 @@
 (define start-time 0)
 
 
+(log-http-to-stderr #f)
+
 (define (main-program)
 
 
@@ -94,11 +96,12 @@
 
     (set! start-time (current-second))
 
-    (let ((index-scm (call-with-request-body
-                      "http://snow2.s3-website-us-east-1.amazonaws.com/"
-                      ;; read
-                      (lambda (p)
-                        (read (binary-port->textual-port p))))))
+    (let ((index-scm
+           (call-with-request-body
+            "http://snow2.s3-website-us-east-1.amazonaws.com/index.scm"
+            ;; read
+            (lambda (p)
+              (read (binary-port->textual-port p))))))
       (cond ((and (list? index-scm)
                   (eq? (car index-scm) 'repository))
              (set! result2 (- (current-second) start-time)))
@@ -144,12 +147,7 @@
 
     (set! start-time (current-second))
 
-    (let ((outp
-           (cond-expand
-            (sagittarius
-             (open-output-file "test-download" :transcoder #f))
-            (else
-             (open-output-file "test-download")))))
+    (let ((outp (open-binary-output-file "test-download")))
       (download-file "http://headache.hungry.com/~seth/8bits" outp)
 
       (let* ((inp (open-binary-input-file "test-download"))

@@ -342,13 +342,14 @@
             (guard
              (exn (#t (error "http error during request" exn)))
              ;; send request and headers
-             (display
+             (write-bytevector
               ;; try to avoid sending 3 separate header packets
-              (with-output-to-string
-                (lambda ()
-                  (display (format "~a ~a HTTP/1.1\r\n" verb-str path-part))
-                  (mime-write-headers final-headers (current-output-port))
-                  (display "\r\n")))
+              (string->utf8
+               (with-output-to-string
+                 (lambda ()
+                   (display (format "~a ~a HTTP/1.1\r\n" verb-str path-part))
+                   (mime-write-headers final-headers (current-output-port))
+                   (display "\r\n"))))
               write-port))
 
             (guard
