@@ -84,9 +84,10 @@
 
     (define (is-system-import? lib-name)
       (cond ((not (pair? lib-name)) #f)
-            ((equal? lib-name '(chibi match)) #f)
+            ;; ((equal? lib-name '(chibi match)) #f)
             ((memq (car lib-name)
-                   '(scheme chibi r7rs gauche sagittarius
+                   '(scheme r7rs gauche sagittarius
+                            ;; chibi
                             ports tcp rnrs use openssl udp posix
                             chicken ssax sxml sxpath txpath
                             sxpath-lolevel text md5 rfc math sha1 sha2
@@ -94,7 +95,9 @@
                             extras http-client uri-generic intarweb
                             message-digest file z3 base64 hmac
                             binary input-parse foment
-                            )))))
+                            ))
+             #t)
+            (else #f)))
 
 
     (define (r7rs-filter-known-imports r7rs-imports)
