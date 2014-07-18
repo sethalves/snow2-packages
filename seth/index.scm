@@ -62,7 +62,7 @@
     (version "1.0")
     (url "aws.tgz")
     (size 21504)
-    (checksum (md5 "f7310141827acbf5580fc9720e982bec"))
+    (checksum (md5 "20cca1be7302ca711e6b3b16ad90b58c"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -103,6 +103,7 @@
         (seth crypt hmac-sha-1)
         (seth uri)
         (seth base64)
+        (srfi gauche-95)
         (srfi 14))))
   (package
     (name ())
@@ -124,8 +125,8 @@
     (name ())
     (version "1.0")
     (url "xml.tgz")
-    (size 430592)
-    (checksum (md5 "84b4239ea75cb4290b9e335a10ef4093"))
+    (size 431616)
+    (checksum (md5 "3428cb37cf8a625c39ae2ba1cb85a0ae"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
@@ -286,8 +287,8 @@
     (name ())
     (version "1.0")
     (url "temporary-file.tgz")
-    (size 6656)
-    (checksum (md5 "702b3d5fb6c288bf2e2132a3a0b7d7db"))
+    (size 7168)
+    (checksum (md5 "163cd3d015de30febe1ab57da403228f"))
     (library
       (name (seth temporary-file))
       (path "seth/temporary-file.sld")
@@ -384,8 +385,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 124416)
-    (checksum (md5 "6c92052868233f14ea45a626caf4357d"))
+    (size 123904)
+    (checksum (md5 "3065e949d884275f00623577e3dd00d9"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -597,7 +598,7 @@
     (version "1.0")
     (url "uri.tgz")
     (size 47104)
-    (checksum (md5 "01475754fcdd68079f3d028adaf5aeb2"))
+    (checksum (md5 "3a7959f74a80986f14af8f1a2a876f23"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
@@ -608,6 +609,7 @@
       (description "uri")
       (license bsd)
       (depends
+        (chibi optional)
         (chibi match)
         (srfi 1)
         (srfi 14)

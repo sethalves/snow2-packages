@@ -1,2 +1,5 @@
-(define (main-program)
-  #t)
+;;
+;;
+;; client defines main-program
+
+#t
