@@ -31,7 +31,7 @@
     (version "1.0")
     (url "bignum.tgz")
     (size 40448)
-    (checksum (md5 "26543a444a2daf75c7bf63baa8bac506"))
+    (checksum (md5 "92cd16dd4c14e849cf77aa5c9fb31be4"))
     (library
       (name (snow bignum))
       (path "snow/bignum.sld")
@@ -117,7 +117,7 @@
     (version "1.0")
     (url "pi.tgz")
     (size 5632)
-    (checksum (md5 "97c5f4beb29b1a72ee2facd372e5fef5"))
+    (checksum (md5 "3d0912fb03653c9f4eaf7277b99de1e2"))
     (library
       (name (snow pi))
       (path "snow/pi.sld")
@@ -133,7 +133,7 @@
     (version "1.0")
     (url "hello.tgz")
     (size 4096)
-    (checksum (md5 "12cfcced48be0590bbadc71aa0ae5bcf"))
+    (checksum (md5 "23015860e08e3afe8b830b84052040df"))
     (library
       (name (snow hello))
       (path "snow/hello.sld")
@@ -217,7 +217,7 @@
     (version "1.0")
     (url "bytevector.tgz")
     (size 15360)
-    (checksum (md5 "8bb36b7aeee76438e2cad8c4a951299f"))
+    (checksum (md5 "a08888fb3bd7582df9d7a79d6618ffcb"))
     (library
       (name (snow bytevector))
       (path "snow/bytevector.sld")

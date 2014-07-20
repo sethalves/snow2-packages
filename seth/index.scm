@@ -288,7 +288,7 @@
     (version "1.0")
     (url "temporary-file.tgz")
     (size 7168)
-    (checksum (md5 "163cd3d015de30febe1ab57da403228f"))
+    (checksum (md5 "cdcc79c1122d6ad6272c6839ef8521e4"))
     (library
       (name (seth temporary-file))
       (path "seth/temporary-file.sld")
