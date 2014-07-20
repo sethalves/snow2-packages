@@ -420,7 +420,8 @@
         (display "Add to list of snow2 repositories.\n"
                  (current-error-port))
         (display "  -s --symlink         " (current-error-port))
-        (display "Make symlinks to a repo's source files.\n")
+        (display "Make symlinks to a repo's source files.\n"
+                 (current-error-port))
         (display "  -v --verbose         " (current-error-port))
         (display "Print more.\n" (current-error-port))
         (display "  -h --help            " (current-error-port))
