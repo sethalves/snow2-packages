@@ -336,7 +336,7 @@
     (version "1.0")
     (url "crypt.tgz")
     (size 54272)
-    (checksum (md5 "6d78457a45d1fd44fa9b70e623ef590a"))
+    (checksum (md5 "5fd767ce3cac1cedb9c065859316a5d8"))
     (library
       (name (seth crypt md5))
       (path "seth/crypt/md5.sld")
@@ -386,7 +386,7 @@
     (version "1.0")
     (url "snow2-utils.tgz")
     (size 124416)
-    (checksum (md5 "f812f4adc5a17ae9eae0cf7911ab91cf"))
+    (checksum (md5 "451752a91adf5cd285f0e79b2285d39c"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
