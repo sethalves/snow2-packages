@@ -24,7 +24,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "parse and generate uuids")
       (license bsd)
-      (depends (srfi 60) (seth binary-pack) (srfi 13) (srfi 27))))
+      (depends (srfi 60) (seth binary-pack) (srfi 13) (srfi 27))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -40,7 +41,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "binary-pack")
       (license bsd)
-      (depends (srfi 60) (snow bytevector))))
+      (depends (srfi 60) (snow bytevector))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -56,7 +58,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "port-extras")
       (license bsd)
-      (depends (snow bytevector))))
+      (depends (snow bytevector))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -81,7 +84,8 @@
         (seth xml ssax)
         (seth xml sxpath)
         (seth http)
-        (seth aws common)))
+        (seth aws common))
+      (use-for final))
     (library
       (name (seth aws common))
       (path "seth/aws/common.sld")
@@ -104,7 +108,8 @@
         (seth uri)
         (seth base64)
         (srfi gauche-95)
-        (srfi 14))))
+        (srfi 14))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -120,7 +125,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "shell out to tar.")
       (license bsd)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -141,7 +147,8 @@
         (srfi 13)
         (snow input-parse)
         (snow assert)
-        (seth string-read-write)))
+        (seth string-read-write))
+      (use-for final))
     (library
       (name (seth xml sxpath))
       (path "seth/xml/sxpath.sld")
@@ -157,7 +164,8 @@
         (srfi 1)
         (srfi 2)
         (snow assert)
-        (snow extio)))
+        (snow extio))
+      (use-for final))
     (library
       (name (seth xml sxml-serializer))
       (path "seth/xml/sxml-serializer.sld")
@@ -167,7 +175,8 @@
       (authors "Dmitry Lizorkin" "Jim Ursetto")
       (description "Serialize SXML to XML")
       (license bsd)
-      (depends (srfi 1) (srfi 13))))
+      (depends (srfi 1) (srfi 13))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -183,7 +192,8 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends (seth variable-item)))
+      (depends (seth variable-item))
+      (use-for final))
     (library
       (name (seth message-digest primitive))
       (path "seth/message-digest/primitive.sld")
@@ -193,7 +203,8 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends (seth gensym)))
+      (depends (seth gensym))
+      (use-for final))
     (library
       (name (seth message-digest type))
       (path "seth/message-digest/type.sld")
@@ -203,7 +214,8 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends (snow bytevector) (seth message-digest primitive)))
+      (depends (snow bytevector) (seth message-digest primitive))
+      (use-for final))
     (library
       (name (seth message-digest support))
       (path "seth/message-digest/support.sld")
@@ -213,7 +225,8 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends (seth message-digest primitive) (seth message-digest type)))
+      (depends (seth message-digest primitive) (seth message-digest type))
+      (use-for final))
     (library
       (name (seth message-digest bv))
       (path "seth/message-digest/bv.sld")
@@ -223,7 +236,8 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends (seth message-digest type) (seth message-digest support)))
+      (depends (seth message-digest type) (seth message-digest support))
+      (use-for final))
     (library
       (name (seth message-digest port))
       (path "seth/message-digest/port.sld")
@@ -233,7 +247,8 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends (srfi 69) (seth message-digest type) (seth message-digest bv)))
+      (depends (srfi 69) (seth message-digest type) (seth message-digest bv))
+      (use-for final))
     (library
       (name (seth message-digest update-item))
       (path "seth/message-digest/update-item.sld")
@@ -246,7 +261,8 @@
       (depends
         (seth message-digest parameters)
         (seth message-digest primitive)
-        (seth message-digest type)))
+        (seth message-digest type))
+      (use-for final))
     (library
       (name (seth message-digest md5))
       (path "seth/message-digest/md5.sld")
@@ -256,7 +272,8 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends (srfi 60) (seth message-digest primitive)))
+      (depends (srfi 60) (seth message-digest primitive))
+      (use-for final))
     (library
       (name (seth message-digest item))
       (path "seth/message-digest/item.sld")
@@ -266,7 +283,8 @@
       (authors "Kon Lovett")
       (description "message-digest")
       (license BSD)
-      (depends (seth message-digest type) (seth message-digest update-item))))
+      (depends (seth message-digest type) (seth message-digest update-item))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -282,7 +300,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "string-read-write")
       (license bsd)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -298,7 +317,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "temporary-file")
       (license bsd)
-      (depends (srfi 27))))
+      (depends (srfi 27))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -314,7 +334,8 @@
       (authors "Kon Lovett")
       (description "variable-item")
       (license BSD-style)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -330,7 +351,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "cout")
       (license bsd)
-      (depends (srfi 1))))
+      (depends (srfi 1))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -346,7 +368,8 @@
       (authors "Alex Shinn")
       (description "md5")
       (license BSD-style)
-      (depends (snow bytevector) (srfi 60)))
+      (depends (snow bytevector) (srfi 60))
+      (use-for final))
     (library
       (name (seth crypt sha-1))
       (path "seth/crypt/sha-1.sld")
@@ -356,7 +379,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "sha-1")
       (license BSD-style)
-      (depends (srfi 60) (snow bytevector)))
+      (depends (srfi 60) (snow bytevector))
+      (use-for final))
     (library
       (name (seth crypt sha-2))
       (path "seth/crypt/sha-2.sld")
@@ -366,7 +390,8 @@
       (authors "Alex Shinn")
       (description "sha-2")
       (license BSD-style)
-      (depends (srfi 60) (snow bytevector)))
+      (depends (srfi 60) (snow bytevector))
+      (use-for final))
     (library
       (name (seth crypt hmac-sha-1))
       (path "seth/crypt/hmac-sha-1.sld")
@@ -380,13 +405,14 @@
         (srfi 60)
         (seth port-extras)
         (seth crypt sha-1)
-        (snow bytevector))))
+        (snow bytevector))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 123904)
-    (checksum (md5 "839a98225e8f8a3f73115b5f6b499cc2"))
+    (size 128512)
+    (checksum (md5 "ed35d2e0ccf425c36e14324b85021d7f"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -415,7 +441,8 @@
         (seth snow2 types)
         (seth snow2 utils)
         (seth snow2 r7rs-library)
-        (seth snow2 manage)))
+        (seth snow2 manage))
+      (use-for final))
     (library
       (name (seth snow2 manage))
       (path "seth/snow2/manage.sld")
@@ -442,7 +469,8 @@
         (seth snow2 utils)
         (seth snow2 r7rs-library)
         (srfi 95)
-        (seth string-read-write)))
+        (seth string-read-write))
+      (use-for final))
     (library
       (name (seth snow2 types))
       (path "seth/snow2/types.sld")
@@ -452,7 +480,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "snow2-utils")
       (license bsd)
-      (depends (srfi 1) (srfi 13) (seth uri)))
+      (depends (srfi 1) (srfi 13) (seth uri))
+      (use-for final))
     (library
       (name (seth snow2 utils))
       (path "seth/snow2/utils.sld")
@@ -474,7 +503,8 @@
         (seth uri)
         (seth snow2 types)
         (seth xml sxml-serializer)
-        (seth deep-copy)))
+        (seth deep-copy))
+      (use-for final))
     (library
       (name (seth snow2 r7rs-library))
       (path "seth/snow2/r7rs-library.sld")
@@ -490,7 +520,8 @@
         (srfi 95)
         (seth snow2 types)
         (seth snow2 utils)
-        (srfi 1))))
+        (srfi 1))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -512,7 +543,8 @@
         (snow binio)
         (seth network-socket)
         (seth string-read-write)
-        (seth base64))))
+        (seth base64))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -528,7 +560,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "network-socket")
       (license bsd)
-      (depends (seth gauche-socket-utils) (snow bytevector)))
+      (depends (seth gauche-socket-utils) (snow bytevector))
+      (use-for final))
     (library
       (name (seth gauche-socket-utils))
       (path "seth/gauche-socket-utils.sld")
@@ -538,7 +571,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "network-socket")
       (license bsd)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -555,7 +589,8 @@
       (description
         "RFC 2045 quoted printable encoding and decoding utilities.  This API is backwards compatible with the Gauche library rfc.quoted-printable.")
       (license BSD-style "http://synthcode.com/license.txt")
-      (depends (srfi 60) (srfi 13) (seth string-read-write))))
+      (depends (srfi 60) (srfi 13) (seth string-read-write))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -576,7 +611,8 @@
         (srfi 1)
         (snow bytevector)
         (snow genport)
-        (seth port-extras))))
+        (seth port-extras))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -592,7 +628,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "gensym")
       (license BSD-style)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -614,7 +651,8 @@
         (srfi 1)
         (srfi 14)
         (srfi 13)
-        (seth string-read-write))))
+        (seth string-read-write))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -630,7 +668,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "base64")
       (license lgpl/v2.1)
-      (depends (snow bytevector) (srfi 1) (srfi 60))))
+      (depends (snow bytevector) (srfi 1) (srfi 60))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -659,7 +698,8 @@
         (seth string-read-write)
         (seth uri)
         (seth port-extras)
-        (seth network-socket))))
+        (seth network-socket))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -676,7 +716,8 @@
       (description
         "Copy a potentially nested structure containing any of the base types.")
       (license bsd)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -697,4 +738,5 @@
         (seth string-read-write)
         (seth base64)
         (srfi 13)
-        (snow binio)))))
+        (snow binio))
+      (use-for final))))
