@@ -25,7 +25,8 @@
         (srfi 60)
         (snow bignum)
         (snow genport)
-        (snow filesys))))
+        (snow filesys))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -41,7 +42,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Operations on large integers." math snow)
       (license lgpl/v2.1)
-      (depends (snow bytevector))))
+      (depends (snow bytevector))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -59,7 +61,8 @@
         "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "I/O to operating system subprocesses." i/o os)
       (license bsdl)
-      (depends (snow filesys) (snow extio))))
+      (depends (snow filesys) (snow extio))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -75,7 +78,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Generic ports." i/o snow)
       (license lgpl/v2.1)
-      (depends (snow bytevector) (snow binio) (snow gauche-genport-utils)))
+      (depends (snow bytevector) (snow binio) (snow gauche-genport-utils))
+      (use-for final))
     (library
       (name (snow gauche-genport-utils))
       (path "snow/gauche-genport-utils.sld")
@@ -85,7 +89,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "Generic ports." i/o snow)
       (license lgpl/v2.1)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -101,7 +106,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "File system access." os snow)
       (license lgpl/v2.1)
-      (depends (srfi 13) (snow gauche-filesys-utils) (srfi 1) (srfi 14)))
+      (depends (srfi 13) (snow gauche-filesys-utils) (srfi 1) (srfi 14))
+      (use-for final))
     (library
       (name (snow gauche-filesys-utils))
       (path "snow/gauche-filesys-utils.sld")
@@ -111,13 +117,14 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "File system access." os snow)
       (license lgpl/v2.1)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
     (url "pi.tgz")
-    (size 5632)
-    (checksum (md5 "3d0912fb03653c9f4eaf7277b99de1e2"))
+    (size 7168)
+    (checksum (md5 "a8a4e63e908ca898ceec4ca6c5d6b989"))
     (library
       (name (snow pi))
       (path "snow/pi.sld")
@@ -127,7 +134,19 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Computes the digits of pi." example snow)
       (license lgpl/v2.1)
-      (depends (snow bignum))))
+      (depends (snow bignum))
+      (use-for final))
+    (library
+      (name (snow pi tests))
+      (path "snow/pi/tests.sld")
+      (version "1.0")
+      (homepage)
+      (maintainers)
+      (authors)
+      (description)
+      (license)
+      (depends (snow pi))
+      (use-for test)))
   (package
     (name ())
     (version "1.0")
@@ -143,7 +162,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Display \"let it snow\" and pi." example snow)
       (license lgpl/v2.1)
-      (depends (snow pi))))
+      (depends (snow pi))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -159,11 +179,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
       (license lgpl/v2.1)
-      (depends
-        (snow gauche-extio-utils)
-        (snow bytevector)
-        (srfi 60)
-        (srfi 13)))
+      (depends (snow gauche-extio-utils) (snow bytevector) (srfi 60) (srfi 13))
+      (use-for final))
     (library
       (name (snow gauche-extio-utils))
       (path "snow/gauche-extio-utils.sld")
@@ -173,7 +190,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Extended I/O." i/o snow)
       (license lgpl/v2.1)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -195,7 +213,8 @@
         i/o
         snow)
       (license lgpl/v2.1)
-      (depends (snow bytevector) (snow digest) (srfi 60) (snow genport))))
+      (depends (snow bytevector) (snow digest) (srfi 60) (snow genport))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -211,7 +230,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "High-quality random number generation." snow)
       (license lgpl/v2.1)
-      (depends (srfi 27) (snow bytevector) (snow binio) (snow bignum))))
+      (depends (srfi 27) (snow bytevector) (snow binio) (snow bignum))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -227,7 +247,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "bytevector compatibility layer")
       (license bsd)
-      (depends (srfi 1) (snow gauche-bv-string-utils)))
+      (depends (srfi 1) (snow gauche-bv-string-utils))
+      (use-for final))
     (library
       (name (snow gauche-bv-string-utils))
       (path "snow/gauche-bv-string-utils.sld")
@@ -237,7 +258,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "bytevector compatibility layer")
       (license bsd)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -254,7 +276,8 @@
       (description
         "inspired and compatible with Oleg Kiselyov's input parsing library")
       (license public-domain)
-      (depends (srfi 1) (srfi 13))))
+      (depends (srfi 1) (srfi 13))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -270,7 +293,8 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "Binary I/O." i/o snow)
       (license lgpl/v2.1)
-      (depends (snow bytevector))))
+      (depends (snow bytevector))
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -286,7 +310,8 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "assert")
       (license bsd)
-      (depends)))
+      (depends)
+      (use-for final)))
   (package
     (name ())
     (version "1.0")
@@ -306,4 +331,5 @@
         conv
         snow)
       (license lgpl/v2.1)
-      (depends (srfi 60) (snow binio) (snow bytevector)))))
+      (depends (srfi 60) (snow binio) (snow bytevector))
+      (use-for final))))
