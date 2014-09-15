@@ -599,7 +599,7 @@
                                            (car maybe-error-on-bad-repo)
                                            #t))
                     (repo-dirname (uri->string repository-url))
-                    (tests-dirname (snow-make-filename repo-dirname "tests"))
+                    ;; (tests-dirname (snow-make-filename repo-dirname "tests"))
                     (packages-dirname
                      (snow-make-filename repo-dirname "packages"))
                     (index-filename
@@ -614,9 +614,9 @@
                         (newline)
                         (exit 1))
                        (else #f)))
-               (cond ((or (not (file-exists? tests-dirname))
-                          (not (snow-file-directory? tests-dirname)))
-                      (bad-local-repo "missing tests subdirectory"))
+               (cond ;; ((or (not (file-exists? tests-dirname))
+                     ;;      (not (snow-file-directory? tests-dirname)))
+                     ;;  (bad-local-repo "missing tests subdirectory"))
                      ((or (not (file-exists? packages-dirname))
                           (not (snow-file-directory? packages-dirname)))
                       (bad-local-repo "missing packages subdirectory"))
