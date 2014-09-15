@@ -197,7 +197,7 @@
     (version "1.0")
     (url "zlib.tgz")
     (size 46080)
-    (checksum (md5 "dd99fb322e299e8519649041d219ad8e"))
+    (checksum (md5 "24c40fb5a63ce7b0df6bdffb52562224"))
     (library
       (name (snow zlib))
       (path "snow/zlib.sld")
