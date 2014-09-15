@@ -1,5 +1,6 @@
 (define-library (seth snow2 manage)
   (export make-package-archives
+          run-source-tests
           upload-packages-to-s3
           check-packages)
 
@@ -387,44 +388,44 @@
            package-metafiles))
 
 
-    (define (find-implied-local-package-metafiles local-repository)
-      ;; look at the current working directory and see if
-      ;; the user intends to operate on a specific package in the
-      ;; repository, or on all of them.
-      (let* ((repo-path (uri-path (snow2-repository-local local-repository)))
-             (cwd (get-environment-variable "PWD"))
-             (cwd-parts (snow-split-filename cwd))
-             (cwd-parts-len (length cwd-parts))
-             (cwd-from-end
-              (lambda (n)
-                (and (> cwd-parts-len n)
-                     (list-ref cwd-parts (- cwd-parts-len n))))))
-        (cond
-         ;; are we in the tests directory?
-         ((equal? "tests" (cwd-from-end 1))
-          ;; (display "in test directory...\n")
-          (all-package-metafiles local-repository))
-         ;; are we in a specific test directory?
-         ((and (equal? "tests" (cwd-from-end 2))
-               (let ((package-filename
-                      (snow-combine-filename-parts
-                       (repo-path->file-path
-                        repo-path
-                        (list "packages"
-                              (string-append (cwd-from-end 1) ".package"))))))
-                 (if (file-exists? package-filename)
-                     package-filename
-                     #f))) =>
-                     (lambda (package-filename)
-                       ;; (display "in specific test directory...\n")
-                       (list package-filename)))
-         ;; are we in the packages directory?
-         ((equal? "packages" (cwd-from-end 1))
-          ;; (display "in packages directory...\n")
-          (all-package-metafiles local-repository))
-         (else
-          ;; (display "don't know...\n")
-          (all-package-metafiles local-repository)))))
+    ;; (define (find-implied-local-package-metafiles local-repository)
+    ;;   ;; look at the current working directory and see if
+    ;;   ;; the user intends to operate on a specific package in the
+    ;;   ;; repository, or on all of them.
+    ;;   (let* ((repo-path (uri-path (snow2-repository-local local-repository)))
+    ;;          (cwd (get-environment-variable "PWD"))
+    ;;          (cwd-parts (snow-split-filename cwd))
+    ;;          (cwd-parts-len (length cwd-parts))
+    ;;          (cwd-from-end
+    ;;           (lambda (n)
+    ;;             (and (> cwd-parts-len n)
+    ;;                  (list-ref cwd-parts (- cwd-parts-len n))))))
+    ;;     (cond
+    ;;      ;; are we in the tests directory?
+    ;;      ((equal? "tests" (cwd-from-end 1))
+    ;;       ;; (display "in test directory...\n")
+    ;;       (all-package-metafiles local-repository))
+    ;;      ;; are we in a specific test directory?
+    ;;      ((and (equal? "tests" (cwd-from-end 2))
+    ;;            (let ((package-filename
+    ;;                   (snow-combine-filename-parts
+    ;;                    (repo-path->file-path
+    ;;                     repo-path
+    ;;                     (list "packages"
+    ;;                           (string-append (cwd-from-end 1) ".package"))))))
+    ;;              (if (file-exists? package-filename)
+    ;;                  package-filename
+    ;;                  #f))) =>
+    ;;                  (lambda (package-filename)
+    ;;                    ;; (display "in specific test directory...\n")
+    ;;                    (list package-filename)))
+    ;;      ;; are we in the packages directory?
+    ;;      ((equal? "packages" (cwd-from-end 1))
+    ;;       ;; (display "in packages directory...\n")
+    ;;       (all-package-metafiles local-repository))
+    ;;      (else
+    ;;       ;; (display "don't know...\n")
+    ;;       (all-package-metafiles local-repository)))))
 
 
     (define (local-repository-operation repositories op verbose)
@@ -494,8 +495,11 @@
        (lambda (local-repository)
          (let* ((package-metafiles
                  (cond ((pair? package-metafiles) package-metafiles)
-                       (else (find-implied-local-package-metafiles
-                              local-repository))))
+                       (else
+                        (all-package-metafiles local-repository)
+                        ;; (find-implied-local-package-metafiles
+                        ;;  local-repository)
+                        )))
                 (package-metafiles
                  (resolve-package-metafiles local-repository package-metafiles))
                 (result
@@ -520,6 +524,19 @@
          (make-package-archive
           (cons local-repository repositories)
           local-repository package-metafile package verbose))
+       verbose))
+
+
+    (define (run-source-tests repositories package-metafiles verbose)
+      (local-packages-operation
+       repositories package-metafiles
+       (lambda (local-repository package-metafile package)
+
+         (display "run source tests for ")
+         (write package-metafile)
+         (newline)
+
+         )
        verbose))
 
 
