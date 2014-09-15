@@ -571,7 +571,7 @@
     (define (get-repository repository-url . maybe-error-on-bad-repo)
       ;; read index.scm from over http(s) or from a local filesystem.
       ;; if from a local directory, make sure the repository looks sane:
-      ;; it must have a "tests" subdirectory and a "pacakges" subdirectory.
+      ;; it must have a "packages" subdirectory and an index.scm file.
       ;; if it's missing either of these, raise an error unless
       ;; maybe-error-on-bad-repo is #f.
       (cond ((memq (uri-scheme repository-url) '(http https))
