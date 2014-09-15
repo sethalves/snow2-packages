@@ -522,7 +522,7 @@
            ((member operation '("package"))
             (make-package-archives (repositories) args verbose))
 
-           ;; tar up and gzip a package
+           ;; run tests in a source repository
            ((member operation '("run-source-tests"))
             (run-source-tests (repositories) args verbose))
 
