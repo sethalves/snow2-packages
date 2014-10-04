@@ -1,2 +1,0 @@
-(define (main-program)
-  #t)

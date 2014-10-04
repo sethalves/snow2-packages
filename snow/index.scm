@@ -124,7 +124,7 @@
     (version "1.0")
     (url "pi.tgz")
     (size 7168)
-    (checksum (md5 "a8a4e63e908ca898ceec4ca6c5d6b989"))
+    (checksum (md5 "9ba2af7fe438f4aef96dee7faa575558"))
     (library
       (name (snow pi))
       (path "snow/pi.sld")
