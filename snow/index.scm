@@ -6,6 +6,23 @@
     (url "http://r7rs-srfis.s3-website-us-east-1.amazonaws.com/index.scm")
     (trust 1.0))
   (package
+    (name (snow hello))
+    (version "1.0")
+    (url "hello.tgz")
+    (size 4096)
+    (checksum (md5 "8243098f46f132ad2a250e73ac1e99ff"))
+    (library
+      (name (snow hello))
+      (path "snow/hello.sld")
+      (version "1.0.1")
+      (homepage "http://snow.iro.umontreal.ca")
+      (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+      (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+      (description "Display \"let it snow\" and pi." example snow)
+      (license lgpl/v2.1)
+      (depends (snow pi))
+      (use-for final)))
+  (package
     (name ())
     (version "1.0")
     (url "tar.tgz")
