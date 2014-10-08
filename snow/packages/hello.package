@@ -1,5 +1,5 @@
 (package
-  (name ())
+  (name (snow hello))
   (url "hello.tgz")
   (library
     (path "snow/hello.sld")

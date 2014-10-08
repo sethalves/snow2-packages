@@ -8,10 +8,9 @@ exec csi -s $0 "$@"
 
 (import (scheme base))
 
-(include "snow/assert.sld")
-(import (snow assert))
+(include "../../snow/assert.sld")
+(include "../../snow/assert/tests.sld")
+(import (snow assert tests))
 
-(include "test-common.scm")
-
-(display (main-program))
+(display (run-tests))
 (newline)
