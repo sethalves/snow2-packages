@@ -11,7 +11,7 @@
     (license bsd)
     )
   (library
-    (path "snow/assert/test.sld")
+    (path "snow/assert/tests.sld")
     (use-for test)
     (version "1.0")
     (homepage "https://github.com/sethalves")

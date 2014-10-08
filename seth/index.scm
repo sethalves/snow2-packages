@@ -412,7 +412,7 @@
     (version "1.0")
     (url "snow2-utils.tgz")
     (size 126976)
-    (checksum (md5 "77c24b4cf3faf2e3cac9a872cc140eaa"))
+    (checksum (md5 "7dafa71c1629e453b4e4cfa834ed1756"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -469,7 +469,8 @@
         (seth snow2 utils)
         (seth snow2 r7rs-library)
         (srfi 95)
-        (seth string-read-write))
+        (seth string-read-write)
+        (srfi gauche-95))
       (use-for final))
     (library
       (name (seth snow2 types))
