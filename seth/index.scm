@@ -290,7 +290,7 @@
     (version "1.0")
     (url "string-read-write.tgz")
     (size 5632)
-    (checksum (md5 "fb3fc11de0c7a9058d489f24e4cf195b"))
+    (checksum (md5 "31c75fa46e5f08d1611e86f794a3d4d2"))
     (library
       (name (seth string-read-write))
       (path "seth/string-read-write.sld")
@@ -412,7 +412,7 @@
     (version "1.0")
     (url "snow2-utils.tgz")
     (size 126976)
-    (checksum (md5 "7dafa71c1629e453b4e4cfa834ed1756"))
+    (checksum (md5 "16b2129105d2589dee5139a84b8103e6"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -724,7 +724,7 @@
     (version "1.0")
     (url "mime.tgz")
     (size 19968)
-    (checksum (md5 "f11d2028c5a2557308ff172f85cd9614"))
+    (checksum (md5 "1003f7e005638a3d26fe25552455ddec"))
     (library
       (name (seth mime))
       (path "seth/mime.sld")
