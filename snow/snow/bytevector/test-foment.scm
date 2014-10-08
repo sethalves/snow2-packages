@@ -2,7 +2,6 @@
 
 (import (scheme base))
 (import (scheme write))
-(import (snow bytevector))
-(include "test-common.scm")
-(display (main-program))
+(import (snow bytevector tests))
+(display (run-tests))
 (newline)

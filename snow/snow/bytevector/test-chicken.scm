@@ -8,10 +8,8 @@ exec csi -s $0 "$@"
 
 (use srfi-4)
 (include "snow/bytevector.sld")
+(include "snow/bytevector/tests.sld")
 (import (scheme base)
-        (snow bytevector))
-
-(include "test-common.scm")
-
-(display (main-program))
+        (snow bytevector tests))
+(display (run-tests))
 (newline)
