@@ -268,19 +268,16 @@
 
 
       (define (install-from-directory repo package url)
-        (cond ((and use-symlinks #t)
-               (install-symlinks repo package))
-              (else
-               (let ((local-package-tgz-file
-                      (snow-combine-filename-parts
-                       (local-repository->in-fs-tgz-path repo package))
-                      ))
-                 (display "extracting ")
-                 (display (snow2-package-get-readable-name package))
-                 (display " from ")
-                 (display local-package-tgz-file)
-                 (newline)
-                 (install-from-tgz repo package local-package-tgz-file)))))
+        (let ((local-package-tgz-file
+               (snow-combine-filename-parts
+                (local-repository->in-fs-tgz-path repo package))))
+          (display "extracting ")
+          (display (snow2-package-get-readable-name package))
+          (display " from ")
+          (display local-package-tgz-file)
+          (newline)
+          (install-from-tgz repo package local-package-tgz-file)))
+
 
       (let* ((pkgs (find-packages-with-libraries repositories library-names))
              (libraries (snow2-packages-libraries pkgs))
@@ -290,10 +287,15 @@
            (let* ((package-repo (snow2-package-repository package))
                   (success
                    (cond
+                    ;; local repository, use symlinks
+                    ((and (snow2-repository-local package-repo) use-symlinks)
+                     (install-symlinks package-repo package))
+                    ;; local repository, use tgz files
                     ((snow2-repository-local package-repo)
                      (install-from-directory
                       package-repo package
                       (snow2-repository-local package-repo)))
+                    ;; remote repository
                     (else
                      (install-from-http
                       package-repo package
