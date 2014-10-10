@@ -11,13 +11,10 @@ exec csi -s $0 "$@"
 (include "snow/bytevector.sld")
 (include "snow/bignum.sld")
 (include "snow/binio.sld")
-;; (include "snow/random.sld")
 (include "snow/genport.sld")
 (include "snow/filesys.sld")
 (include "snow/tar.sld")
-(import (snow tar))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "snow/tar/tests.sld")
+(import (snow tar tests))
+(display (run-tests))
 (newline)
