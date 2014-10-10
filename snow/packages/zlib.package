@@ -1,18 +1,26 @@
 (package
-  (name ())
-  (url "zlib.tgz")
-  (library
-    (path "snow/zlib.sld")
-    (version "1.0.1")
-    (homepage "http://snow.iro.umontreal.ca")
-    (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
-    (authors
-      "Marc Feeley <feeley at iro.umontreal.ca>"
-      "Manuel Serrano <Manuel.Serrano at sophia.inria.fr>")
-    (description
-      "Compression and decompression of deflate and gzip formats."
-      conv
-      i/o
-      snow)
-    (license lgpl/v2.1)
-    ))
+ (name ())
+ (url "zlib.tgz")
+ (library
+  (path "snow/zlib.sld")
+  (version "1.0.1")
+  (homepage "http://snow.iro.umontreal.ca")
+  (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+  (authors
+   "Marc Feeley <feeley at iro.umontreal.ca>"
+   "Manuel Serrano <Manuel.Serrano at sophia.inria.fr>")
+  (description
+   "Compression and decompression of deflate and gzip formats."
+   conv
+   i/o
+   snow)
+  (license lgpl/v2.1))
+ (library
+  (path "snow/zlib/tests.sld")
+  (use-for test)
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "tests for zlib")
+  (license bsd)))

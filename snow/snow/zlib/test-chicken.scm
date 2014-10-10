@@ -13,13 +13,7 @@ exec csi -s $0 "$@"
 (include "snow/genport.sld")
 (include "snow/digest.sld")
 (include "snow/zlib.sld")
-(import (snow bytevector))
-(import (snow binio))
-(import (snow genport))
-(import (snow zlib))
-
-(include "test-common.scm")
-
-;; (main-program)
-(display (main-program))
+(include "snow/zlib/tests.sld")
+(import (snow zlib tests))
+(display (run-tests))
 (newline)
