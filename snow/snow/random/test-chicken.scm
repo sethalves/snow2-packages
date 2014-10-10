@@ -5,14 +5,11 @@ exec csi -s $0 "$@"
 
 (use r7rs)
 (import-for-syntax r7rs)
-
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "snow/bignum.sld")
 (include "snow/random.sld")
-(import (snow random))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "snow/random/tests.sld")
+(import (snow random tests))
+(display (run-tests))
 (newline)

@@ -1,0 +1,17 @@
+(define-library (snow random tests)
+  (export run-tests)
+  (import (scheme base)
+          (scheme write)
+          (snow random))
+  (begin
+    (define (run-tests)
+      (display (make-random-u8vector 10))
+      (newline)
+      (display (make-random-u8vector 10))
+      (newline)
+      (display (random-fixnum 1000))
+      (newline)
+      (display (random-bignum 1000))
+      (newline)
+
+      #t)))
