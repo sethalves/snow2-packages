@@ -2,8 +2,8 @@
 #
 #
 
-# snow2=~/src/snow2/snow2-client/snow2-client-chibi.scm
-snow2=/usr/local/bin/snow2
+snow2=~/src/snow2/snow2-client/snow2-client-chibi.scm
+# snow2=/usr/local/bin/snow2
 
 # PACKAGEDIR=$(shell dirname $$PWD)
 # PACKAGENAME=$(shell basename $(PACKAGEDIR))
@@ -15,7 +15,7 @@ REPOS=-r ../../../snow -r ../../../seth -r ../../../../r7rs-srfis
 all:
 
 link-deps:
-	snow2 -s $(REPOS) install $(TEST_DEPS)
+	$(snow2) -v -s $(REPOS) install $(TEST_DEPS)
 
 install-deps:
 	snow2 $(REPOS) install $(TEST_DEPS)

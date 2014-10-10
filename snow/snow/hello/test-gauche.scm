@@ -6,7 +6,8 @@ exec gosh \
 -ftest -r7 $0 "$@"
 |#
 
-(import (scheme base) (scheme write))
-(import (snow hello tests))
-
-(run-tests)
+(import (scheme base)
+        (scheme write)
+        (snow hello tests))
+(display (run-tests))
+(newline)

@@ -220,6 +220,13 @@
 
 
       (define (install-symlinks local-repository package)
+
+        (cond (verbose
+               (newline)
+               (display "intalling package: ")
+               (write (snow2-package-get-readable-name package))
+               (newline)))
+
         (let* ((libraries (snow2-package-libraries package))
                (lib-sexps (map (lambda (lib)
                                  (let* ((lib-filename
@@ -231,6 +238,14 @@
                                (map r7rs-get-library-manifest
                                     libraries lib-sexps)))
                (repo-path (uri-path (snow2-repository-local local-repository))))
+
+          (cond (verbose
+                 (display "source files for ")
+                 (write (map snow2-library-name libraries))
+                 (display ": ")
+                 (write manifest)
+                 (newline)))
+
           (for-each
            (lambda (library-member-filename)
              (let* ((dst-path (snow-split-filename library-member-filename))

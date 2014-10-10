@@ -10,9 +10,7 @@ exec csi -s $0 "$@"
 (include "snow/bignum.sld")
 (include "snow/pi.sld")
 (include "snow/hello.sld")
-(import (snow hello))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "snow/hello/tests.sld")
+(import (snow hello tests))
+(display (run-tests))
 (newline)
