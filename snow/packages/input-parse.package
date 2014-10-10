@@ -1,13 +1,21 @@
 (package
-  (name ())
-  (url "input-parse.tgz")
-  (library
-    (path "snow/input-parse.sld")
-    (version "1.0.1")
-    (homepage "http://snow.iro.umontreal.ca")
-    (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
-    (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-    (description
-      "inspired and compatible with Oleg Kiselyov's input parsing library")
-    (license public-domain)
-    ))
+ (name ())
+ (url "input-parse.tgz")
+ (library
+  (path "snow/input-parse.sld")
+  (version "1.0.1")
+  (homepage "http://snow.iro.umontreal.ca")
+  (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+  (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+  (description
+   "inspired and compatible with Oleg Kiselyov's input parsing library")
+  (license public-domain))
+ (library
+  (path "snow/input-parse/tests.sld")
+  (use-for test)
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "tests for input-parse")
+  (license bsd)))

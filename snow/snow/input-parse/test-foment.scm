@@ -5,7 +5,6 @@ exec foment $0 "$@"
 
 (import (scheme base)
         (scheme write)
-        (snow input-parse))
-(include "test-common.scm")
-(display (main-program))
+        (snow input-parse tests))
+(display (run-tests))
 (newline)
