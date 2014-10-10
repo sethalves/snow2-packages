@@ -8,8 +8,6 @@ exec gosh \
 
 (import (scheme base)
         (scheme write)
-        (scheme file)
-        (snow extio))
-(include "test-common.scm")
-(display (main-program))
+        (snow extio tests))
+(display (run-tests))
 (newline)
