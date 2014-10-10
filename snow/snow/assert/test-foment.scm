@@ -1,8 +1,7 @@
 #!/usr/local/bin/foment
 
-(import (scheme base))
-(import (scheme write))
-(import (snow assert))
-(include "test-common.scm")
-(display (main-program))
+(import (scheme base)
+        (scheme write)
+        (snow assert tests))
+(display (run-tests))
 (newline)
