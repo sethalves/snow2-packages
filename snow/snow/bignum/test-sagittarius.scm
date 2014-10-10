@@ -5,10 +5,6 @@ exec sash -A . -F .sld $0 "$@"
 
 (import (scheme base)
         (scheme write)
-        (snow bignum))
-
-
-(include "test-common.scm")
-
-(display (main-program))
+        (snow bignum tests))
+(display (run-tests))
 (newline)
