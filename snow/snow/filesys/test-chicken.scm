@@ -8,9 +8,7 @@ exec csi -s $0 "$@"
 (import (scheme base)
         (scheme file))
 (include "snow/filesys.sld")
-(import (snow filesys))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "snow/filesys/tests.sld")
+(import (snow filesys tests))
+(display (run-tests))
 (newline)
