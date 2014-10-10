@@ -1,16 +1,24 @@
 (package
-  (name ())
-  (url "digest.tgz")
-  (library
-    (path "snow/digest.sld")
-    (version "1.0.1")
-    (homepage "http://snow.iro.umontreal.ca")
-    (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
-    (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-    (description
-      "Computation of message digests (CRC32, MD5, SHA-1, ...)."
-      hash
-      conv
-      snow)
-    (license lgpl/v2.1)
-    ))
+ (name ())
+ (url "digest.tgz")
+ (library
+  (path "snow/digest.sld")
+  (version "1.0.1")
+  (homepage "http://snow.iro.umontreal.ca")
+  (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
+  (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+  (description
+   "Computation of message digests (CRC32, MD5, SHA-1, ...)."
+   hash
+   conv
+   snow)
+  (license lgpl/v2.1))
+ (library
+  (path "snow/digest/tests.sld")
+  (use-for test)
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Marc Feeley <feeley at iro.umontreal.ca>")
+  (description "tests for digest")
+  (license lgpl/v2.1)))

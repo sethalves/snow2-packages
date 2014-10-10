@@ -10,9 +10,7 @@ exec csi -s $0 "$@"
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
 (include "snow/digest.sld")
-(import (snow digest))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "snow/digest/tests.sld")
+(import (snow digest tests))
+(display (run-tests))
 (newline)

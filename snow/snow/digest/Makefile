@@ -1,4 +1,4 @@
-TEST_DEPS="(snow digest)"
+TEST_DEPS="(snow digest tests)"
 include ../../../makefiles/test.make
 
 clean-extra:

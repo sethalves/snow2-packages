@@ -6,9 +6,8 @@ exec gosh \
 -ftest -r7 $0 "$@"
 |#
 
-(import (scheme base) (scheme write))
-(import (scheme char) (scheme cxr))
-(import (snow digest))
-(include "test-common.scm")
-(display (main-program))
+(import (scheme base)
+        (scheme write)
+        (snow digest tests))
+(display (run-tests))
 (newline)

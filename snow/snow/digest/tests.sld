@@ -1,3 +1,13 @@
+(define-library (snow digest tests)
+  (export run-tests)
+  (import (scheme base)
+          (scheme write)
+          (scheme char)
+          (scheme cxr)
+          (snow bytevector)
+          (snow digest))
+  (begin
+
 (define (expect* v)
   ;; (assert v)
   (cond ((not v)
@@ -131,5 +141,6 @@
   )
 
 
-(define (main-program)
-  (test-digest))
+(define (run-tests)
+  (test-digest))))
+
