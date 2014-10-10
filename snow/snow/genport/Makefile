@@ -1,4 +1,4 @@
-TEST_DEPS="(snow genport)"
+TEST_DEPS="(snow genport tests)"
 include ../../../makefiles/test.make
 
 clean-extra:

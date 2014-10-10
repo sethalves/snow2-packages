@@ -8,7 +8,6 @@ exec gosh \
 
 (import (scheme base)
         (scheme write)
-        (snow genport))
-(include "test-common.scm")
-(display (main-program))
+        (snow genport tests))
+(display (run-tests))
 (newline)
