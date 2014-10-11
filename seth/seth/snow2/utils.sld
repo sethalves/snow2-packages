@@ -59,6 +59,7 @@
    (else))
   (import (snow extio)
           (srfi 13)
+          (srfi 14)
           (srfi 69)
           (srfi 29)
           (snow filesys)
@@ -668,12 +669,13 @@
 
 
     (define (merge-packages! dst-package src-package verbose)
-      (cond (verbose
-             (display "package file changed.\n")
-             (write (package->sexp dst-package))
-             (newline)
-             (write (package->sexp src-package))
-             (newline)))
+      ;; (cond (verbose
+      ;;        (display "package file changed.\n")
+      ;;        (write (package->sexp dst-package))
+      ;;        (newline)
+      ;;        (write (package->sexp src-package))
+      ;;        (newline)))
+
       ;; update dst-package's list of libraries
       (set-snow2-package-libraries!
        dst-package
@@ -690,9 +692,11 @@
       ;; read a file that contains a package s-exp and update the copy
       ;; in repository.  return the updated package.
       (let ((updated-package (package-from-metafile-name package-filename)))
-        (set-snow2-package-repository! updated-package repository)
         (cond ((not updated-package)
                (error "can't read package metafile." package-filename)))
+
+        (set-snow2-package-repository! updated-package repository)
+
         (let loop ((repo-packages (snow2-repository-packages repository)))
           (cond ((null? repo-packages)
                  ;; we found a package file, but it's not in the repository's
@@ -758,9 +762,13 @@
       ;; whatever is after define-library.
       (let ((name (cadr lib-sexp)))
         (cond ((list? name) name)
+              ((symbol? name)
+               ;; name is in dotted format.
+               (string-tokenize (symbol->string name)
+                                (string->char-set ".")))
               (else
                ;; name is in dotted format.
-               (string-tokenize name (lambda (c) (not (eqv? c #\.))))))))
+               (string-tokenize name (string->char-set "."))))))
 
 
     (define (local-repository->in-fs-index-path local-repository)
