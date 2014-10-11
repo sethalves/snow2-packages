@@ -296,7 +296,7 @@
 
       (let* ((pkgs (find-packages-with-libraries repositories library-names))
              (libraries (snow2-packages-libraries pkgs))
-             (packages (gather-depends repositories libraries)))
+             (packages (gather-depends repositories libraries steps)))
         (for-each
          (lambda (package)
            (let* ((package-repo (snow2-package-repository package))
