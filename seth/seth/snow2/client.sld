@@ -331,11 +331,11 @@
       #f)
 
 
-    (define (list-depends repositories library-names)
+    (define (list-depends repositories library-names steps)
       ;; print out what library-name depends on
       (let* ((pkgs (find-packages-with-libraries repositories library-names))
              (libraries (snow2-packages-libraries pkgs))
-             (packages (gather-depends repositories libraries)))
+             (packages (gather-depends repositories libraries steps)))
         (for-each
          (lambda (package)
            (for-each
@@ -565,7 +565,7 @@
 
                ;; list what a library depends on
                ((member operation '("list-dep" "list-depends"))
-                (list-depends (repositories) library-names))
+                (list-depends (repositories) library-names steps))
 
                ;; unknown operation
                (else

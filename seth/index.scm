@@ -411,8 +411,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 126464)
-    (checksum (md5 "6a2f2ef6b92cf9c1254daf62e24b0e7e"))
+    (size 130048)
+    (checksum (md5 "4757fd647862d18226e72fdd35845bd6"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -496,6 +496,7 @@
         (srfi 1)
         (snow extio)
         (srfi 13)
+        (srfi 14)
         (srfi 69)
         (srfi 29)
         (snow filesys)
