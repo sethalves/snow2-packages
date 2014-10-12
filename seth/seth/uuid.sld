@@ -11,9 +11,9 @@
           (srfi 27))
   (begin
 
-    (cond-expand
-     (sagittarius (define arithmetic-shift bitwise-arithmetic-shift))
-     (else))
+    ;; (cond-expand
+    ;;  (sagittarius (define arithmetic-shift bitwise-arithmetic-shift))
+    ;;  (else))
 
 
     (define (uuid:unpack bv idx uuid-cb)

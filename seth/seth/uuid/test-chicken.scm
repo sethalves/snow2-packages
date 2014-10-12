@@ -10,9 +10,7 @@ exec csi -s $0 "$@"
 (include "snow/bytevector.sld")
 (include "seth/binary-pack.sld")
 (include "seth/uuid.sld")
-(import (seth uuid) (srfi 27))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/uuid/tests.sld")
+(import (seth uuid tests))
+(display (run-tests))
 (newline)

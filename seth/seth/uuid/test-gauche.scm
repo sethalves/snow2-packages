@@ -8,10 +8,6 @@ exec gosh \
 
 (import (scheme base)
         (scheme write)
-        (snow bytevector)
-        (seth uuid)
-        (srfi 27)
-        (srfi 60))
-(include "test-common.scm")
-(display (main-program))
+        (seth uuid tests))
+(display (run-tests))
 (newline)

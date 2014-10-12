@@ -1,0 +1,12 @@
+(define-library (seth uuid tests)
+  (export run-tests)
+  (import (scheme base)
+          (scheme write)
+          (srfi 27)
+          (seth uuid))
+  (begin
+    (define (run-tests)
+      (random-source-randomize! default-random-source)
+      (display (uuid:random))
+      (newline)
+      #t)))
