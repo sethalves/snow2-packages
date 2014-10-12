@@ -11,12 +11,7 @@ exec csi -s $0 "$@"
 (include "snow/bytevector.sld")
 (include "seth/port-extras.sld")
 (include "seth/network-socket.sld")
-(import (snow bytevector))
-(import (seth network-socket))
-(import (srfi 27))
-(import (seth port-extras))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/network-socket/tests.sld")
+(import (seth network-socket tests))
+(display (run-tests))
 (newline)
