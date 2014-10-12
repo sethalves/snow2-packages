@@ -20,17 +20,7 @@ exec csi -s $0 "$@"
 (include "seth/message-digest/update-item.sld")
 (include "seth/message-digest/item.sld")
 (include "seth/message-digest/md5.sld")
-
-(import (snow bytevector)
-        (seth message-digest primitive)
-        (seth message-digest type)
-        (seth message-digest bv)
-        (seth message-digest port)
-        (seth message-digest md5)
-        (seth message-digest update-item)
-        (seth message-digest item))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/message-digest/tests.sld")
+(import (seth message-digest tests))
+(display (run-tests))
 (newline)

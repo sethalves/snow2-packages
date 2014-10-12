@@ -31,17 +31,17 @@
 ;;               (,(rnm 'warning-argument-type) ',?getnam obj ',?typnam)
 ;;               (,?getnam) ) ) ) ) ) ) )
 
-(define-syntax checked-guard
-  (lambda (frm rnm cmp)
-    ;; (##sys#check-syntax 'checked-guard frm '(_ symbol symbol . _))
-    (let ((?locnam (cadr frm))
-          (?typnam (caddr frm))
-          (?body (cdddr frm)) )
-      (let ((chknam (string->symbol (string-append "check-" (symbol->string ?typnam))))
-            (body (if (null? ?body) '() (append ?body '(obj)))) )
-        `(,(rnm 'lambda) (obj)
-          (,chknam ',?locnam obj)
-          ,@body ) ) ) ) )
+;; (define-syntax checked-guard
+;;   (lambda (frm rnm cmp)
+;;     ;; (##sys#check-syntax 'checked-guard frm '(_ symbol symbol . _))
+;;     (let ((?locnam (cadr frm))
+;;           (?typnam (caddr frm))
+;;           (?body (cdddr frm)) )
+;;       (let ((chknam (string->symbol (string-append "check-" (symbol->string ?typnam))))
+;;             (body (if (null? ?body) '() (append ?body '(obj)))) )
+;;         `(,(rnm 'lambda) (obj)
+;;           (,chknam ',?locnam obj)
+;;           ,@body ) ) ) ) )
 
 ;; ;;
 
@@ -79,7 +79,9 @@
 (define-syntax define-checked-variable
   (syntax-rules ()
     ((_ ?name ?init ?typnam ?body0 ...)
-      (define-variable ?name ?init (checked-guard ?name ?typnam ?body0 ...)) ) ) )
+      (define-variable ?name ?init
+        ;; (checked-guard ?name ?typnam ?body0 ...)
+        ) ) ) )
 
 ;; ;;
 
