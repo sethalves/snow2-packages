@@ -1,4 +1,4 @@
-TEST_DEPS="(seth gensym)"
+TEST_DEPS="(seth gensym tests)"
 include ../../../makefiles/test.make
 
 clean-extra:
