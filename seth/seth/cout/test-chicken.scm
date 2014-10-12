@@ -5,11 +5,8 @@ exec csi -s $0 "$@"
 
 (use r7rs)
 (import-for-syntax r7rs)
-
 (include "seth/cout.sld")
-(import (seth cout))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/cout/tests.sld")
+(import (seth cout tests))
+(display (run-tests))
 (newline)

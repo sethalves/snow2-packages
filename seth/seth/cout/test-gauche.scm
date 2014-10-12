@@ -6,7 +6,8 @@ exec gosh \
 -ftest -r7 $0 "$@"
 |#
 
-(import (scheme base) (scheme write) (seth cout))
-(include "test-common.scm")
-(display (main-program))
+(import (scheme base)
+        (scheme write)
+        (seth cout tests))
+(display (run-tests))
 (newline)
