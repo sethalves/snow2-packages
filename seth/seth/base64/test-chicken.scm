@@ -5,14 +5,10 @@ exec csi -s $0 "$@"
 
 (use r7rs)
 (import-for-syntax r7rs)
-
 (import (scheme base))
 (include "snow/bytevector.sld")
 (include "seth/base64.sld")
-(import (snow bytevector))
-(import (prefix (seth base64) base64:))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/base64/tests.sld")
+(import (seth base64 tests))
+(display (run-tests))
 (newline)

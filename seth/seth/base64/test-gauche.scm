@@ -6,8 +6,8 @@ exec gosh \
 -ftest -r7 $0 "$@"
 |#
 
-(import (scheme base) (scheme write) (snow bytevector))
-(import (prefix (seth base64) base64:))
-(include "test-common.scm")
-(display (main-program))
+(import (scheme base)
+        (scheme write)
+        (seth base64 tests))
+(display (run-tests))
 (newline)

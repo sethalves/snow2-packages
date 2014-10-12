@@ -5,8 +5,6 @@ CHIBI_MODULE_PATH="" exec chibi-scheme -A . -s $0 "$@"
 
 (import (scheme base)
         (scheme write)
-        (snow bytevector)
-        (prefix (seth base64) base64:))
-(include "test-common.scm")
-(display (main-program))
+        (seth base64 tests))
+(display (run-tests))
 (newline)
