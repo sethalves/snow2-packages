@@ -16,7 +16,8 @@
     (define (run-tests~)
       (log-http-to-stderr #f)
 
-      (let ((credentials (read-credentials "credentials")))
+      (let (;; (credentials (read-credentials "credentials"))
+            (credentials (get-credentials-for-s3-bucket "seth-aws-s3-test")))
         (and
 
          (bucket-exists? credentials "snow2")
