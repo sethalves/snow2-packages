@@ -7,9 +7,7 @@ exec csi -s $0 "$@"
 (import-for-syntax r7rs)
 
 (include "seth/tar.sld")
-(import (seth tar))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/tar/tests.sld")
+(import (seth tar tests))
+(display (run-tests))
 (newline)

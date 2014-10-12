@@ -1,4 +1,4 @@
-TEST_DEPS="(seth tar)"
+TEST_DEPS="(seth tar tests)"
 include ../../../makefiles/test.make
 
 clean-extra:
