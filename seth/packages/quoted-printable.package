@@ -1,13 +1,21 @@
 (package
-  (name ())
-  (url "quoted-printable.tgz")
-  (library
-    (path "seth/quoted-printable.sld")
-    (version "1.0")
-    (homepage "https://github.com/sethalves")
-    (maintainers "Seth Alves <seth@hungry.com>")
-    (authors "Alex Shinn")
-    (description
-      "RFC 2045 quoted printable encoding and decoding utilities.  This API is backwards compatible with the Gauche library rfc.quoted-printable.")
-    (license BSD-style "http://synthcode.com/license.txt")
-    ))
+ (name ())
+ (url "quoted-printable.tgz")
+ (library
+  (path "seth/quoted-printable.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Alex Shinn")
+  (description
+   "RFC 2045 quoted printable encoding and decoding utilities.  This API is backwards compatible with the Gauche library rfc.quoted-printable.")
+  (license BSD-style "http://synthcode.com/license.txt"))
+ (library
+  (path "seth/quoted-printable/tests.sld")
+  (use-for test)
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "tests for quoted-printable")
+  (license bsd)))

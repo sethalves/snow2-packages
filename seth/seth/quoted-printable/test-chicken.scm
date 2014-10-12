@@ -9,9 +9,7 @@ exec csi -s $0 "$@"
 (import (scheme base))
 (include "srfi/60.sld")
 (include "seth/quoted-printable.sld")
-(import (seth quoted-printable))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/quoted-printable/tests.sld")
+(import (seth quoted-printable tests))
+(display (run-tests))
 (newline)
