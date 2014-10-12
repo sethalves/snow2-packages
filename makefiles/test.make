@@ -15,7 +15,7 @@ REPOS=-r ../../../snow -r ../../../seth -r ../../../../r7rs-srfis
 all:
 
 link-deps:
-	$(snow2) -v -s $(REPOS) install $(TEST_DEPS)
+	$(snow2) -t -s $(REPOS) install $(TEST_DEPS)
 
 install-deps:
 	snow2 $(REPOS) install $(TEST_DEPS)

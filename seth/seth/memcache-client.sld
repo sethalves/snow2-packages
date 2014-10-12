@@ -20,7 +20,7 @@
   (import (scheme base) (scheme read) (scheme write))
   (cond-expand
    (chibi (import (only (chibi string) string-split)))
-   (chicken (import (memcached)))
+   ;; (chicken (import (memcached)))
    (gauche)
    (sagittarius)
    (else))
@@ -35,7 +35,10 @@
 
     (cond-expand
 
-     ((or chibi gauche sagittarius)
+     ((or chibi gauche sagittarius
+          ;; chicken has an egg, but the newest version isn't released. see below
+          chicken
+          )
       (define-record-type <memcache-connection>
         (make-memcache-connection
          socket read-port write-port
@@ -270,36 +273,40 @@
 
 
 
-     (chicken
-      ;; (define connect connect)
-      ;; (define disconnect disconnect)
-      (define get-entries gets)
-      (define get-entry get)
+     ;; the version of the memcached egg in subversion can be used,
+     ;; but it hasn't been released.  use the code in this file until
+     ;; it is.
 
-      (define (set-entry! mc-conn key flags expires value)
-        (set mc-conn key value flags: flags expires: expires))
+     ;; (chicken
+     ;;  ;; (define connect connect)
+     ;;  ;; (define disconnect disconnect)
+     ;;  (define get-entries gets)
+     ;;  (define get-entry get)
 
-      (define (add-entry! mc-conn key flags expires value)
-        (add mc-conn key value flags: flags expires: expires))
+     ;;  (define (set-entry! mc-conn key flags expires value)
+     ;;    (set mc-conn key value flags: flags expires: expires))
 
-      (define (replace-entry! mc-conn key flags expires value)
-        (replace mc-conn key value flags: flags expires: expires))
+     ;;  (define (add-entry! mc-conn key flags expires value)
+     ;;    (add mc-conn key value flags: flags expires: expires))
 
-      (define (cas-entry! mc-conn key flags expires value cas-unique)
-        (cas mc-conn key value cas-unique flags: flags expires: expires))
+     ;;  (define (replace-entry! mc-conn key flags expires value)
+     ;;    (replace mc-conn key value flags: flags expires: expires))
 
-      (define (append-to-entry! mc-conn key value)
-        ;; memcached ignores flags and exptime for append
-        (append-to mc-conn key value))
+     ;;  (define (cas-entry! mc-conn key flags expires value cas-unique)
+     ;;    (cas mc-conn key value cas-unique flags: flags expires: expires))
 
-      (define (prepend-to-entry! mc-conn key value)
-        ;; memcached ignores flags and exptime for prepend
-        (prepend-to mc-conn key value))
+     ;;  (define (append-to-entry! mc-conn key value)
+     ;;    ;; memcached ignores flags and exptime for append
+     ;;    (append-to mc-conn key value))
 
-      (define incr! incr)
-      (define decr! decr)
-      (define delete-entry! delete)
-      )
+     ;;  (define (prepend-to-entry! mc-conn key value)
+     ;;    ;; memcached ignores flags and exptime for prepend
+     ;;    (prepend-to mc-conn key value))
+
+     ;;  (define incr! incr)
+     ;;  (define decr! decr)
+     ;;  (define delete-entry! delete)
+     ;;  )
      )
 
     (cond-expand
