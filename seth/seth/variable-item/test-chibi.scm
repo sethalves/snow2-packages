@@ -5,7 +5,6 @@ CHIBI_MODULE_PATH="" exec chibi-scheme -A . -s $0 "$@"
 
 (import (scheme base)
         (scheme write)
-        (seth variable-item))
-(include "test-common.scm")
-(display (main-program))
+        (seth variable-item tests))
+(display (run-tests))
 (newline)
