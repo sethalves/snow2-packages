@@ -5,7 +5,6 @@ exec sash -A . -F .sld $0 "$@"
 
 (import (scheme base)
         (scheme write)
-        (seth deep-copy))
-(include "test-common.scm")
-(display (main-program))
+        (seth deep-copy tests))
+(display (run-tests))
 (newline)
