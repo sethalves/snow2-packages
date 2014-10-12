@@ -1,4 +1,4 @@
-TEST_DEPS="(seth http)"
+TEST_DEPS="(seth http tests)"
 include ../../../makefiles/test.make
 
 clean-extra:

@@ -747,8 +747,8 @@
     (name ())
     (version "1.0")
     (url "http.tgz")
-    (size 20480)
-    (checksum (md5 "fbe001c23adfaa044b0bff905d3c12de"))
+    (size 28672)
+    (checksum (md5 "6536bd7dafa7b816193ecc5b562dabb0"))
     (library
       (name (seth http))
       (path "seth/http.sld")
@@ -759,7 +759,6 @@
       (description "http")
       (license bsd)
       (depends
-        (snow gauche-extio-utils)
         (srfi 1)
         (srfi 14)
         (snow bytevector)
@@ -772,7 +771,18 @@
         (seth uri)
         (seth port-extras)
         (seth network-socket))
-      (use-for final)))
+      (use-for final))
+    (library
+      (name (seth http tests))
+      (path "seth/http/tests.sld")
+      (version "1.0")
+      (homepage "https://github.com/sethalves")
+      (maintainers "Seth Alves <seth@hungry.com>")
+      (authors "Seth Alves <seth@hungry.com>")
+      (description "tests for http")
+      (license bsd)
+      (depends (seth http))
+      (use-for test)))
   (package
     (name ())
     (version "1.0")

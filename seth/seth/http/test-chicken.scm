@@ -5,10 +5,7 @@ exec csi -s $0 "$@"
 
 (use r7rs)
 (import-for-syntax r7rs)
-(import (scheme base)
-        (scheme time)
-        (scheme file))
-
+(import (scheme base))
 (include "srfi/60.sld")
 (include "snow/bytevector.sld")
 (include "snow/binio.sld")
@@ -21,12 +18,7 @@ exec csi -s $0 "$@"
 (include "seth/network-socket.sld")
 (include "seth/uri.sld")
 (include "seth/http.sld")
-(import (snow binio))
-(import (snow extio))
-(import (seth port-extras))
-(import (seth http))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/http/tests.sld")
+(import (seth http tests))
+(display (run-tests))
 (newline)
