@@ -24,13 +24,7 @@ exec csi -s $0 "$@"
 (include "seth/http.sld")
 (include "seth/aws/common.sld")
 (include "seth/aws/s3.sld")
-(import (srfi 13)
-        (only (seth http) log-http-to-stderr)
-        (seth crypt md5)
-        (seth aws common)
-        (seth aws s3))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/aws/tests.sld")
+(import (seth aws tests))
+(display (run-tests))
 (newline)
