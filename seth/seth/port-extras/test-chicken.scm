@@ -11,9 +11,7 @@ exec csi -s $0 "$@"
 
 (include "snow/bytevector.sld")
 (include "seth/port-extras.sld")
-(import (seth port-extras))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/port-extras/tests.sld")
+(import (seth port-extras tests))
+(display (run-tests))
 (newline)
