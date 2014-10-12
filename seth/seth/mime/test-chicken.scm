@@ -13,9 +13,7 @@ exec csi -s $0 "$@"
 (include "seth/quoted-printable.sld")
 (include "seth/base64.sld")
 (include "seth/mime.sld")
-(import (seth mime))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/mime/tests.sld")
+(import (seth mime tests))
+(display (run-tests))
 (newline)
