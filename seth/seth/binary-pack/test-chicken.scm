@@ -8,10 +8,8 @@ exec csi -s $0 "$@"
 (import (scheme base))
 (include "snow/bytevector.sld")
 (include "seth/binary-pack.sld")
+(include "seth/binary-pack/tests.sld")
 (import (snow bytevector))
-(import (prefix (seth binary-pack) binary:))
-
-(include "test-common.scm")
-
-(display (main-program))
+(import (seth binary-pack tests))
+(display (run-tests))
 (newline)
