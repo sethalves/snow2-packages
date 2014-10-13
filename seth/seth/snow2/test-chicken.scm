@@ -24,10 +24,12 @@ exec csi -s $0 "$@"
 (include "seth/string-read-write.sld")
 (include "seth/uri.sld")
 (include "seth/quoted-printable.sld")
+(include "seth/deep-copy.sld")
 (include "seth/base64.sld")
 (include "seth/mime.sld")
 (include "seth/http.sld")
 (include "seth/temporary-file.sld")
+(include "seth/xml/sxml-serializer.sld")
 (include "seth/xml/sxpath.sld")
 (include "seth/xml/ssax.sld")
 (include "seth/aws/common.sld")
@@ -37,11 +39,7 @@ exec csi -s $0 "$@"
 (include "seth/snow2/r7rs-library.sld")
 (include "seth/snow2/manage.sld")
 (include "seth/snow2/client.sld")
-
-
-(import (seth snow2 client))
-
-(include "test-common.scm")
-
-(display (main-program))
+(include "seth/snow2/tests.sld")
+(import (seth snow2 tests))
+(display (run-tests))
 (newline)

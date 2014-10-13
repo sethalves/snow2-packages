@@ -74,7 +74,7 @@
                                                     (string-index line #\:))))
                      (if (not position-of-delimiter)
                          ;; if neither = nor : is found, just ignore the line
-                         (loop (access-key-id secret-access-key))
+                         (loop access-key-id secret-access-key)
                          (let ((secret-or-id
                                 ;; chop off anything before : or = and trim
                                 (string-trim-both
