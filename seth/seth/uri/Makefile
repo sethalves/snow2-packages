@@ -1,4 +1,4 @@
-TEST_DEPS="(seth uri)" "(srfi 29)"
+TEST_DEPS="(seth uri)"
 include ../../../makefiles/test.make
 
 clean-extra:
