@@ -174,7 +174,15 @@
                     )))))
 
 
-       (let* ((p (open-binary-input-file "Makefile"))
+       (let ((p (open-output-file "tmp-test-extio")))
+         (write "TEST_DEPS=\"(snow extio tests)\"\n" p)
+         (write "include ../../../makefiles/test.make\n" p)
+         (write "\n" p)
+         (write "clean-extra:\n" p)
+         (write "\n" p)
+         (close-output-port p))
+
+       (let* ((p (open-binary-input-file "tmp-test-extio"))
               (t0 (snow-port-position p)))
          (snow-set-port-position-from-end! p 15)
          (let ((t1 (snow-port-position p)))
@@ -186,11 +194,12 @@
                (close-input-port p)
                ;; (display (list t0 t1 t2 t3)) (newline)
                (and (= t0 0)
-                    (= t1 67)
-                    (= t2 77)
-                    (= t3 72)
+                    (= t1 85)
+                    (= t2 95)
+                    (= t3 90)
                     )))))
 
+       (delete-file "tmp-test-extio")
 
 
        #t))))

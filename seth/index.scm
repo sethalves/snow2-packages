@@ -14,7 +14,7 @@
     (version "1.0")
     (url "uuid.tgz")
     (size 8704)
-    (checksum (md5 "7e9e605904b4ed3f5905023c810b97fb"))
+    (checksum (md5 "bef8a8739a226d2c8203810694234736"))
     (library
       (name (seth uuid))
       (path "seth/uuid.sld")
@@ -35,14 +35,14 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for uuid")
       (license bsd)
-      (depends (seth uuid))
+      (depends (srfi 27) (seth uuid))
       (use-for test)))
   (package
     (name ())
     (version "1.0")
     (url "binary-pack.tgz")
     (size 8192)
-    (checksum (md5 "d07fc171badf892a55c9f5ab9d51f7f7"))
+    (checksum (md5 "04db91d4f7f17159d164e8ef8cb87881"))
     (library
       (name (seth binary-pack))
       (path "seth/binary-pack.sld")
@@ -63,7 +63,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for binary-pack")
       (license bsd)
-      (depends (seth binary-pack))
+      (depends (snow bytevector) (seth binary-pack))
       (use-for test)))
   (package
     (name ())
@@ -97,8 +97,8 @@
     (name ())
     (version "1.0")
     (url "aws.tgz")
-    (size 24064)
-    (checksum (md5 "597c49ed3872d8c683bf58e58d5b1d07"))
+    (size 26624)
+    (checksum (md5 "a4d3776e5c8666d5090358617607819f"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -152,7 +152,14 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for aws")
       (license bsd)
-      (depends (seth http) (seth crypt md5))
+      (depends
+        (srfi 13)
+        (snow bytevector)
+        (seth base64)
+        (seth http)
+        (seth crypt md5)
+        (seth aws common)
+        (seth aws s3))
       (use-for test)))
   (package
     (name ())
@@ -186,8 +193,8 @@
     (name ())
     (version "1.0")
     (url "xml.tgz")
-    (size 435712)
-    (checksum (md5 "56717bbf0e63d399350753e129980814"))
+    (size 436224)
+    (checksum (md5 "f80c6ada686a64c9df895aeff6c1afdc"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
@@ -241,7 +248,14 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for xml")
       (license bsd)
-      (depends (snow extio) (snow assert) (seth xml ssax) (seth xml sxpath))
+      (depends
+        (srfi 1)
+        (srfi 13)
+        (snow extio)
+        (snow assert)
+        (seth xml ssax)
+        (seth xml sxpath)
+        (seth xml sxml-serializer))
       (use-for test)))
   (package
     (name ())
@@ -375,7 +389,7 @@
     (version "1.0")
     (url "string-read-write.tgz")
     (size 7680)
-    (checksum (md5 "5af1d625be15763407929004fdf3aaa4"))
+    (checksum (md5 "b634c3a3a7e5d272699501e9df32f991"))
     (library
       (name (seth string-read-write))
       (path "seth/string-read-write.sld")
@@ -403,7 +417,7 @@
     (version "1.0")
     (url "temporary-file.tgz")
     (size 9216)
-    (checksum (md5 "84928655eb02513c3a6ca8e229048e96"))
+    (checksum (md5 "d3eb0bb5cda84c35188a2a93b01ba313"))
     (library
       (name (seth temporary-file))
       (path "seth/temporary-file.sld")
@@ -487,7 +501,7 @@
     (version "1.0")
     (url "crypt.tgz")
     (size 136192)
-    (checksum (md5 "68049ed3b0f80ff5f9a7fa8dacc3ccd3"))
+    (checksum (md5 "111c5cba1bbb1f4355d44c8363490e2f"))
     (library
       (name (seth crypt md5))
       (path "seth/crypt/md5.sld")
@@ -557,7 +571,7 @@
     (version "1.0")
     (url "snow2-utils.tgz")
     (size 131584)
-    (checksum (md5 "6d9154a6861c41c88e84241ca756f89d"))
+    (checksum (md5 "ff1d4e57d9e7ff791099e1e5fcd8f06a"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -678,14 +692,14 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for snow2-utils")
       (license bsd)
-      (depends)
+      (depends (seth snow2 client))
       (use-for test)))
   (package
     (name ())
     (version "1.0")
     (url "memcache-client.tgz")
     (size 20992)
-    (checksum (md5 "ebaff03af8c07d3ee8e067edda1af764"))
+    (checksum (md5 "d652b3aa20a7d711e97f57e03e57521b"))
     (library
       (name (seth memcache-client))
       (path "seth/memcache-client.sld")
@@ -719,7 +733,7 @@
     (version "1.0")
     (url "network-socket.tgz")
     (size 37888)
-    (checksum (md5 "267a5b5e85c1c9a36034030a7c0a53d7"))
+    (checksum (md5 "96f5236393728c1dd91f1bbc80610d85"))
     (library
       (name (seth network-socket))
       (path "seth/network-socket.sld")
@@ -787,7 +801,7 @@
     (version "1.0")
     (url "zlib.tgz")
     (size 10240)
-    (checksum (md5 "3df9fcbd739d1e573d074a6d2d1121d0"))
+    (checksum (md5 "699b490cbe7e80fa04b3f36fcc6f76b6"))
     (library
       (name (seth zlib))
       (path "seth/zlib.sld")
@@ -820,7 +834,7 @@
     (version "1.0")
     (url "gensym.tgz")
     (size 6144)
-    (checksum (md5 "0d815c69f64168e9a5c2d2caaf3734d8"))
+    (checksum (md5 "d3f4936a656c32e9ad1cf65faf2ec5aa"))
     (library
       (name (seth gensym))
       (path "seth/gensym.sld")
@@ -848,7 +862,7 @@
     (version "1.0")
     (url "uri.tgz")
     (size 76288)
-    (checksum (md5 "493d572e06f4f97df8114c0aa5b85036"))
+    (checksum (md5 "4725d31e1d563b2fd57fc3509907f894"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
@@ -882,7 +896,7 @@
     (version "1.0")
     (url "base64.tgz")
     (size 31744)
-    (checksum (md5 "51499be9d8935b3cdfcc60d5ba42452f"))
+    (checksum (md5 "f252dac22a8003a42231241d8b5ba9ba"))
     (library
       (name (seth base64))
       (path "seth/base64.sld")
@@ -903,14 +917,14 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for base64")
       (license bsd)
-      (depends (seth base64))
+      (depends (snow bytevector) (seth base64))
       (use-for test)))
   (package
     (name ())
     (version "1.0")
     (url "http.tgz")
     (size 28672)
-    (checksum (md5 "6536bd7dafa7b816193ecc5b562dabb0"))
+    (checksum (md5 "7ac68924cbeb02a6cbf858f0dee9cf7d"))
     (library
       (name (seth http))
       (path "seth/http.sld")
@@ -943,7 +957,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for http")
       (license bsd)
-      (depends (seth http))
+      (depends (snow binio) (snow extio) (seth port-extras) (seth http))
       (use-for test)))
   (package
     (name ())
@@ -979,7 +993,7 @@
     (version "1.0")
     (url "mime.tgz")
     (size 23040)
-    (checksum (md5 "017c4bd709eb55a7f25c343c34910f55"))
+    (checksum (md5 "08ed98830254ba5909096f828c21ed93"))
     (library
       (name (seth mime))
       (path "seth/mime.sld")
