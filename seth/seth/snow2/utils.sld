@@ -722,7 +722,6 @@
                   (cons updated-package
                         (snow2-repository-packages repository)))
                  (set-snow2-repository-dirty! repository #t)
-                 (set-snow2-package-dirty! updated-package #t)
                  updated-package)
                 (else
                  ;; we found the package to update

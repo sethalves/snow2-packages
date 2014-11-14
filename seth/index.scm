@@ -5,10 +5,6 @@
     (name "Snow Repository")
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/index.scm")
     (trust 1.0))
-  (sibling
-    (name "Chibi Repository")
-    (url "http://snow-fort.org/pkg/repo")
-    (trust 1.0))
   (package
     (name ())
     (version "1.0")
@@ -140,7 +136,6 @@
         (seth crypt hmac-sha-1)
         (seth uri)
         (seth base64)
-        (srfi gauche-95)
         (srfi 14))
       (use-for final))
     (library
@@ -570,8 +565,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 131584)
-    (checksum (md5 "ff1d4e57d9e7ff791099e1e5fcd8f06a"))
+    (size 131072)
+    (checksum (md5 "3ea04ccecf56483e35ce3fa813c8a836"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -628,8 +623,7 @@
         (seth snow2 utils)
         (seth snow2 r7rs-library)
         (srfi 95)
-        (seth string-read-write)
-        (srfi gauche-95))
+        (seth string-read-write))
       (use-for final))
     (library
       (name (seth snow2 types))
