@@ -537,14 +537,6 @@
 
 
       (define (get-test-lib-names test-libs)
-        ;; (cond (verbose
-        ;;        (newline)
-        ;;        (for-each
-        ;;         (lambda (test-lib)
-        ;;           (write (snow2-library-path test-lib))
-        ;;           (display " --> ")
-        ;;           (write (snow2-library-name test-lib)))
-        ;;         test-libs)))
         (map snow2-library-name test-libs))
 
       (define (run-tests env)
@@ -555,16 +547,7 @@
                         (write (error-object-message err))
                         (newline)
                         (write (error-object-irritants err))
-                        (newline)
-                        ;; (raise err)
-                        ))))
-
-           ;; (let ((output
-           ;;        (with-output-to-string
-           ;;          (lambda () (set! result (eval '(run-tests) env))))
-           ;;        ))
-           ;;   ;; ... if verbose, write output?
-           ;;   #t)
+                        (newline)))))
 
            (set! result (eval '(run-tests) env)))
           result))
