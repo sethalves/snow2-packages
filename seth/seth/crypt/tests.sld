@@ -3,7 +3,6 @@
   (import (scheme base)
           (scheme write)
           (snow bytevector)
-          (snow bytevector)
           (seth crypt sha-1)
           (seth crypt sha-2)
           (seth crypt md5)
