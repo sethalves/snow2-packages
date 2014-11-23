@@ -1,9 +1,13 @@
 (repository
   (url "http://snow2.s3-website-us-east-1.amazonaws.com/index.scm")
-  (name "Seth Repository")
+  (name "Snow2 Repository")
   (sibling
     (name "Snow Repository")
     (url "http://snow-repository.s3-website-us-east-1.amazonaws.com/index.scm")
+    (trust 1.0))
+  (sibling
+    (name "Chibi Repository")
+    (url "http://snow-fort.s3-website-us-east-1.amazonaws.com/repo.scm")
     (trust 1.0))
   (package
     (name ())
@@ -94,7 +98,7 @@
     (version "1.0")
     (url "aws.tgz")
     (size 26624)
-    (checksum (md5 "a4d3776e5c8666d5090358617607819f"))
+    (checksum (md5 "af9861b311eb766e6ae5131c7b4f3343"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -496,7 +500,7 @@
     (version "1.0")
     (url "crypt.tgz")
     (size 136192)
-    (checksum (md5 "111c5cba1bbb1f4355d44c8363490e2f"))
+    (checksum (md5 "42cd92cec8858b71b4968fd62d2ab57e"))
     (library
       (name (seth crypt md5))
       (path "seth/crypt/md5.sld")
@@ -565,8 +569,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 131072)
-    (checksum (md5 "3ea04ccecf56483e35ce3fa813c8a836"))
+    (size 131584)
+    (checksum (md5 "a0412e7185f2f80d26793c66e9548348"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -634,7 +638,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "snow2-utils")
       (license bsd)
-      (depends (srfi 1) (srfi 13) (seth uri))
+      (depends (srfi 1) (srfi 13) (seth uri) (seth string-read-write))
       (use-for final))
     (library
       (name (seth snow2 utils))
