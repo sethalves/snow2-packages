@@ -241,7 +241,7 @@
     (version "1.0")
     (url "extio.tgz")
     (size 51712)
-    (checksum (md5 "e32aed472fdcfc2b2974d5228786b760"))
+    (checksum (md5 "fb5cd6bd5017fea5e3923d462d556a80"))
     (library
       (name (snow extio))
       (path "snow/extio.sld")
