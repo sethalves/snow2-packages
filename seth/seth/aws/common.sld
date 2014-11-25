@@ -29,10 +29,6 @@
           )
 
   (cond-expand
-   (gauche (import (srfi gauche-95)))
-   (else))
-
-  (cond-expand
    (chibi (import (chibi char-set)))
    (else (import (srfi 14))))
   (begin
