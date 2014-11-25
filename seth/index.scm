@@ -98,7 +98,7 @@
     (version "1.0")
     (url "aws.tgz")
     (size 26624)
-    (checksum (md5 "af9861b311eb766e6ae5131c7b4f3343"))
+    (checksum (md5 "7220cf4e284279b12003d03bc027e837"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -570,7 +570,7 @@
     (version "1.0")
     (url "snow2-utils.tgz")
     (size 131584)
-    (checksum (md5 "a0412e7185f2f80d26793c66e9548348"))
+    (checksum (md5 "83e8d116dd0f200a98eee6dd3117c5fd"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -731,7 +731,7 @@
     (version "1.0")
     (url "network-socket.tgz")
     (size 37888)
-    (checksum (md5 "96f5236393728c1dd91f1bbc80610d85"))
+    (checksum (md5 "daba9f765c17e161891c646c58cdc0b0"))
     (library
       (name (seth network-socket))
       (path "seth/network-socket.sld")
