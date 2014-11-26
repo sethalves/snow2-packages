@@ -65,9 +65,14 @@
     (define-record-type <genport>
       (make-genport end read write)
       genport?
-      (end genport-end set-genport-end!)
-      (read genport-read set-genport-read!)
-      (write genport-write set-genport-write!))
+      (end genport-end
+           ;; set-genport-end!
+           )
+      (read genport-read 
+            ;; set-genport-read!
+            )
+      (write genport-write ;; set-genport-write!
+             ))
 
     (define (genport-input-port? genport)
       (and (genport? genport)

@@ -40,9 +40,10 @@
   (import (scheme base)
           (scheme write)
           (scheme file)
-          ;; (snow bytevector)
-          ;; (snow random)
-          (srfi 13))
+          (except (srfi 13)
+                  string-copy string-map string-for-each
+                  string-fill! string-copy! string->list
+                  string-upcase string-downcase))
   (cond-expand
    (chibi
     ;; http://synthcode.com/scheme/chibi/lib/chibi/filesystem.html
@@ -187,7 +188,9 @@
     (cond-expand
      ((or chibi chicken foment sagittarius))
      (gauche
-      (define current-directory sys-getcwd)))
+      (define current-directory sys-getcwd))
+     (kawa
+      (define current-directory curent-path)))
 
 
     (cond-expand
@@ -195,7 +198,9 @@
      ((or foment sagittarius)
       (define change-directory current-directory))
      (gauche
-      (define change-directory sys-chdir)))
+      (define change-directory sys-chdir))
+     (kawa
+      (define change-directory curent-path)))
 
 
     (cond-expand

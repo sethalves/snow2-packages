@@ -88,7 +88,7 @@
 
     (cond-expand
 
-     ((or chibi chicken foment gauche sagittarius)
+     ((or chibi chicken foment gauche kawa sagittarius)
       (define (latin-1->string bytes)
         (list->string
          (map integer->char
@@ -155,7 +155,7 @@
 
 
     (cond-expand
-     ((or chibi chicken foment gauche sagittarius)
+     ((or chibi chicken foment gauche kawa sagittarius)
       ;; these didn't make it into final r7rs.
       (define (bytevector-copy-partial bv start end)
         (let ((res (make-bytevector (- end start))))

@@ -77,13 +77,13 @@
           (read-char port)))
 
 
-      (define input-parse:init-buffer
+      (define input-parse%init-buffer
         (let ((buffer (make-string 512)))
           (lambda () buffer)))
 
 
       (define (next-token prefix-skipped-chars break-chars comment port)
-        (let outer ((buffer (input-parse:init-buffer)) (filled-buffer-l '())
+        (let outer ((buffer (input-parse%init-buffer)) (filled-buffer-l '())
                     (c (skip-while prefix-skipped-chars port)))
           (let ((curr-buf-len (string-length buffer)))
             (let loop ((i 0) (c c))
@@ -106,7 +106,7 @@
 
 
       (define (next-token-of incl-list/pred port)
-        (let* ((buffer (input-parse:init-buffer))
+        (let* ((buffer (input-parse%init-buffer))
                (curr-buf-len (string-length buffer)))
           (let outer ((buffer buffer) (filled-buffer-l '()))
             (let loop ((i 0))
@@ -172,7 +172,7 @@
       ;;
       ;; This code is in the public domain.
 
-      (define (MISCIO:find-string-from-port? str <input-port> . max-no-char)
+      (define (MISCIO%find-string-from-port? str <input-port> . max-no-char)
         (set! max-no-char (if (null? max-no-char) #f (car max-no-char)))
         (letrec
             ((no-chars-read 0)
@@ -226,7 +226,7 @@
              )
           (match-1st-char)))
 
-      (define find-string-from-port? MISCIO:find-string-from-port?)
+      (define find-string-from-port? MISCIO%find-string-from-port?)
 
       ))
 

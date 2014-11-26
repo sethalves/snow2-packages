@@ -70,8 +70,19 @@
 
        (lset= equal?
               (snow-directory-subfiles "." '(directory))
-              '("." "./snow" "./snow/filesys" "./srfi" "./srfi/14" "./srfi/1"
-                "./srfi/60" "./srfi/srfi-1" "./srfi/13" "./chibi"))
+              '("."
+                "./chibi"
+                "./snow"
+                "./snow/bytevector"
+                "./snow/filesys"
+                "./srfi"
+                "./srfi/srfi-1"
+                "./srfi-tests"
+                "./srfi-tests/1"
+                "./srfi-tests/13"
+                "./srfi-tests/14"
+                "./srfi-tests/60"
+                ))
 
        (snow-filename-relative? "../ok/fuh")
        (not (snow-filename-relative? "/ok/fuh"))

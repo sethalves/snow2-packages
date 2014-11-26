@@ -35,7 +35,10 @@
    )
   (import (snow bytevector)
           (srfi 60)
-          (srfi 13)
+          (except (srfi 13)
+                  string-copy string-map string-for-each
+                  string-fill! string-copy! string->list
+                  string-upcase string-downcase)
           )
   (begin
 
@@ -47,7 +50,7 @@
      ((or chicken)
       (define snow-read-string read-string))
 
-     ((or chibi foment gauche sagittarius)
+     ((or chibi foment gauche kawa sagittarius)
       (define (read-string-until-eof port)
         (let loop ((strings '()))
           (let ((s (read-string 4000 port)))
@@ -939,6 +942,7 @@
        (chibi (file-position p))
        (chicken (file-position p))
        (gauche (port-tell p))
+       (kawa (file-position p))
        ((or foment sagittarius) (port-position p))))
 
     (define (snow-set-port-position! port pos)
@@ -946,6 +950,7 @@
        (chibi (set-file-position! port pos seek/set))
        (chicken (set-file-position! port pos))
        (gauche (port-seek port pos SEEK_SET))
+       (kawa (port-seek port pos SEEK_SET))
        ((or foment sagittarius) (set-port-position! port pos))))
 
     (define (snow-set-port-position-from-current! port offset)
@@ -953,6 +958,7 @@
        (chibi (set-file-position! port offset seek/cur))
        (chicken (set-file-position! port offset seek/cur))
        (gauche (port-seek port offset SEEK_CUR))
+       (kawa (port-seek port offset SEEK_CUR))
        ((or foment sagittarius) (set-port-position!
                                  port (+ (port-position port) offset)))))
 
@@ -962,6 +968,7 @@
          (chibi (set-file-position! port offset seek/end))
          (chicken (set-file-position! port offset seek/end))
          (gauche (port-seek port offset SEEK_END))
+         (kawa (port-seek port offset SEEK_END))
          ((or foment sagittarius)
           (set-port-position! port offset 'end))
           ;; ;; XXX is there a better way?
