@@ -2,8 +2,8 @@
 #
 #
 
-snow2=~/src/snow2/snow2-client/snow2-client-chibi.scm
-# snow2=/usr/local/bin/snow2
+# snow2=~/src/snow2/snow2-client/snow2-client-chibi.scm
+snow2=snow2
 
 # PACKAGEDIR=$(shell dirname $$PWD)
 # PACKAGENAME=$(shell basename $(PACKAGEDIR))
