@@ -68,6 +68,10 @@
     (import (snow gauche-filesys-utils)
             (gauche fileutil) (file util)
             (srfi 14)))
+   (kawa
+    (import (only (ports) current-path)
+            (files)
+            (srfi 1)))
    (sagittarius
     ;; http://ktakashi.github.io/sagittarius-ref.html#G1146
     (import (sagittarius)
@@ -85,7 +89,7 @@
 
 
     (cond-expand
-     (chibi
+     ((or chibi kawa)
       (define (snow-directory-files dir)
         (filter (lambda (ent)
                   (not (or (equal? ent ".")
@@ -118,7 +122,7 @@
 
     (define (snow-file-directory? filename)
       (cond-expand
-       ((or chibi foment sagittarius)
+       ((or chibi foment kawa sagittarius)
         (file-directory? filename))
        (chicken
         (directory? filename))
@@ -133,24 +137,32 @@
        (chicken
         (regular-file? filename))
        (gauche
-        (eq? (file-type filename) 'regular))))
+        (eq? (file-type filename) 'regular))
+       (kawa
+        (error "write snow-file-regular?"))
+       ))
 
 
-    (define (snow-file-symbolic-link? filename)
-      (cond-expand
-       (chibi
-        (file-link? filename))
-       (chicken
-        (symbolic-link? filename))
-       (gauche
-        (eq? (file-type filename :follow-link? #f) 'symlink))
-       ((or foment sagittarius)
-        (file-symbolic-link? filename))))
+    (cond-expand
+     (kawa
+      (define (snow-file-symbolic-link? filename :: filepath)
+        (java.nio.file.Files:isSymbolicLink (filename:toNPath))))
+     (else
+      (define (snow-file-symbolic-link? filename)
+        (cond-expand
+         (chibi
+          (file-link? filename))
+         (chicken
+          (symbolic-link? filename))
+         (gauche
+          (eq? (file-type filename :follow-link? #f) 'symlink))
+         ((or foment sagittarius)
+          (file-symbolic-link? filename))))))
 
 
     (define (snow-rename-file orig-filename new-filename)
       (cond-expand
-       ((or chibi chicken foment sagittarius)
+       ((or chibi chicken foment kawa sagittarius)
         (rename-file orig-filename new-filename))
        (gauche
         (move-file orig-filename new-filename))))
@@ -160,7 +172,7 @@
       (cond-expand
        (chibi
         (create-directory* dir))
-       ((or chicken foment sagittarius)
+       ((or chicken foment kawa sagittarius)
         (create-directory dir))
        (gauche
         (make-directory* dir))))
@@ -171,18 +183,30 @@
        ((or chibi chicken foment sagittarius)
         (delete-directory dir))
        (gauche
-        (remove-directory* dir))))
+        (remove-directory* dir))
+       (kawa
+        (delete-file dir))
+       ))
 
 
-    (define (snow-create-symbolic-link filename linkname)
-      (cond-expand
-       (chibi
-        (or (symbolic-link-file filename linkname)
-            (error "snow-create-symbolic-link failed" filename linkname)))
-       ((or chicken foment sagittarius)
-        (create-symbolic-link filename linkname))
-       (gauche
-        (sys-symlink filename linkname))))
+    (cond-expand
+     (kawa
+      (define (snow-create-symbolic-link
+               filename :: filepath
+               linkname :: filepath)
+        (java.nio.file.Files:createSymbolicLink (linkname:toNPath)
+                                                (filename:toNPath))))
+     (else
+      (define (snow-create-symbolic-link filename linkname)
+        (cond-expand
+         (chibi
+          (or (symbolic-link-file filename linkname)
+              (error "snow-create-symbolic-link failed" filename linkname)))
+         ((or chicken foment sagittarius)
+          (create-symbolic-link filename linkname))
+         (gauche
+          (sys-symlink filename linkname))))))
+
 
 
     (cond-expand
@@ -190,7 +214,9 @@
      (gauche
       (define current-directory sys-getcwd))
      (kawa
-      (define current-directory curent-path)))
+      (define (current-directory)
+        ((current-path):toString))))
+
 
 
     (cond-expand
@@ -200,26 +226,44 @@
      (gauche
       (define change-directory sys-chdir))
      (kawa
-      (define change-directory curent-path)))
+      (define change-directory current-path)))
 
 
     (cond-expand
      ((or chibi chicken foment gauche)
       (define snow-file-size file-size))
      ((or foment sagittarius)
-      (define snow-file-size file-size-in-bytes)))
+      (define snow-file-size file-size-in-bytes))
+     (kawa
+      ;; XXX how to get file-size in kawa?
+      (define (snow-file-size filename)
+        (let ((h (open-binary-input-file filename)))
+        (let loop ((b (read-u8 h))
+                   (len 0))
+          (cond ((eof-object? b)
+                 (close-input-port h)
+                 len)
+                (else
+                 (loop (read-u8 h) (+ len 1)))))))
+      ))
 
 
-    (define (snow-file-mtime filename)
-      (cond-expand
-       (chibi
-        (exact (floor (+ 1262271600 (file-modification-time filename)))))
-       (chicken
-        (exact (floor (vector-ref (file-stat filename) 8))))
-       (gauche
-        (exact (floor (file-mtime filename))))
-       ((or foment sagittarius)
-        (exact (floor (file-stat-mtime filename))))))
+    (cond-expand
+     (kawa
+      (define (snow-file-mtime filename :: filepath)
+        ((java.nio.file.Files:getLastModifiedTime
+          (filename:toNPath)):toMillis)))
+     (else
+      (define (snow-file-mtime filename)
+        (cond-expand
+         (chibi
+          (exact (floor (+ 1262271600 (file-modification-time filename)))))
+         (chicken
+          (exact (floor (vector-ref (file-stat filename) 8))))
+         (gauche
+          (exact (floor (file-mtime filename))))
+         ((or foment sagittarius)
+          (exact (floor (file-stat-mtime filename))))))))
 
 
 
