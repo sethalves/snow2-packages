@@ -235,17 +235,8 @@
      ((or foment sagittarius)
       (define snow-file-size file-size-in-bytes))
      (kawa
-      ;; XXX how to get file-size in kawa?
-      (define (snow-file-size filename)
-        (let ((h (open-binary-input-file filename)))
-        (let loop ((b (read-u8 h))
-                   (len 0))
-          (cond ((eof-object? b)
-                 (close-input-port h)
-                 len)
-                (else
-                 (loop (read-u8 h) (+ len 1)))))))
-      ))
+      (define (snow-file-size filename :: filepath)
+        ((filename:toFile):length))))
 
 
     (cond-expand
