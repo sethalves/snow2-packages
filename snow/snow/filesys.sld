@@ -64,8 +64,7 @@
            create-symbolic-link file-symbolic-link? file-size
            create-directory current-directory)))
    (gauche
-    ;; (import (only (gauche) symlink))
-    (import (snow gauche-filesys-utils)
+    (import (only (gauche base) sys-symlink sys-getcwd sys-chdir)
             (gauche fileutil) (file util)
             (srfi 14)))
    (kawa

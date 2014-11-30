@@ -14,7 +14,6 @@
           random-bignum
           random-fixnum)
   (import (scheme base)
-          (scheme write) ;; XXX
           (srfi 27)
           (snow bytevector)
           (snow binio)

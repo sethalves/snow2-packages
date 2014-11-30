@@ -166,16 +166,16 @@
 ;; we already know the characters before, they are in the STR itself, so
 ;; we don't need a special buffer for that.
 
-;;; "MISCIO" Search for string from port.
-      ;; Written 1995 by Oleg Kiselyov (oleg@ponder.csci.unt.edu)
-      ;; Modified 1996 by A. Jaffer (jaffer@ai.mit.edu)
-      ;;
-      ;; This code is in the public domain.
+;; "MISCIO" Search for string from port.
+;; Written 1995 by Oleg Kiselyov (oleg@ponder.csci.unt.edu)
+;; Modified 1996 by A. Jaffer (jaffer@ai.mit.edu)
+;;
+;; This code is in the public domain.
 
-      (define (MISCIO%find-string-from-port? str <input-port> . max-no-char)
-        (set! max-no-char (if (null? max-no-char) #f (car max-no-char)))
+      (define (MISCIO%find-string-from-port? str <input-port> . max-no-char-oa)
         (letrec
-            ((no-chars-read 0)
+            ((max-no-char (if (null? max-no-char-oa) #f (car max-no-char-oa)))
+             (no-chars-read 0)
              (my-peek-char			; Return a peeked char or #f
               (lambda () (and (or (not max-no-char) (< no-chars-read max-no-char))
                               (let ((c (peek-char <input-port>)))

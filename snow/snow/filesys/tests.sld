@@ -73,7 +73,6 @@
               '("."
                 "./chibi"
                 "./snow"
-                "./snow/bytevector"
                 "./snow/filesys"
                 "./srfi"
                 "./srfi/srfi-1"

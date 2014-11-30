@@ -2,6 +2,7 @@
 #| -*- scheme -*-
 exec /usr/local/bin/kawa \
   -Dkawa.import.path="./*.sld" \
+  -Dkawa.include.path='|:.' \
   $0 "$@"
 |#
 

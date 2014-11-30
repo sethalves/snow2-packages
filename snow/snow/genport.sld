@@ -49,7 +49,10 @@
                     (ports)
                     (srfi 4)))
    (foment)
-   (gauche (import (snow gauche-genport-utils)))
+   (gauche (import
+            ;; (snow gauche-genport-utils)
+            (only (gauche base) make)
+            (gauche vport)))
    (sagittarius))
   (begin
 
@@ -61,6 +64,12 @@
     ;; make-generated-input-port in (chibi io)
 
     ;; sagittarius has make-custom-input-port ?  only shows up in a test
+
+    (cond-expand
+     (gauche
+      (define (make-virutal-input-port . args)
+        (apply make <virtual-input-port> args))))
+
 
     (define-record-type <genport>
       (make-genport end read write)

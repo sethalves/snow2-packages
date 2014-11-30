@@ -51,8 +51,8 @@
    (chibi (import (chibi io)))
    (chicken (import (chicken) (srfi 4)))
    (foment)
-   (gauche (import (gauche uvector)
-                   (snow gauche-bv-string-utils)))
+   (gauche (import (only (gauche base) string-size string-byte-ref)
+                   (gauche uvector)))
    (sagittarius (import (util bytevector)))
    )
   (begin

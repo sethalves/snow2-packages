@@ -19,7 +19,15 @@
                     (only (posix) file-position set-file-position!
                           seek/cur seek/end)
                     (ports)))
-   (gauche (import (snow gauche-extio-utils)))
+   (gauche (import
+            (gauche vport)
+            (only (gauche base)
+                  make
+                  port-tell
+                  port-seek
+                  SEEK_SET
+                  SEEK_CUR
+                  SEEK_END)))
    (sagittarius (import
                  (only (rnrs)
                        port-position
@@ -41,6 +49,12 @@
                   string-upcase string-downcase)
           )
   (begin
+
+    (cond-expand
+     (gauche
+      (define (make-virtual-input-port . args)
+        (apply make <virtual-input-port> args))))
+
 
     (cond-expand
 
@@ -415,7 +429,7 @@
       (define (make-delimited-input-port port len)
         (let ((index 0)
               (saw-eof #f))
-          (make-virutal-input-port
+          (make-virtual-input-port
            :getb (lambda ()
                    (cond ((= index len) (eof-object))
                          (saw-eof (eof-object))
@@ -725,7 +739,7 @@
       (define (binary-port->textual-port port)
         (let ((buffer (make-bytevector 6))
               (buffer-len 0))
-          (make-virutal-input-port
+          (make-virtual-input-port
            ;; :getb (lambda () (read-u8 port))
            :getc
            (lambda ()
@@ -823,7 +837,7 @@
       (define (textual-port->binary-port port)
         (let ((saw-eof #f)
               (buffer '()))
-          (make-virutal-input-port
+          (make-virtual-input-port
            :getb (lambda ()
                    (cond (saw-eof (eof-object))
                          ((not (null? buffer))

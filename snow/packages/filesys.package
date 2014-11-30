@@ -10,15 +10,6 @@
   (description "File system access." os snow)
   (license lgpl/v2.1))
  (library
-  (name (snow gauche-filesys-utils))
-  (path "snow/gauche-filesys-utils.sld")
-  (version "1.0.4")
-  (homepage "http://snow.iro.umontreal.ca")
-  (maintainers "Scheme Now! <snow at iro.umontreal.ca>")
-  (authors "Marc Feeley <feeley at iro.umontreal.ca>")
-  (description "File system access." os snow)
-  (license lgpl/v2.1))
- (library
   (path "snow/filesys/tests.sld")
   (use-for test)
   (version "1.0")
