@@ -170,6 +170,8 @@
                           (loop (cdr tests)))
                          (else
                           (display "text: ") (write text) (newline)
+                          (display "text: ") (write (utf8->string text))
+                          (newline)
                           (display "expected-digest: ")
                           (write expected-digest)
                           (newline)
@@ -1257,6 +1259,8 @@
                           (loop (cdr tests)))
                          (else
                           (display "text: ") (write text) (newline)
+                          (display "text: ") (write (utf8->string text))
+                          (newline)
                           (display "expected-digest: ")
                           (write expected-digest)
                           (newline)
