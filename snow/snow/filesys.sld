@@ -212,6 +212,7 @@
       (define (snow-create-hard-link
                filename :: filepath
                linkname :: filepath)
+        ;; https://docs.oracle.com/javase/tutorial/essential/io/links.html#hardLink
         (error "no kawa code for snow-create-hard-link")
         ))
      (else
