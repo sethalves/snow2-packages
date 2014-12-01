@@ -33,7 +33,7 @@
           snow-directory-tree-walk
           snow-create-directory-recursive
           snow-create-symbolic-link
-
+          snow-create-hard-link
           current-directory
           change-directory
           )
@@ -205,6 +205,24 @@
           (create-symbolic-link filename linkname))
          (gauche
           (sys-symlink filename linkname))))))
+
+
+    (cond-expand
+     (kawa
+      (define (snow-create-hard-link
+               filename :: filepath
+               linkname :: filepath)
+        (error "no kawa code for snow-create-hard-link")
+        ))
+     (else
+      (define (snow-create-hard-link filename linkname)
+        (cond-expand
+         (chibi
+          (error "no chibi code for snow-create-hard-link"))
+         ((or chicken foment sagittarius)
+          (file-link filename linkname))
+         (gauche
+          (error "no gauche code for snow-create-hard-link"))))))
 
 
 
