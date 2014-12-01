@@ -68,7 +68,8 @@
     (cond-expand
      (gauche
       (define (make-virutal-input-port . args)
-        (apply make <virtual-input-port> args))))
+        (apply make <virtual-input-port> args)))
+     (else))
 
 
     (define-record-type <genport>
