@@ -3,12 +3,12 @@
   (import (scheme base)
           (scheme write)
           (snow bytevector)
-          (prefix (seth base64) base64:))
+          (prefix (seth base64) base64-))
   (begin
 
     (define (base64-test-str str encoded-lst)
-      (let ((encoded (base64:encode (string->utf8 str)))
-            (decoded (base64:decode (u8-list->bytevector encoded-lst))))
+      (let ((encoded (base64-encode (string->utf8 str)))
+            (decoded (base64-decode (u8-list->bytevector encoded-lst))))
         ;; (cout "encoded=" (bytevector->u8-list encoded) "\n")
         ;; (cout "encoded=" (utf8->string encoded) "\n")
         ;; (cout "decoded='" (utf8->string decoded) "'\n")
@@ -22,13 +22,13 @@
 
 
       (write
-       (base64:encode (bytevector 23 8 169 183 53 178 226 182 206
+       (base64-encode (bytevector 23 8 169 183 53 178 226 182 206
                                   55 9 178 8 229 174 63 114 94 222 127)))
       (newline)
 
 
       (and
-       (equal? (base64:encode-string "okay okay okay") "b2theSBva2F5IG9rYXk=")
+       (equal? (base64-encode-string "okay okay okay") "b2theSBva2F5IG9rYXk=")
        (base64-test-str "" '())
        (base64-test-str "abcdefg" '(89 87 74 106 90 71 86 109 90 119 61 61))
        (base64-test-str "abcdefgh" '(89 87 74 106 90 71 86 109 90 50 103 61))
@@ -181,6 +181,6 @@ The inspiration for her creation extends from Wolpaw's use of a text-to-speech p
        (let ((in (list 10 89 87 74 106 90 71 10 86 109 90 119 61 61 10)))
          (equal? (list 89 87 74 106 90 71 86 109 90 119 61 61)
                  (bytevector->u8-list
-                  (base64:scrub-encoded (u8-list->bytevector in)))))
+                  (base64-scrub-encoded (u8-list->bytevector in)))))
 
        #t))))
