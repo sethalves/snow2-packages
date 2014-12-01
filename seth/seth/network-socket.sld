@@ -249,7 +249,7 @@
       (define (open-network-server listen-sock)
         (socket-accept listen-sock)))
      (kawa
-      (define (open-network-server listen-sock)
+      (define (open-network-server listen-sock :: java.net.ServerSocket)
         (listen-sock:accept))))
 
     (cond-expand
@@ -266,7 +266,7 @@
       (define (close-network-listener sock)
         (socket-close sock)))
      (kawa
-      (define (close-network-listener sock)
+      (define (close-network-listener sock :: java.net.Socket)
         (sock:close))))
 
     (cond-expand
@@ -360,10 +360,18 @@
       (define (socket:inbound-read-port sock)
         (socket-input-port sock)))
      (kawa
-      (define (socket:outbound-write-port sock)
-        (sock:getOutputStream))
-      (define (socket:inbound-read-port sock)
-        (sock:getInputStream)))
+      (define (socket:outbound-write-port sock :: java.net.Socket)
+        (let* ((uri :: java.net.URI
+                    (java.net.URI
+                     (string-append "tcp://"
+                                    ((sock:getRemoteSocketAddress):toString)
+                                    ":"
+                                    (number->string (sock:getPort))
+                                    "/")))
+               (path :: gnu.kawa.io.URIPath (gnu.kawa.io.URIPath uri)))
+          (gnu.kawa.io.BinaryOutPort (sock:getOutputStream) path)))
+      (define (socket:inbound-read-port sock :: java.net.Socket)
+        (gnu.kawa.io.BinaryInPort (sock:getInputStream))))
      (sagittarius
       ;; (define (bin->textual port)
       ;;   (transcoded-port port (make-transcoder
@@ -397,7 +405,7 @@
       (define (socket:send-eof sock)
         (shutdown-socket sock *shut-wr*)))
      (kawa
-      (define (socket:send-eof sock)
+      (define (socket:send-eof sock :: java.net.Socket)
         (sock:shutdownOutput)))
      ((or gauche sagittarius)
       (define (socket:send-eof sock)
@@ -417,7 +425,7 @@
       (define (socket:close sock)
         (shutdown-socket sock *shut-rdwr*)))
      (kawa
-      (define (socket:close sock)
+      (define (socket:close sock :: java.net.Socket)
         (sock:close)))
      ((or gauche sagittarius)
       (define (socket:close sock)

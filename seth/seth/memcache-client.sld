@@ -21,11 +21,10 @@
   (cond-expand
    (chibi (import (only (chibi string) string-split)))
    ;; (chicken (import (memcached)))
-   (gauche)
-   (sagittarius)
    (else))
   (import (snow bytevector)
-          (srfi 13)
+          (except (srfi 13) string-copy string-map string-for-each
+                  string-fill! string-copy! string->list)
           (snow binio)
           (seth network-socket)
           (seth string-read-write)
@@ -35,7 +34,7 @@
 
     (cond-expand
 
-     ((or chibi gauche sagittarius
+     ((or chibi gauche sagittarius kawa
           ;; chicken has an egg, but the newest version isn't released. see below
           chicken
           )
@@ -310,7 +309,7 @@
      )
 
     (cond-expand
-     ((or chicken chibi gauche sagittarius)
+     ((or chicken chibi gauche sagittarius kawa)
       (define (update-entry! mc-conn key flags expires updater-func)
         ;; convenience function to update an entry that may
         ;; have more than one writer.  updater-func should
