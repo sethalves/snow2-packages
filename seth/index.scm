@@ -415,8 +415,8 @@
     (name ())
     (version "1.0")
     (url "temporary-file.tgz")
-    (size 9216)
-    (checksum (md5 "d3eb0bb5cda84c35188a2a93b01ba313"))
+    (size 9728)
+    (checksum (md5 "f12076bb249b56acd8fc4b7dc2a00d26"))
     (library
       (name (seth temporary-file))
       (path "seth/temporary-file.sld")
@@ -730,8 +730,8 @@
     (name ())
     (version "1.0")
     (url "network-socket.tgz")
-    (size 37888)
-    (checksum (md5 "daba9f765c17e161891c646c58cdc0b0"))
+    (size 41472)
+    (checksum (md5 "45fc726367a248964ebb5e11428175c1"))
     (library
       (name (seth network-socket))
       (path "seth/network-socket.sld")
