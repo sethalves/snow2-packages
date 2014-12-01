@@ -53,7 +53,8 @@
     (cond-expand
      (gauche
       (define (make-virtual-input-port . args)
-        (apply make <virtual-input-port> args))))
+        (apply make <virtual-input-port> args)))
+     (else))
 
 
     (cond-expand
