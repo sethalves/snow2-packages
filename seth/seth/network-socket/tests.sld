@@ -20,6 +20,17 @@
       (write-bytevector (string->utf8 str) port))
 
 
+    (define (test0.0)
+      (let* ((port-no 25555)
+             (endpoint (make-network-endpoint "www.hungry.com" port-no)))
+        (display "host=")
+        (write (network-endpoint-host endpoint))
+        (newline)
+        (display "port=")
+        (write (network-endpoint-port endpoint))
+        (newline)))
+
+
     (define (test0)
       (let* ((port-no (+ (random-integer 20000) 10000))
              (listen-sock
@@ -102,6 +113,7 @@
     (define (run-tests)
       (random-source-randomize! default-random-source)
       (let ((result #t))
+        (cond ((not (test0.0)) (set! result #f)))
         (cond ((not (test0)) (set! result #f)))
         ;; (cond ((not (test1)) (set! result #f)))
         ;; (cond ((not (test2)) (set! result #f)))
