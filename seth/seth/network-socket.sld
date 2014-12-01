@@ -212,12 +212,15 @@
      (kawa
       (define (make-network-listener settings-list)
         (let* ((host (settings-list-get 'host settings-list "127.0.0.1"))
-               (port (settings-list-get 'port settings-list 0)))
-          ; (make-server-socket
-          ;  (if (string? port) port (number->string port)))
-          (error "awef")
-          ;; (list (<server-socket> port backlog address) port)
-          )))
+               (s-port (settings-list-get 'port settings-list 0))
+               (port :: int
+                     (if (string? s-port) (string->number s-port) s-port))
+               (address :: java.net.InetAddress
+                        (if host
+                            (java.net.InetAddress:getByName host)
+                            ;; (java.net.InetAddress:getLocalHost)
+                            (java.net.InetAddress:getByName "localhost"))))
+          (java.net.ServerSocket port 5 address))))
      (sagittarius
       (define (make-network-listener settings-list)
         (let* ((host (settings-list-get 'host settings-list "127.0.0.1"))
@@ -247,9 +250,7 @@
         (socket-accept listen-sock)))
      (kawa
       (define (open-network-server listen-sock)
-        (error "no code for kawa")
-        ))
-     )
+        (listen-sock:accept))))
 
     (cond-expand
      (chibi
@@ -266,7 +267,7 @@
         (socket-close sock)))
      (kawa
       (define (close-network-listener sock)
-        (error "no code for kawa"))))
+        (sock:close))))
 
     (cond-expand
      (chibi
@@ -322,7 +323,15 @@
           (make-client-socket host port))))
      (kawa
       (define (open-network-client settings-list)
-        (error "no code for kawa")))
+        (let* ((host (settings-list-get 'host settings-list "127.0.0.1"))
+               (s-port (settings-list-get 'port settings-list 0))
+               (port :: int
+                     (if (string? s-port) (string->number s-port) s-port))
+               (address :: java.net.InetAddress
+                        (if host
+                            (java.net.InetAddress:getByName host)
+                            (java.net.InetAddress:getLocalHost))))
+          (java.net.Socket address port))))
      (sagittarius
       (define (open-network-client settings-list)
         (let ((host (settings-list-get 'host settings-list #f))
@@ -352,11 +361,9 @@
         (socket-input-port sock)))
      (kawa
       (define (socket:outbound-write-port sock)
-        (error "no code for kawa"))
-
+        (sock:getOutputStream))
       (define (socket:inbound-read-port sock)
-        (error "no code for kawa")))
-
+        (sock:getInputStream)))
      (sagittarius
       ;; (define (bin->textual port)
       ;;   (transcoded-port port (make-transcoder
@@ -391,7 +398,7 @@
         (shutdown-socket sock *shut-wr*)))
      (kawa
       (define (socket:send-eof sock)
-        (error "no code for kawa")))
+        (sock:shutdownOutput)))
      ((or gauche sagittarius)
       (define (socket:send-eof sock)
         (socket-shutdown sock SHUT_WR))))
@@ -411,7 +418,7 @@
         (shutdown-socket sock *shut-rdwr*)))
      (kawa
       (define (socket:close sock)
-        (error "no code for kawa")))
+        (sock:close)))
      ((or gauche sagittarius)
       (define (socket:close sock)
         (socket-close sock))))

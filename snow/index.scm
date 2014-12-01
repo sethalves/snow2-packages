@@ -135,7 +135,7 @@
     (version "1.0")
     (url "genport.tgz")
     (size 16384)
-    (checksum (md5 "7e97829aede5e8b5d5b4d4a7e68ca42a"))
+    (checksum (md5 "1dfe608607ed9804ea37dd729474d19a"))
     (library
       (name (snow genport))
       (path "snow/genport.sld")
@@ -162,8 +162,8 @@
     (name ())
     (version "1.0")
     (url "filesys.tgz")
-    (size 23040)
-    (checksum (md5 "e749f47ac267ec95c174066a9d0ab000"))
+    (size 23552)
+    (checksum (md5 "8f3e4c8be524401c00434dbde3cfd005"))
     (library
       (name (snow filesys))
       (path "snow/filesys.sld")
@@ -219,7 +219,7 @@
     (version "1.0")
     (url "extio.tgz")
     (size 50176)
-    (checksum (md5 "d49de49ff324171536c9d02e7bb6220a"))
+    (checksum (md5 "8ebea09fcbcb259f84e4fa4a17fc5c27"))
     (library
       (name (snow extio))
       (path "snow/extio.sld")

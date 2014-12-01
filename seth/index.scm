@@ -569,8 +569,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 131584)
-    (checksum (md5 "83e8d116dd0f200a98eee6dd3117c5fd"))
+    (size 133120)
+    (checksum (md5 "341bd8ada8e2bffade5e71863a334ec6"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -731,7 +731,7 @@
     (version "1.0")
     (url "network-socket.tgz")
     (size 41472)
-    (checksum (md5 "45fc726367a248964ebb5e11428175c1"))
+    (checksum (md5 "b04ff628be12d2bcebe0813a8f1ce3fc"))
     (library
       (name (seth network-socket))
       (path "seth/network-socket.sld")
