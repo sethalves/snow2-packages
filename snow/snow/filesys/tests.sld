@@ -7,10 +7,9 @@
           (snow filesys))
   (begin
     (define (run-tests)
-      (write (snow-directory-subfiles "." '(directory)))
-      (newline)
 
       (and
+
        (member "Makefile" (snow-directory-files "."))
        (not (member ".." (snow-directory-files ".")))
 
@@ -68,7 +67,6 @@
 
        (equal? (snow-make-filename "/tmp" "hi") "/tmp/hi")
 
-
        (if (file-exists? "tests.sld")
            (lset= equal?
                   (snow-directory-subfiles "." '(directory))
@@ -120,10 +118,12 @@
            (> (snow-file-mtime "tests.sld") 1398705085)
            (> (snow-file-mtime "snow/filesys/tests.sld") 1398705085))
 
-       (let ((here (snow-split-filename (current-directory))))
+       (let* ((save-cwd (current-directory))
+              (here (snow-split-filename save-cwd)))
          (change-directory "..")
          (let ((up (snow-split-filename (current-directory))))
-           (equal? (cdr (reverse here)) (reverse up))))
+           (equal? (cdr (reverse here)) (reverse up)))
+         (change-directory save-cwd))
 
 
        #t))))
