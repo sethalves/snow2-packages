@@ -38,7 +38,6 @@
           change-directory
           )
   (import (scheme base)
-          (scheme write)
           (scheme file)
           (except (srfi 13)
                   string-copy string-map string-for-each
