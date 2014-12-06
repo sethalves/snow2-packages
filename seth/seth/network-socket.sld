@@ -128,6 +128,18 @@
      (else))
 
 
+    (cond-expand
+     (kawa
+      (define (socket->path sock :: java.net.Socket) :: gnu.kawa.io.URIPath
+        (let* ((uri :: java.net.URI
+                    (java.net.URI
+                     (string-append
+                      "tcp://" ((sock:getRemoteSocketAddress):toString) ":"
+                      (number->string (sock:getPort)) "/"))))
+          (gnu.kawa.io.URIPath uri))))
+     (else))
+
+
     ;; http://trac.sacrideo.us/wg/wiki/NetworkEndpointsCowan
     (cond-expand
      ((or chibi chicken foment kawa sagittarius)
@@ -220,7 +232,7 @@
                             (java.net.InetAddress:getByName host)
                             ;; (java.net.InetAddress:getLocalHost)
                             (java.net.InetAddress:getByName "localhost"))))
-          (java.net.ServerSocket port 5 address))))
+          (list (java.net.ServerSocket port 5 address)))))
      (sagittarius
       (define (make-network-listener settings-list)
         (let* ((host (settings-list-get 'host settings-list "127.0.0.1"))
@@ -249,8 +261,14 @@
       (define (open-network-server listen-sock)
         (socket-accept listen-sock)))
      (kawa
-      (define (open-network-server listen-sock :: java.net.ServerSocket)
-        (listen-sock:accept))))
+      (define (open-network-server listen-sock)
+        (let* ((java-listen-sock :: java.net.ServerSocket (car listen-sock))
+               (sock :: java.net.Socket (java-listen-sock:accept))
+               (path :: gnu.kawa.io.URIPath (socket->path sock)))
+          (list sock
+                (gnu.kawa.io.BinaryOutPort (sock:getOutputStream) path)
+                (gnu.kawa.io.BinaryInPort (sock:getInputStream))))
+        )))
 
     (cond-expand
      (chibi
@@ -266,8 +284,9 @@
       (define (close-network-listener sock)
         (socket-close sock)))
      (kawa
-      (define (close-network-listener sock :: java.net.Socket)
-        (sock:close))))
+      (define (close-network-listener sock)
+        (let ((java-sock :: java.net.ServerSocket (car sock)))
+          (java-sock:close)))))
 
     (cond-expand
      (chibi
@@ -330,8 +349,12 @@
                (address :: java.net.InetAddress
                         (if host
                             (java.net.InetAddress:getByName host)
-                            (java.net.InetAddress:getLocalHost))))
-          (java.net.Socket address port))))
+                            (java.net.InetAddress:getLocalHost)))
+               (sock :: java.net.Socket (java.net.Socket address port))
+               (path :: gnu.kawa.io.URIPath (socket->path sock)))
+          (list sock
+                (gnu.kawa.io.BinaryOutPort (sock:getOutputStream) path)
+                (gnu.kawa.io.BinaryInPort (sock:getInputStream))))))
      (sagittarius
       (define (open-network-client settings-list)
         (let ((host (settings-list-get 'host settings-list #f))
@@ -360,18 +383,10 @@
       (define (socket:inbound-read-port sock)
         (socket-input-port sock)))
      (kawa
-      (define (socket:outbound-write-port sock :: java.net.Socket)
-        (let* ((uri :: java.net.URI
-                    (java.net.URI
-                     (string-append "tcp://"
-                                    ((sock:getRemoteSocketAddress):toString)
-                                    ":"
-                                    (number->string (sock:getPort))
-                                    "/")))
-               (path :: gnu.kawa.io.URIPath (gnu.kawa.io.URIPath uri)))
-          (gnu.kawa.io.BinaryOutPort (sock:getOutputStream) path)))
-      (define (socket:inbound-read-port sock :: java.net.Socket)
-        (gnu.kawa.io.BinaryInPort (sock:getInputStream))))
+      (define (socket:outbound-write-port sock)
+        (cadr sock))
+      (define (socket:inbound-read-port sock)
+        (car (cddr sock))))
      (sagittarius
       ;; (define (bin->textual port)
       ;;   (transcoded-port port (make-transcoder
@@ -405,11 +420,12 @@
       (define (socket:send-eof sock)
         (shutdown-socket sock *shut-wr*)))
      (kawa
-      (define (socket:send-eof sock :: java.net.Socket)
-        (sock:shutdownOutput)))
+      (define (socket:send-eof sock)
+        (let ((java-sock :: java.net.Socket (car sock)))
+          (java-sock:shutdownOutput))))
      ((or gauche sagittarius)
       (define (socket:send-eof sock)
-        (socket-shutdown sock SHUT_WR))))
+        (socket-shutdown (car sock) SHUT_WR))))
 
     (cond-expand
      (chibi
@@ -425,8 +441,9 @@
       (define (socket:close sock)
         (shutdown-socket sock *shut-rdwr*)))
      (kawa
-      (define (socket:close sock :: java.net.Socket)
-        (sock:close)))
+      (define (socket:close sock)
+        (let ((java-sock :: java.net.Socket (car sock)))
+          (java-sock:close))))
      ((or gauche sagittarius)
       (define (socket:close sock)
         (socket-close sock))))

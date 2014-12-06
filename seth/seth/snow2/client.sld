@@ -471,7 +471,7 @@
         (display "  -s --symlink         " (current-error-port))
         (display "Make symlinks to a repo's source files.\n"
                  (current-error-port))
-        (display "  -l --link         " (current-error-port))
+        (display "  -l --link            " (current-error-port))
         (display "Make hard-links to a repo's source files.\n"
                  (current-error-port))
         (display "  -t --test            " (current-error-port))

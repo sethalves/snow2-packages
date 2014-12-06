@@ -162,8 +162,8 @@
     (name ())
     (version "1.0")
     (url "filesys.tgz")
-    (size 23552)
-    (checksum (md5 "8f3e4c8be524401c00434dbde3cfd005"))
+    (size 24576)
+    (checksum (md5 "c0b67a4f64ba8fbaaabad282b4716575"))
     (library
       (name (snow filesys))
       (path "snow/filesys.sld")
@@ -247,7 +247,7 @@
     (version "1.0")
     (url "zlib.tgz")
     (size 48640)
-    (checksum (md5 "78bf61317691b6822fb5a45f2c0ecae5"))
+    (checksum (md5 "82c9ac14e49263e3ea587d74c5cdbdc8"))
     (library
       (name (snow zlib))
       (path "snow/zlib.sld")
@@ -337,7 +337,7 @@
     (version "1.0")
     (url "input-parse.tgz")
     (size 15360)
-    (checksum (md5 "978a3760076a8c589ba01762721c466d"))
+    (checksum (md5 "0656a825e44c26d99db20a6b6455b0ae"))
     (library
       (name (snow input-parse))
       (path "snow/input-parse.sld")

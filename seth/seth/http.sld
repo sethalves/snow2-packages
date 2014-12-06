@@ -31,7 +31,6 @@
             ;; (rfc uri)
             (match)
             (srfi 1)
-            (srfi 13)
             (srfi 14)
             (only (rnrs) make-custom-binary-input-port)))
 
@@ -43,7 +42,10 @@
   (import (snow bytevector)
           (snow binio)
           (srfi 29)
-          (srfi 13)
+          (except (srfi 13)
+                  string-copy string-map string-for-each
+                  string-fill! string-copy! string->list
+                  string-upcase string-downcase)
           (snow extio)
           (seth mime)
           (seth string-read-write)

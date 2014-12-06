@@ -3,7 +3,10 @@
   (import (scheme base)
           (scheme write)
           (srfi 1)
-          (srfi 13)
+          (except (srfi 13)
+                  string-copy string-map string-for-each
+                  string-fill! string-copy! string->list
+                  string-upcase string-downcase)
           (scheme char)
           (scheme cxr)
           (snow extio)

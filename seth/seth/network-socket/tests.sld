@@ -28,7 +28,8 @@
         (newline)
         (display "port=")
         (write (network-endpoint-port endpoint))
-        (newline)))
+        (newline)
+        #t))
 
 
     (define (test0)
