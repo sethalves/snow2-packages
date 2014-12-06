@@ -68,36 +68,62 @@
 
        (equal? (snow-make-filename "/tmp" "hi") "/tmp/hi")
 
-       (lset= equal?
-              (snow-directory-subfiles "." '(directory))
-              '("."
-                "./chibi"
-                "./snow"
-                "./snow/filesys"
-                "./srfi"
-                "./srfi/srfi-1"
-                "./srfi-tests"
-                "./srfi-tests/1"
-                "./srfi-tests/13"
-                "./srfi-tests/14"
-                "./srfi-tests/60"
-                ))
+
+       (if (file-exists? "tests.sld")
+           (lset= equal?
+                  (snow-directory-subfiles "." '(directory))
+                  '("."
+                    "./chibi"
+                    "./snow"
+                    "./snow/filesys"
+                    "./srfi"
+                    "./srfi/srfi-1"
+                    "./srfi-tests"
+                    "./srfi-tests/1"
+                    "./srfi-tests/13"
+                    "./srfi-tests/14"
+                    "./srfi-tests/60"))
+           (lset= equal?
+                  (snow-directory-subfiles "snow/extio" '(directory))
+                  '("snow/extio"
+                    "snow/extio/chibi"
+                    "snow/extio/srfi"
+                    "snow/extio/srfi/srfi-1"
+                    "snow/extio/snow"
+                    "snow/extio/snow/extio"
+                    "snow/extio/snow/bytevector"
+                    "snow/extio/srfi-tests"
+                    "snow/extio/srfi-tests/13"
+                    "snow/extio/srfi-tests/60"
+                    "snow/extio/srfi-tests/1"
+                    "snow/extio/srfi-tests/14")))
+
 
        (snow-filename-relative? "../ok/fuh")
        (not (snow-filename-relative? "/ok/fuh"))
 
-       (= (snow-file-size "Makefile") 84)
+       (begin
+         (let ((h (open-output-file "/tmp/extio-test-file")))
+           (display "aaaaaaaaaaaaaaaaaaaa" h)
+           (close-output-port h)
+           (let ((result (= (snow-file-size "/tmp/extio-test-file") 20)))
+             (delete-file "/tmp/extio-test-file"))))
+
+
 
        ;; (begin
        ;;   (write (snow-file-mtime "test-common.scm"))
        ;;   (newline)
        ;;   #t)
 
-       (> (snow-file-mtime "tests.sld") 1398705085)
+       (if (file-exists? "tests.sld")
+           (> (snow-file-mtime "tests.sld") 1398705085)
+           (> (snow-file-mtime "snow/filesys/tests.sld") 1398705085))
 
        (let ((here (snow-split-filename (current-directory))))
          (change-directory "..")
          (let ((up (snow-split-filename (current-directory))))
            (equal? (cdr (reverse here)) (reverse up))))
+
 
        #t))))
