@@ -20,12 +20,15 @@
                   (srfi 13)
                   ))
    (chicken (import (input-parse)))
-   (foment (import (srfi 1)
-                   (scheme char)
-                   (scheme cxr)
-                   (srfi 13)))
    (gauche (import (text parse)))
-   (sagittarius (import (text parse))))
+   (sagittarius (import (text parse)))
+   (else (import (srfi 1)
+                 (scheme char)
+                 (scheme cxr)
+                 (except (srfi 13)
+                         string-copy string-map string-for-each
+                         string-fill! string-copy! string->list
+                         string-upcase string-downcase))))
   (begin
 
     (cond-expand
