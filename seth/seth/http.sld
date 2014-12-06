@@ -23,9 +23,7 @@
                     (uri-generic)
                     (intarweb)))
    (gauche (import (rfc uri)
-                   (rfc http)
-                   (snow gauche-extio-utils)
-                   ))
+                   (rfc http)))
    (sagittarius
     (import (scheme write)
             ;; (rfc uri)
