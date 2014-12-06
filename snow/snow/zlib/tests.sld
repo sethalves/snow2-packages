@@ -1,13 +1,17 @@
 (define-library (snow zlib tests)
   (export run-tests)
   (import (scheme base)
+          (scheme file)
           (snow binio)
           (snow genport)
           (snow zlib))
   (begin
     (define (run-tests)
       (let* (;; (p (genport-open-input-file "test.gz"))
-             (bin-port (binio-open-input-file "test.gz"))
+             (bin-port
+              (if (file-exists? "test.gz")
+                  (binio-open-input-file "test.gz")
+                  (binio-open-input-file "snow/zlib/test.gz")))
              (zipped-p (genport-native-input-port->genport bin-port))
              (unzipped-p (gunzip-genport zipped-p))
              (unzipped-data (utf8->string (genport-read-u8vector unzipped-p)))
