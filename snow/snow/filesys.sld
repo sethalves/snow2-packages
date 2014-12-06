@@ -220,8 +220,10 @@
         (cond-expand
          (chibi
           (error "no chibi code for snow-create-hard-link"))
-         ((or chicken foment sagittarius)
+         ((or chicken sagittarius)
           (file-link filename linkname))
+         (foment
+          (error "no foment code for snow-create-hard-link"))
          (gauche
           (error "no gauche code for snow-create-hard-link"))))))
 
