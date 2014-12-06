@@ -163,7 +163,7 @@
     (version "1.0")
     (url "filesys.tgz")
     (size 24576)
-    (checksum (md5 "c0b67a4f64ba8fbaaabad282b4716575"))
+    (checksum (md5 "689fdd0b569f85a1a54e42b9430a5131"))
     (library
       (name (snow filesys))
       (path "snow/filesys.sld")
