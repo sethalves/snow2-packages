@@ -18,6 +18,7 @@
   (import (scheme base))
   (cond-expand
    (chicken (import (ports)))
+   (gauche (import (only (gauche base) port-name)))
    (else))
   (import (srfi 69)
           (seth message-digest type)
@@ -59,13 +60,18 @@
 ;; Returns a digest-output-port for the MDP
 
 
+(define (port->hash-key port)
+  (cond-expand
+   (gauche (port-name port))
+   (else port)))
+
 (define port->data (make-hash-table eq?))
 (define (set-port-data! port data)
-  (hash-table-set! port->data port data))
+  (hash-table-set! port->data (port->hash-key port) data))
 (define (delete-port-data! port)
-  (hash-table-delete! port->data port))
+  (hash-table-delete! port->data (port->hash-key port)))
 (define (port-data port)
-  (hash-table-ref port->data port))
+  (hash-table-ref port->data (port->hash-key port)))
 
 
 (cond-expand
