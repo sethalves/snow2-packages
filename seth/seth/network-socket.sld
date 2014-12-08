@@ -425,7 +425,7 @@
           (java-sock:shutdownOutput))))
      ((or gauche sagittarius)
       (define (socket:send-eof sock)
-        (socket-shutdown (car sock) SHUT_WR))))
+        (socket-shutdown sock SHUT_WR))))
 
     (cond-expand
      (chibi
