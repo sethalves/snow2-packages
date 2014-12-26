@@ -375,6 +375,8 @@
     (define (repository->html repository)
       (serialize-sxml
        `(*TOP* (@ (*NAMESPACES* (html "http://www.w3.org/1999/xhtml")))
+               (meta (@ (http-equiv "Content-Type")
+                        (content "text/html; charset=UTF-8")))
                (html:html
                 (html:head (html:link (@ (rel "stylesheet")
                                          (type "text/css")
@@ -387,10 +389,14 @@
                        (snow2-repository-name repository)
                        "Snow2 Repository"))
 
-                 (html:h2 "Siblings")
-                 ,@(map sibling->html (snow2-repository-siblings repository))
+                 ,@(if (pair? (snow2-repository-siblings repository))
+                       (list
+                        '(html:h2 "Siblings")
+                        (map sibling->html
+                             (snow2-repository-siblings repository)))
+                       '())
 
-                 (html:h2 "Packages")
+                 ;; (html:h2 "Packages")
                  (html:table
                   (html:thead
                    (html:tr (html:th "Packages") (html:th "Libraries")))
