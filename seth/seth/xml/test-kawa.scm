@@ -9,7 +9,6 @@ exec /usr/local/bin/kawa \
 
 (import (scheme base)
         (scheme write)
-        (seth xml tests)
-        )
-(display (trace (run-tests)))
+        (seth xml tests))
+(display (run-tests))
 (newline)
