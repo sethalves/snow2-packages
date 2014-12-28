@@ -30,9 +30,10 @@
 
         (check (not (bucket-exists? credentials "i-dont-exist")) => #t)
 
-        (check (member "snow2" (list-buckets credentials)) => #t)
+        (check (not (member "snow2" (list-buckets credentials))) => #f)
 
-        (check (member "aws.tgz" (list-objects credentials "snow2")) => #t)
+        (check (not (member "aws.tgz" (list-objects credentials "snow2")))
+               => #f)
 
         (check (let ((data (get-object credentials "snow2" "index.scm")))
                  (cond ((not data) #f)
