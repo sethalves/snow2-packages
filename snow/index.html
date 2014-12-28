@@ -1,426 +1,421 @@
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <link rel="stylesheet" type="text/css" href="index.css" />
   </head>
-  <body>
-    <h1>Snow Repository</h1>
-    <h2>Siblings</h2>
-    <p><a href="http://r7rs-srfis.s3-website-us-east-1.amazonaws.com/">r7rs srfis</a> trust=1.0</p>
-    <h2>Packages</h2>
-    <table>
-      <thead>
-        <tr>
-          <th>Packages</th>
-          <th>Libraries</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="hello.tgz">snow-hello</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow hello)</a> -- Display "let it snow" and pi.examplesnow</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow pi)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow hello tests)</a> -- tests for hello</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow hello)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="tar.tgz">tar</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow tar)</a> -- TAR file format packing and unpacking.convsnow</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow bytevector) (srfi 60) (snow bignum) (snow genport) (snow filesys)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow tar tests)</a> -- tests for tar</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow tar)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="bignum.tgz">bignum</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow bignum)</a> -- Operations on large integers.mathsnow</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow bytevector)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow bignum tests)</a> -- tests for bignum</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow bignum)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="processio.tgz">processio</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow processio)</a> -- I/O to operating system subprocesses.i/oos</p>
-                <p class="lib-details">Version: 1.0.0</p>
-                <p class="lib-details">Authors: "Nils M Holm &lt;nmh at t3x.org&gt;", "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;alves@hungry.com"</p>
-                <p class="lib-details">License: (bsdl)</p>
-                <p class="lib-details">Depends: (snow filesys) (snow extio)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow processio tests)</a> -- tests for processio</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow bytevector) (snow filesys) (snow extio) (snow assert) (snow binio) (snow processio)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="genport.tgz">genport</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow genport)</a> -- Generic ports.i/osnow</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow bytevector) (snow binio)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow genport tests)</a> -- tests for genport</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow genport)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="filesys.tgz">filesys</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow filesys)</a> -- File system access.ossnow</p>
-                <p class="lib-details">Version: 1.0.4</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (srfi 13) (srfi 1) (srfi 14)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow filesys tests)</a> -- tests for filesys</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (srfi 1) (snow filesys)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="pi.tgz">pi</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow pi)</a> -- Computes the digits of pi.examplesnow</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow bignum)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow pi tests)</a> -- tests for pi</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow pi)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="extio.tgz">extio</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow extio)</a> -- Extended I/O.i/osnow</p>
-                <p class="lib-details">Version: 1.0.3</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;alves@hungry.com&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow bytevector) (srfi 60) (srfi 13)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow extio tests)</a> -- tests for extio</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow bytevector) (snow extio)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="zlib.tgz">zlib</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow zlib)</a> -- Compression and decompression of deflate and gzip formats.convi/osnow</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;", "Manuel Serrano &lt;Manuel.Serrano at sophia.inria.fr&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow bytevector) (snow digest) (srfi 60) (snow genport)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow zlib tests)</a> -- tests for zlib</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow binio) (snow genport) (snow zlib)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="random.tgz">random</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow random)</a> -- High-quality random number generation.snow</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (srfi 27) (snow bytevector) (snow binio) (snow bignum)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow random tests)</a> -- tests for random</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow random)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="bytevector.tgz">bytevector</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow bytevector)</a> -- bytevector compatibility layer</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (srfi 1)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow bytevector tests)</a> -- bytevector</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow bytevector)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="input-parse.tgz">input-parse</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow input-parse)</a> -- inspired and compatible with Oleg Kiselyov's input parsing library</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (public-domain)</p>
-                <p class="lib-details">Depends: (srfi 1) (srfi 13)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow input-parse tests)</a> -- tests for input-parse</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow input-parse)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="binio.tgz">binio</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow binio)</a> -- Binary I/O.i/osnow</p>
-                <p class="lib-details">Version: 1.0.2</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow bytevector)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow binio tests)</a> -- tests for binio</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow binio)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="assert.tgz">assert</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow assert)</a> -- assert</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: </p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow assert tests)</a> -- tests for assert</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (bsd)</p>
-                <p class="lib-details">Depends: (snow assert)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-        <tr class="package-tr">
-          <td class="package-td">
-            <a class="package-a" href="digest.tgz">digest</a>
-          </td>
-          <td class="library-td">
-            <ul>
-              <li>
-                <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow digest)</a> -- Computation of message digests (CRC32, MD5, SHA-1, ...).hashconvsnow</p>
-                <p class="lib-details">Version: 1.0.1</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (srfi 60) (snow binio) (snow bytevector)</p>
-                <p class="lib-details">Use-For: (final)</p>
-              </li>
-              <li>
-                <p><a class="lib-a" href="https://github.com/sethalves">(snow digest tests)</a> -- tests for digest</p>
-                <p class="lib-details">Version: 1.0</p>
-                <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
-                <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-                <p class="lib-details">License: (lgpl/v2.1)</p>
-                <p class="lib-details">Depends: (snow bytevector) (snow digest)</p>
-                <p class="lib-details">Use-For: (test)</p>
-              </li>
-            </ul>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </body>
+  <body><h1>Snow Repository</h1><h2>Siblings</h2><p><a href="http://r7rs-srfis.s3-website-us-east-1.amazonaws.com/">r7rs srfis</a> trust=1.0</p><table>
+    <thead>
+      <tr>
+        <th>Packages</th>
+        <th>Libraries</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="digest.tgz">digest</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow digest)</a> -- Computation of message digests (CRC32, MD5, SHA-1, ...).hashconvsnow</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (srfi 60) (snow binio) (snow bytevector)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow digest tests)</a> -- tests for digest</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow bytevector) (snow digest)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="assert.tgz">assert</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow assert)</a> -- assert</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: </p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow assert tests)</a> -- tests for assert</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow assert)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="binio.tgz">binio</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow binio)</a> -- Binary I/O.i/osnow</p>
+              <p class="lib-details">Version: 1.0.2</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow bytevector)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow binio tests)</a> -- tests for binio</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow binio)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="bytevector.tgz">bytevector</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow bytevector)</a> -- bytevector compatibility layer</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (srfi 1)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow bytevector tests)</a> -- bytevector</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow bytevector)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="input-parse.tgz">input-parse</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow input-parse)</a> -- inspired and compatible with Oleg Kiselyov's input parsing library</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (public-domain)</p>
+              <p class="lib-details">Depends: (srfi 1) (srfi 13)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow input-parse tests)</a> -- tests for input-parse</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow input-parse)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="random.tgz">random</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow random)</a> -- High-quality random number generation.snow</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (srfi 27) (snow bytevector) (snow binio) (snow bignum)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow random tests)</a> -- tests for random</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow random)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="zlib.tgz">zlib</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow zlib)</a> -- Compression and decompression of deflate and gzip formats.convi/osnow</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;", "Manuel Serrano &lt;Manuel.Serrano at sophia.inria.fr&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow bytevector) (snow digest) (srfi 60) (snow genport)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow zlib tests)</a> -- tests for zlib</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow binio) (snow genport) (snow zlib)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="extio.tgz">extio</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow extio)</a> -- Extended I/O.i/osnow</p>
+              <p class="lib-details">Version: 1.0.3</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;alves@hungry.com&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow bytevector) (srfi 60) (srfi 13)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow extio tests)</a> -- tests for extio</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow bytevector) (snow extio)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="pi.tgz">pi</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow pi)</a> -- Computes the digits of pi.examplesnow</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow bignum)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow pi tests)</a> -- tests for pi</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow pi)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="filesys.tgz">filesys</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow filesys)</a> -- File system access.ossnow</p>
+              <p class="lib-details">Version: 1.0.4</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (srfi 13) (srfi 1) (srfi 14)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow filesys tests)</a> -- tests for filesys</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (srfi 1) (snow filesys)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="genport.tgz">genport</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow genport)</a> -- Generic ports.i/osnow</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow bytevector) (snow binio)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow genport tests)</a> -- tests for genport</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow genport)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="processio.tgz">processio</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow processio)</a> -- I/O to operating system subprocesses.i/oos</p>
+              <p class="lib-details">Version: 1.0.0</p>
+              <p class="lib-details">Authors: "Nils M Holm &lt;nmh at t3x.org&gt;", "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;alves@hungry.com"</p>
+              <p class="lib-details">License: (bsdl)</p>
+              <p class="lib-details">Depends: (snow filesys) (snow extio)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow processio tests)</a> -- tests for processio</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow bytevector) (snow filesys) (snow extio) (snow assert) (snow binio) (snow processio)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="bignum.tgz">bignum</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow bignum)</a> -- Operations on large integers.mathsnow</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow bytevector)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow bignum tests)</a> -- tests for bignum</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow bignum)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="tar.tgz">tar</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow tar)</a> -- TAR file format packing and unpacking.convsnow</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow bytevector) (srfi 60) (snow bignum) (snow genport) (snow filesys)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow tar tests)</a> -- tests for tar</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow tar)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="hello.tgz">snow-hello</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="http://snow.iro.umontreal.ca">(snow hello)</a> -- Display "let it snow" and pi.examplesnow</p>
+              <p class="lib-details">Version: 1.0.1</p>
+              <p class="lib-details">Authors: "Marc Feeley &lt;feeley at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">Maintainers: "Scheme Now! &lt;snow at iro.umontreal.ca&gt;"</p>
+              <p class="lib-details">License: (lgpl/v2.1)</p>
+              <p class="lib-details">Depends: (snow pi)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(snow hello tests)</a> -- tests for hello</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow hello)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+    </tbody>
+  </table></body>
 </html>
