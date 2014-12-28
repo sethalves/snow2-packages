@@ -104,7 +104,7 @@
     (version "1.0")
     (url "aws.tgz")
     (size 27136)
-    (checksum (md5 "29e07826915c6f0d1dad0bb22639c884"))
+    (checksum (md5 "88fcc07958f3bc356f53124b802759b8"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -167,7 +167,8 @@
         (seth http)
         (seth crypt md5)
         (seth aws common)
-        (seth aws s3))
+        (seth aws s3)
+        (srfi 78))
       (use-for test)))
   (package
     (name ())
@@ -203,8 +204,8 @@
     (name ())
     (version "1.0")
     (url "xml.tgz")
-    (size 437248)
-    (checksum (md5 "9c5a24072de538346908200f07e6cd59"))
+    (size 436224)
+    (checksum (md5 "b8c11bb64a02b6cb7d2aa04dac37dfcd"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
@@ -607,8 +608,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 136192)
-    (checksum (md5 "fef5cff615df713e4adda9c32b8dace0"))
+    (size 136704)
+    (checksum (md5 "bb5d0bc9bbe609fc5be3f55a2e4e6b54"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -916,7 +917,7 @@
     (version "1.0")
     (url "uri.tgz")
     (size 77312)
-    (checksum (md5 "267f6d557fa11cae556ad899c4de05e9"))
+    (checksum (md5 "e3f05e52fb6aea2ab335d16dfe81fd7c"))
     (library
       (name (seth uri))
       (path "seth/uri.sld")
