@@ -204,8 +204,8 @@
     (name ())
     (version "1.0")
     (url "xml.tgz")
-    (size 436224)
-    (checksum (md5 "b8c11bb64a02b6cb7d2aa04dac37dfcd"))
+    (size 437248)
+    (checksum (md5 "058cff0f4644fb64f48ba27f2c2aa02b"))
     (library
       (name (seth xml ssax))
       (path "seth/xml/ssax.sld")
