@@ -40,7 +40,7 @@
     (version "1.0")
     (url "tar.tgz")
     (size 27648)
-    (checksum (md5 "7bc16e4ec3f40e1b239f35c82f1bc9c0"))
+    (checksum (md5 "1950b626f89bf46069e520a29b76af14"))
     (library
       (name (snow tar))
       (path "snow/tar.sld")
@@ -173,7 +173,7 @@
     (version "1.0")
     (url "filesys.tgz")
     (size 24576)
-    (checksum (md5 "689fdd0b569f85a1a54e42b9430a5131"))
+    (checksum (md5 "45a0e9c8bba3c5af4861e3300e0b0527"))
     (library
       (name (snow filesys))
       (path "snow/filesys.sld")
@@ -196,7 +196,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for filesys")
       (license bsd)
-      (depends (srfi 1) (snow filesys))
+      (depends (srfi 1) (snow filesys) (srfi 78))
       (use-for test)))
   (package
     (name ())
