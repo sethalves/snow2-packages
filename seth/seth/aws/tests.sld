@@ -10,8 +10,6 @@
           (seth http)
           (seth crypt md5)
           (prefix (seth base64) base64-)
-          (seth http)
-          (seth crypt md5)
           (seth aws common)
           (seth aws s3)
           (srfi 78))
