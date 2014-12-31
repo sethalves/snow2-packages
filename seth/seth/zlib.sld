@@ -20,7 +20,14 @@
             (seth port-extras)))
    (sagittarius
     (import (rfc zlib))
-    (import (seth port-extras))))
+    (import (seth port-extras)))
+   (else
+    (import (srfi 1)
+            (snow bytevector)
+            (snow genport)
+            (snow zlib)
+            (seth port-extras)))
+   )
   (begin
     (cond-expand
 
