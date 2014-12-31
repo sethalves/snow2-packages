@@ -34,7 +34,7 @@
 
     (cond-expand
 
-     ((or chibi gauche sagittarius kawa
+     ((or chibi foment gauche sagittarius kawa
           ;; chicken has an egg, but the newest version isn't released. see below
           chicken
           )
@@ -308,38 +308,36 @@
      ;;  )
      )
 
-    (cond-expand
-     ((or chicken chibi gauche sagittarius kawa)
-      (define (update-entry! mc-conn key flags expires updater-func)
-        ;; convenience function to update an entry that may
-        ;; have more than one writer.  updater-func should
-        ;; take the existing data as its argument and return
-        ;; new data.  it may be called more than once.
-        (let loop ()
-          (define (attempt-add)
-            (let* ((new-entry (updater-func #f))
-                   (add-result
-                    (add-entry! mc-conn key flags expires new-entry)))
-              (cond ((eq? add-result #t) #t)
-                    ((eq? add-result 'not-stored) (loop))
-                    ((eq? add-result 'exists) (loop))
-                    ((eq? add-result 'not-found) (loop))
-                    (else (error "something unexpected.")))))
-          (let ((gets-result (get-entries mc-conn (list key))))
-            (cond ((null? gets-result)
-                   (attempt-add))
-                  (else
-                   (let* ((result (car gets-result))
-                          (entry-key-encoded (list-ref result 0))
-                          (entry-flags (list-ref result 1))
-                          (entry-value (list-ref result 2))
-                          (entry-cas-unique (list-ref result 3))
-                          (new-entry (updater-func entry-value))
-                          (cas-result (cas-entry! mc-conn key flags expires
-                                                  new-entry entry-cas-unique)))
-                     (cond ((eq? cas-result #t) #t)
-                           ((eq? cas-result 'lost-race) (loop))
-                           ((eq? cas-result 'not-found)
-                            (attempt-add))
-                           (else (error "something else unexpected.")))))))))))
+    (define (update-entry! mc-conn key flags expires updater-func)
+      ;; convenience function to update an entry that may
+      ;; have more than one writer.  updater-func should
+      ;; take the existing data as its argument and return
+      ;; new data.  it may be called more than once.
+      (let loop ()
+        (define (attempt-add)
+          (let* ((new-entry (updater-func #f))
+                 (add-result
+                  (add-entry! mc-conn key flags expires new-entry)))
+            (cond ((eq? add-result #t) #t)
+                  ((eq? add-result 'not-stored) (loop))
+                  ((eq? add-result 'exists) (loop))
+                  ((eq? add-result 'not-found) (loop))
+                  (else (error "something unexpected.")))))
+        (let ((gets-result (get-entries mc-conn (list key))))
+          (cond ((null? gets-result)
+                 (attempt-add))
+                (else
+                 (let* ((result (car gets-result))
+                        (entry-key-encoded (list-ref result 0))
+                        (entry-flags (list-ref result 1))
+                        (entry-value (list-ref result 2))
+                        (entry-cas-unique (list-ref result 3))
+                        (new-entry (updater-func entry-value))
+                        (cas-result (cas-entry! mc-conn key flags expires
+                                                new-entry entry-cas-unique)))
+                   (cond ((eq? cas-result #t) #t)
+                         ((eq? cas-result 'lost-race) (loop))
+                         ((eq? cas-result 'not-found)
+                          (attempt-add))
+                         (else (error "something else unexpected.")))))))))
     ))
