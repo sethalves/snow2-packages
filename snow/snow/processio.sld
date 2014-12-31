@@ -30,7 +30,9 @@
             (only (sagittarius)
                   current-directory
                   set-current-directory))
-    (import (sagittarius process))))
+    (import (sagittarius process)))
+   (foment)
+   )
   (begin
 
 ;;;============================================================================
@@ -155,7 +157,13 @@
     (process-wait (subprocess-native p)))
   )
 
- )
+
+ (foment
+  (define (snow-open-subprocess command-and-args . cwd-oa)
+    (error "snow-open-subprocess is unimplemented"))
+
+  (define (snow-subprocess-wait p)
+    (error "snow-subprocess-wait is unimplemented"))))
 
 (define (snow-open-shell-command-process . command-and-args)
   (snow-open-subprocess command-and-args))
