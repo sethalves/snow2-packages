@@ -571,7 +571,8 @@
 
                  (let* ((test-libs
                          (filter
-                          (lambda (lib) (memq 'test (snow2-library-use-for lib)))
+                          (lambda (lib)
+                            (memq 'test (snow2-library-use-for lib)))
                           (snow2-package-libraries package)))
                         (test-lib-names (get-test-lib-names test-libs))
                         (env (build-test-environment test-lib-names)))
