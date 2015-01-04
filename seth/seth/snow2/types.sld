@@ -328,14 +328,14 @@
 
 
 
-    (define-syntax snow2-trace
-      (syntax-rules ()
-        ((_ what) (begin
-                    (write what)
-                    (newline)))))
-
     ;; (define-syntax snow2-trace
     ;;   (syntax-rules ()
-    ;;     ((_ what) #t)))
+    ;;     ((_ what) (begin
+    ;;                 (write what)
+    ;;                 (newline)))))
+
+    (define-syntax snow2-trace
+      (syntax-rules ()
+        ((_ what) #t)))
 
     ))
