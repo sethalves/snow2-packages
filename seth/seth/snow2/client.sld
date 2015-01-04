@@ -19,7 +19,12 @@
    (else (import (except (srfi 13) string-copy string-map string-for-each
                          string-fill! string-copy! string->list)
                  (srfi 37) (srfi 27) (srfi 29))))
-  (import (snow filesys) (snow binio) (snow genport) (snow zlib) (snow tar)
+  (import (snow filesys)
+          (snow binio)
+          (snow genport)
+          (snow zlib)
+          (snow tar)
+          (snow assert)
           (prefix (seth http) http-)
           (seth temporary-file)
           (seth string-read-write)
