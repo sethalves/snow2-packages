@@ -60,8 +60,7 @@
           (srfi 95)
           (snow assert))
   (cond-expand
-   (chibi (import (only (srfi 1) filter make-list any fold
-                        lset-intersection last drop-right find)
+   (chibi (import (only (srfi 1) fold lset-intersection last drop-right find)
                   (only (chibi) read)))
    (else (import (scheme read)
                  (srfi 1))))
@@ -827,35 +826,6 @@
                    (close-input-port in-port)
                    (get-siblings repository)
                    repository)))))))
-
-
-    ;; (define (get-repositories-and-siblings repositories repository-urls)
-    ;;   (define (make-repo-has-url? url)
-    ;;     (lambda (repository)
-    ;;       (and (snow2-repository-url repository)
-    ;;            (uri-equal? (snow2-repository-url repository) url))))
-    ;;   (define (get-sibling-urls repository)
-    ;;     (map snow2-sibling-url (snow2-repository-siblings repository)))
-    ;;   (cond ((null? repository-urls) repositories)
-    ;;         (else
-    ;;          (let ((repository-url (car repository-urls)))
-    ;;            (cond ((any (make-repo-has-url? repository-url) repositories)
-    ;;                   ;; we've already loaded this one.
-    ;;                   (get-repositories-and-siblings
-    ;;                    repositories (cdr repository-urls)))
-    ;;                  (else
-    ;;                   ;; this was previously unloaded
-    ;;                   (let ((repository
-    ;;                          (caching-get-repository repository-url)))
-    ;;                     (if repository
-    ;;                         (let ((sibling-urls (get-sibling-urls repository)))
-    ;;                           (get-repositories-and-siblings
-    ;;                            (cons repository repositories)
-    ;;                            (append (cdr repository-urls) sibling-urls)))
-    ;;                         ;; perhaps this should be a fatal error.
-    ;;                         ;; for now, just try to continue.
-    ;;                         (get-repositories-and-siblings
-    ;;                          repositories (cdr repository-urls))))))))))
 
 
     (define (merge-packages! dst-package src-package verbose)
