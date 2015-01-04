@@ -104,8 +104,8 @@
     (name ())
     (version "1.0")
     (url "processio.tgz")
-    (size 15360)
-    (checksum (md5 "1dcf85d5233e954aeb611a275f805c15"))
+    (size 15872)
+    (checksum (md5 "bf432ae5e9e975dbd94498402508c841"))
     (library
       (name (snow processio))
       (path "snow/processio.sld")
@@ -172,8 +172,8 @@
     (name ())
     (version "1.0")
     (url "filesys.tgz")
-    (size 24576)
-    (checksum (md5 "45a0e9c8bba3c5af4861e3300e0b0527"))
+    (size 23552)
+    (checksum (md5 "6c79404e3dfacc77cac5fc0243c66462"))
     (library
       (name (snow filesys))
       (path "snow/filesys.sld")
@@ -359,7 +359,7 @@
     (version "1.0")
     (url "input-parse.tgz")
     (size 15360)
-    (checksum (md5 "0656a825e44c26d99db20a6b6455b0ae"))
+    (checksum (md5 "5813515d20d87f0b8c5ea952b48a3708"))
     (library
       (name (snow input-parse))
       (path "snow/input-parse.sld")
