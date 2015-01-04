@@ -226,7 +226,8 @@
              (r7rs-get-exports-from-import-set-except import-set)
              )
             (else
-             (let* ((local-repos (filter snow2-repository-local))
+             (let* ((local-repos (filter snow2-repository-local
+                                         (get-current-repositories)))
                     (libs (find-libraries-by-name local-repos import-set))
                     (libs-len (length libs)))
                (cond ((= libs-len 0)
