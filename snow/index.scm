@@ -299,7 +299,7 @@
     (version "1.0")
     (url "random.tgz")
     (size 8192)
-    (checksum (md5 "14f5990e3e1ab21cadcb334c9c258953"))
+    (checksum (md5 "e956543f3b59464a544cffbe7862d971"))
     (library
       (name (snow random))
       (path "snow/random.sld")
@@ -359,7 +359,7 @@
     (version "1.0")
     (url "input-parse.tgz")
     (size 15360)
-    (checksum (md5 "5813515d20d87f0b8c5ea952b48a3708"))
+    (checksum (md5 "b871bd0c881dc53f11b216cd04810ca0"))
     (library
       (name (snow input-parse))
       (path "snow/input-parse.sld")
