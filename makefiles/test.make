@@ -10,7 +10,7 @@ snow2=snow2
 # REPODIR=$(shell dirname $(PACKAGEDIR))
 # REPONAME=$(shell basename $(REPODIR))
 
-REPOS=-r ../../../snow -r ../../../seth -r ../../../../r7rs-srfis
+REPOS=-r ../../../snow -r ../../../seth -r ../../../../r7rs-srfis -r ../../../../industria
 
 all:
 
@@ -63,5 +63,5 @@ clean:
 #	for DEP in $(DEPS) ; do \
 #		$(snow2) uninstall $(TEST_DEPS); \
 #	done
-	rm -rf seth snow srfi chibi srfi-tests
+	rm -rf seth snow srfi chibi srfi-tests weinholt
 	make clean-extra

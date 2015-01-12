@@ -3,7 +3,7 @@
   <head>
     <link rel="stylesheet" type="text/css" href="index.css" />
   </head>
-  <body><h1>Snow2 Repository</h1><h2>Siblings</h2><p><a href="http://snow-repository.s3-website-us-east-1.amazonaws.com/">Snow Repository</a> trust=1.0</p><p><a href="http://snow-fort.s3-website-us-east-1.amazonaws.com/">Chibi Repository</a> trust=1.0</p><table>
+  <body><h1>Snow2 Repository</h1><h2>Siblings</h2><p><a href="http://snow-repository.s3-website-us-east-1.amazonaws.com/">Snow Repository</a> trust=1.0</p><p><a href="http://snow-fort.s3-website-us-east-1.amazonaws.com/">Chibi Repository</a> trust=1.0</p><p><a href="http://snow2.s3-website-us-east-1.amazonaws.com/industria">Industria</a> trust=1.0</p><table>
     <thead>
       <tr>
         <th>Packages</th>
@@ -67,60 +67,6 @@
       </tr>
       <tr class="package-tr">
         <td class="package-td">
-          <a class="package-a" href="crypt.tgz">crypt</a>
-        </td>
-        <td class="library-td">
-          <ul>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt md5)</a> -- md5</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Alex Shinn"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (BSD-style)</p>
-              <p class="lib-details">Depends: (snow bytevector) (srfi 60)</p>
-              <p class="lib-details">Use-For: (final)</p>
-            </li>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt sha-1)</a> -- sha-1</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (BSD-style)</p>
-              <p class="lib-details">Depends: (srfi 60) (snow bytevector)</p>
-              <p class="lib-details">Use-For: (final)</p>
-            </li>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt sha-2)</a> -- sha-2</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Alex Shinn"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (BSD-style)</p>
-              <p class="lib-details">Depends: (srfi 60) (snow bytevector)</p>
-              <p class="lib-details">Use-For: (final)</p>
-            </li>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt hmac-sha-1)</a> -- hmac-sha-1</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (BSD-style)</p>
-              <p class="lib-details">Depends: (srfi 60) (seth port-extras) (seth crypt sha-1) (snow bytevector)</p>
-              <p class="lib-details">Use-For: (final)</p>
-            </li>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt tests)</a> -- tests for crypt</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (bsd)</p>
-              <p class="lib-details">Depends: (snow bytevector) (seth crypt sha-1) (seth crypt sha-2) (seth crypt md5) (seth crypt hmac-sha-1)</p>
-              <p class="lib-details">Use-For: (test)</p>
-            </li>
-          </ul>
-        </td>
-      </tr>
-      <tr class="package-tr">
-        <td class="package-td">
           <a class="package-a" href="cout.tgz">cout</a>
         </td>
         <td class="library-td">
@@ -141,6 +87,42 @@
               <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
               <p class="lib-details">License: (bsd)</p>
               <p class="lib-details">Depends: (seth cout)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="aws.tgz">aws</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth aws s3)</a> -- aws</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Thomas Hintz &lt;t@thintz.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (BSD-style)</p>
+              <p class="lib-details">Depends: (snow bytevector) (srfi 13) (snow extio) (seth uri) (seth port-extras) (seth xml ssax) (seth xml sxpath) (seth http) (seth aws common)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth aws common)</a> -- aws</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Thomas Hintz &lt;t@thintz.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (BSD-style)</p>
+              <p class="lib-details">Depends: (srfi 1) (snow bytevector) (srfi 13) (srfi 95) (srfi 29) (srfi 19) (snow extio) (seth http) (seth crypt hmac-sha-1) (seth uri) (seth base64) (srfi 14)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth aws tests)</a> -- tests for aws</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (srfi 13) (snow bytevector) (seth base64) (seth http) (seth crypt md5) (seth aws common) (seth aws s3) (srfi 78)</p>
               <p class="lib-details">Use-For: (test)</p>
             </li>
           </ul>
@@ -276,6 +258,60 @@
               <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
               <p class="lib-details">License: (bsd)</p>
               <p class="lib-details">Depends: (seth port-extras) (snow genport) (seth zlib)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="crypt.tgz">crypt</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt md5)</a> -- md5</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Alex Shinn"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (BSD-style)</p>
+              <p class="lib-details">Depends: (snow bytevector) (srfi 60)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt sha-1)</a> -- sha-1</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (BSD-style)</p>
+              <p class="lib-details">Depends: (srfi 60) (snow bytevector)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt sha-2)</a> -- sha-2</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Alex Shinn"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (BSD-style)</p>
+              <p class="lib-details">Depends: (srfi 60) (snow bytevector)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt hmac-sha-1)</a> -- hmac-sha-1</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (BSD-style)</p>
+              <p class="lib-details">Depends: (srfi 60) (seth port-extras) (seth crypt sha-1) (snow bytevector)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth crypt tests)</a> -- tests for crypt</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow bytevector) (seth crypt sha-1) (seth crypt sha-2) (seth crypt md5) (seth crypt hmac-sha-1)</p>
               <p class="lib-details">Use-For: (test)</p>
             </li>
           </ul>
@@ -589,6 +625,60 @@
       </tr>
       <tr class="package-tr">
         <td class="package-td">
+          <a class="package-a" href="port-extras.tgz">port-extras</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth port-extras)</a> -- port-extras</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow bytevector)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth port-extras tests)</a> -- tests for port-extras</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (seth port-extras)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="binary-pack.tgz">binary-pack</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth binary-pack)</a> -- binary-pack</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (srfi 60) (snow bytevector)</p>
+              <p class="lib-details">Use-For: (final)</p>
+            </li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth binary-pack tests)</a> -- tests for binary-pack</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: (snow bytevector) (seth binary-pack)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
           <a class="package-a" href="string-read-write.tgz">string-read-write</a>
         </td>
         <td class="library-td">
@@ -661,96 +751,6 @@
       </tr>
       <tr class="package-tr">
         <td class="package-td">
-          <a class="package-a" href="aws.tgz">aws</a>
-        </td>
-        <td class="library-td">
-          <ul>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth aws s3)</a> -- aws</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Thomas Hintz &lt;t@thintz.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (BSD-style)</p>
-              <p class="lib-details">Depends: (snow bytevector) (srfi 13) (snow extio) (seth uri) (seth port-extras) (seth xml ssax) (seth xml sxpath) (seth http) (seth aws common)</p>
-              <p class="lib-details">Use-For: (final)</p>
-            </li>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth aws common)</a> -- aws</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Thomas Hintz &lt;t@thintz.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (BSD-style)</p>
-              <p class="lib-details">Depends: (srfi 1) (snow bytevector) (srfi 13) (srfi 95) (srfi 29) (srfi 19) (snow extio) (seth http) (seth crypt hmac-sha-1) (seth uri) (seth base64) (srfi 14)</p>
-              <p class="lib-details">Use-For: (final)</p>
-            </li>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth aws tests)</a> -- tests for aws</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (bsd)</p>
-              <p class="lib-details">Depends: (srfi 13) (snow bytevector) (seth base64) (seth http) (seth crypt md5) (seth aws common) (seth aws s3) (srfi 78)</p>
-              <p class="lib-details">Use-For: (test)</p>
-            </li>
-          </ul>
-        </td>
-      </tr>
-      <tr class="package-tr">
-        <td class="package-td">
-          <a class="package-a" href="port-extras.tgz">port-extras</a>
-        </td>
-        <td class="library-td">
-          <ul>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth port-extras)</a> -- port-extras</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (bsd)</p>
-              <p class="lib-details">Depends: (snow bytevector)</p>
-              <p class="lib-details">Use-For: (final)</p>
-            </li>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth port-extras tests)</a> -- tests for port-extras</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (bsd)</p>
-              <p class="lib-details">Depends: (seth port-extras)</p>
-              <p class="lib-details">Use-For: (test)</p>
-            </li>
-          </ul>
-        </td>
-      </tr>
-      <tr class="package-tr">
-        <td class="package-td">
-          <a class="package-a" href="binary-pack.tgz">binary-pack</a>
-        </td>
-        <td class="library-td">
-          <ul>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth binary-pack)</a> -- binary-pack</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (bsd)</p>
-              <p class="lib-details">Depends: (srfi 60) (snow bytevector)</p>
-              <p class="lib-details">Use-For: (final)</p>
-            </li>
-            <li>
-              <p><a class="lib-a" href="https://github.com/sethalves">(seth binary-pack tests)</a> -- tests for binary-pack</p>
-              <p class="lib-details">Version: 1.0</p>
-              <p class="lib-details">Authors: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
-              <p class="lib-details">License: (bsd)</p>
-              <p class="lib-details">Depends: (snow bytevector) (seth binary-pack)</p>
-              <p class="lib-details">Use-For: (test)</p>
-            </li>
-          </ul>
-        </td>
-      </tr>
-      <tr class="package-tr">
-        <td class="package-td">
           <a class="package-a" href="uuid.tgz">uuid</a>
         </td>
         <td class="library-td">
@@ -771,6 +771,27 @@
               <p class="lib-details">Maintainers: "Seth Alves &lt;seth@hungry.com&gt;"</p>
               <p class="lib-details">License: (bsd)</p>
               <p class="lib-details">Depends: (srfi 27) (seth uuid)</p>
+              <p class="lib-details">Use-For: (test)</p>
+            </li>
+          </ul>
+        </td>
+      </tr>
+      <tr class="package-tr">
+        <td class="package-td">
+          <a class="package-a" href="minecraft-nbt.tgz">minecraft-nbt</a>
+        </td>
+        <td class="library-td">
+          <ul>
+            <li><p><a class="lib-a" href="https://github.com/sethalves">(seth minecraft-nbt)</a> -- The Named Binary Tag format used by Minecraft</p><p class="lib-details">Version: 1.0</p><p class="lib-details">
+              <a href="http://minecraft.gamepedia.com/NBT_format">manual</a>
+            </p><p class="lib-details">Authors: "Seth Alves &lt;alves@hungry.com&gt;"</p><p class="lib-details">Maintainers: "Seth Alves &lt;alves@hungry.com&gt;"</p><p class="lib-details">License: (bsd)</p><p class="lib-details">Depends: (snow genport) (snow zlib) (snow assert) (snow extio) (weinholt struct pack)</p><p class="lib-details">Use-For: (final)</p></li>
+            <li>
+              <p><a class="lib-a" href="https://github.com/sethalves">(seth minecraft-nbt tests)</a> -- tests for minecraft-nbt</p>
+              <p class="lib-details">Version: 1.0</p>
+              <p class="lib-details">Authors: "Seth Alves &lt;alves@hungry.com&gt;"</p>
+              <p class="lib-details">Maintainers: "Seth Alves &lt;alves@hungry.com&gt;"</p>
+              <p class="lib-details">License: (bsd)</p>
+              <p class="lib-details">Depends: </p>
               <p class="lib-details">Use-For: (test)</p>
             </li>
           </ul>
