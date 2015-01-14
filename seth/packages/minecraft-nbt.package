@@ -7,7 +7,7 @@
   (homepage "https://github.com/sethalves")
   (maintainers "Seth Alves <alves@hungry.com>")
   (authors "Seth Alves <alves@hungry.com>")
-  (manual (en "http://minecraft.gamepedia.com/NBT_format"))
+  (manual (else "http://minecraft.gamepedia.com/NBT_format"))
   (description "The Named Binary Tag format used by Minecraft")
   (license bsd))
  (library
