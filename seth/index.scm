@@ -18,7 +18,7 @@
     (version "1.0")
     (url "alexpander.tgz")
     (size 93696)
-    (checksum (md5 "514c0087aa0944056d49bd56f8b002c8"))
+    (checksum (md5 "d0ff0e466c28b80fdb8cad786138da0a"))
     (library
       (name (seth alexpander))
       (path "seth/alexpander.sld")
@@ -41,7 +41,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for alexpander")
       (license bsd)
-      (depends)
+      (depends (seth alexpander))
       (use-for test)))
   (package
     (name ())
@@ -642,8 +642,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 145408)
-    (checksum (md5 "07135463f954caa702a4b99869859e1c"))
+    (size 148480)
+    (checksum (md5 "3a0f1c52ad56b46636c27b28ea82ee27"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -667,6 +667,7 @@
         (snow tar)
         (snow assert)
         (seth http)
+        (seth cout)
         (seth temporary-file)
         (seth string-read-write)
         (seth uri)
@@ -731,6 +732,7 @@
       (depends
         (srfi 95)
         (snow assert)
+        (seth cout)
         (srfi 1)
         (snow extio)
         (srfi 13)

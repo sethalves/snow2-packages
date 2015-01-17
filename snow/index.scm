@@ -449,8 +449,8 @@
     (name ())
     (version "1.0")
     (url "digest.tgz")
-    (size 71680)
-    (checksum (md5 "88e0115476a798f4366adc0d24fdf541"))
+    (size 59392)
+    (checksum (md5 "f2f224efc789c920678e22e13eb1e9a4"))
     (library
       (name (snow digest))
       (path "snow/digest.sld")
