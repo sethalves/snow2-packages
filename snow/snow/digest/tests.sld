@@ -102,6 +102,10 @@
              (repeat (cadr v))
              (str2 (caddr v))
              (expect (cadddr v)))
+
+         (write v)
+         (newline)
+
          (let ((md
                 (if (= repeat 0)
                     (digest-string str2 algorithm 'hex)
@@ -129,12 +133,14 @@
                                0
                                (bytevector-length u8vect2))
                               (close-digest digest 'hex))))))))
+           (write md)
+           (newline)
            (expect* (string-ci=? md expect)))))
      vectors)
     #t)
 
   (t 'crc32 crc32-test-vectors)
-  ;; (t 'md5 md5-test-vectors)
+  (t 'md5 md5-test-vectors)
   ;; (t 'sha-1 sha-1-test-vectors)
   ;;   (t 'sha-224 sha-224-test-vectors)
   ;;   (t 'sha-256 sha-256-test-vectors)
