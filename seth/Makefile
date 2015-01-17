@@ -5,7 +5,7 @@
 all:
 
 package:
-	snow2 -r . -r ../snow -r ../../r7rs-srfis package
+	snow2 -r . package
 	ls
 	ls *.tgz | while read I; do   gunzip "$$I";   gzip -n -9 $${I%%.*}.tar;   mv $${I%%.*}.tar.gz $${I%%.*}.tgz; done
 
