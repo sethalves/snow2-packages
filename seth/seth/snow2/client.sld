@@ -249,7 +249,7 @@
                (write (snow2-package-get-readable-name package))
                (newline)))
 
-        (let* ((libraries (snow2-package-libraries package))
+        (let* ((libraries (find-libraries-for-steps package steps))
                (lib-sexps (map (lambda (lib)
                                  (let* ((lib-filename
                                          (local-repository->in-fs-lib-filename
@@ -390,7 +390,7 @@
             (lambda (library)
               (display (snow2-library-name library))
               (newline))
-            (snow2-package-libraries package)))
+            (find-libraries-for-steps package steps)))
          packages)))
 
 
