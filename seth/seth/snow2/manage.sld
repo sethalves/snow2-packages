@@ -244,7 +244,7 @@
 
           (display "writing ")
           (display local-package-path)
-          (newline)
+          ;; (newline)
 
           ;; if the .tgz file already exists, delete it
           (cond ((or (file-exists? local-package-filename)

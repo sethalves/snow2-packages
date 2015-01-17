@@ -605,7 +605,8 @@
 
            ;; tar up and gzip a package
            ((member operation '("package"))
-            (make-package-archives args verbose))
+            (make-package-archives args verbose)
+            (report-unfound-libs))
 
            ;; run tests in a source repository
            ((member operation '("run-source-tests"))
@@ -646,4 +647,6 @@
                ;; unknown operation
                (else
                 (usage (string-append "Unknown operation: "
-                                      operation "\n\n"))))))))))))
+                                      operation "\n\n"))))
+
+              (report-unfound-libs)))))))))
