@@ -51,6 +51,7 @@
           repository->html
 
           report-unfound-libs
+          is-system-import?
           )
 
   (import (scheme base)
