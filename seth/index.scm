@@ -642,8 +642,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 150528)
-    (checksum (md5 "96c34eec8a7915d6599f4d78e4f3f47e"))
+    (size 152064)
+    (checksum (md5 "2ecdae4c6d7d07a88827a300ef53d9fa"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
@@ -688,6 +688,7 @@
       (description "snow2 types")
       (license bsd)
       (depends
+        (seth cout)
         (srfi 1)
         (snow bytevector)
         (snow tar)
