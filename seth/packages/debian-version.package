@@ -1,0 +1,21 @@
+(package
+ (name ())
+ (url "debian-version.tgz")
+ (library
+  (path "seth/debian-version.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "debian-version")
+  (license bsd))
+ (library
+  (path "seth/debian-version/tests.sld")
+  (use-for test)
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <seth@hungry.com>")
+  (authors "Seth Alves <seth@hungry.com>")
+  (description "tests for debian-version")
+  (license bsd)
+  ))
