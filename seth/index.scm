@@ -17,8 +17,8 @@
     (name ())
     (version "1.0")
     (url "debian-version.tgz")
-    (size 15872)
-    (checksum (md5 "f3a706878ef9a7d8b233166f7b523acc"))
+    (size 27648)
+    (checksum (md5 "8fbdc90a9e86f99845530e24ce5e4fe5"))
     (library
       (name (seth debian-version))
       (path "seth/debian-version.sld")
@@ -29,7 +29,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "debian-version")
       (license bsd)
-      (depends (srfi 13) (srfi 14) (snow assert) (seth cout))
+      (depends (srfi 1) (srfi 13) (srfi 14) (snow assert))
       (use-for final))
     (library
       (name (seth debian-version tests))
@@ -643,7 +643,7 @@
     (version "1.0")
     (url "snow2-utils.tgz")
     (size 152576)
-    (checksum (md5 "61382290ca475320908456ac26824440"))
+    (checksum (md5 "a1525208e61f2c1c352b6e3aaf13a5ce"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
