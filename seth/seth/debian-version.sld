@@ -14,8 +14,10 @@
           debian-version-=?
           debian-version-<=?
           debian-version->=?
+          version-satisfies-requirement?
           )
   (import (scheme base)
+          (srfi 1)
           (except (srfi 13) string-copy string-map string-for-each
                   string-fill! string-copy! string->list)
           (srfi 14)
@@ -287,4 +289,51 @@
       (or (debian-version-<? b a)
           (not (debian-version-<? a b))))
 
+
+    (define (version-satisfies-requirement? ver req)
+      ;; ver should be a debian-version or a string
+      ;; req should be something like '(>= "2.0.6")
+      ;; or '(and (> "2.0") (not (> "2.3")))
+      (snow-assert (or (debian-version? ver) (string? ver)))
+      (snow-assert (or (debian-version? req)
+                       (string? req)
+                       (list? req)
+                       (boolean? req)))
+
+      (cond ((eq? req #t) #t)
+            ((eq? req #f) #f)
+            ((or (string? req) (debian-version? req))
+             (debian-version-=? ver req))
+            (else
+             (let ((op (car req)))
+               (cond ((eq? op '<)
+                      (snow-assert (= (length req) 2))
+                      (debian-version-<? ver (cadr req)))
+                     ((eq? op '>)
+                      (snow-assert (= (length req) 2))
+                      (debian-version->? ver (cadr req)))
+                     ((eq? op '<=)
+                      (snow-assert (= (length req) 2))
+                      (debian-version-<=? ver (cadr req)))
+                     ((eq? op '>=)
+                      (snow-assert (= (length req) 2))
+                      (debian-version->=? ver (cadr req)))
+                     ((eq? op '=)
+                      (snow-assert (= (length req) 2))
+                      (debian-version-=? ver (cadr req)))
+                     ((eq? op 'not)
+                      (snow-assert (= (length req) 2))
+                      (not (version-satisfies-requirement? ver (cadr req))))
+                     ((eq? op 'or)
+                      (any
+                       (lambda (subreq)
+                         (version-satisfies-requirement? ver subreq))
+                       (cdr req)))
+                     ((eq? op 'and)
+                      (every
+                       (lambda (subreq)
+                         (version-satisfies-requirement? ver subreq))
+                       (cdr req)))
+                     (else
+                      (error "unknown version requirement operation" op)))))))
     ))

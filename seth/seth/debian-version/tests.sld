@@ -14,20 +14,15 @@
       (check (debian-version-=?
               (string->debian-version "2.0")
               (make-debian-version "0" "2.0" "0")) => #t)
-
       (check (debian-version-=?
               (string->debian-version "1:2.0")
               (make-debian-version "1" "2.0" "0")) => #t)
-
       (check (debian-version-=?
               (string->debian-version "2.0-ok")
               (make-debian-version "0" "2.0" "ok")) => #t)
-
       (check (debian-version-=?
               (string->debian-version "3:2.0-ok")
               (make-debian-version "3" "2.0" "ok")) => #t)
-
-
       (check (debian-version-=?
               (string->debian-version "1~")
               (make-debian-version "0" "1~" "0")) => #t)
@@ -35,16 +30,12 @@
 
       (check (debian-version->string (make-debian-version "0" "2.0" "0"))
              => "2.0")
-
       (check (debian-version->string (make-debian-version "1" "2.0" "0"))
              => "1:2.0")
-
       (check (debian-version->string (make-debian-version "0" "2.0" "ok"))
              => "2.0-ok")
-
       (check (debian-version->string (make-debian-version "3" "2.0" "ok"))
              => "3:2.0-ok")
-
       (check (debian-version->string (make-debian-version "0" "1~" "0"))
              => "1~")
 
@@ -129,7 +120,6 @@
       (check (debian-version-<=? "3+" "3b") => #f)
       (check (debian-version-<=? "3b" "3+") => #t)
 
-
       (check (debian-version->=? "2" "1") => #t)
       (check (debian-version->=? "1" "2") => #f)
       (check (debian-version->=? "1" "1") => #t)
@@ -157,7 +147,27 @@
       (check (debian-version->=? "3b" "3+") => #f)
       (check (debian-version->=? "3+" "3b") => #t)
 
+      (check (version-satisfies-requirement? "2.1.3" '(< "2.1")) => #f)
+      (check (version-satisfies-requirement? "2.0.3" '(< "2.1")) => #t)
+      (check (version-satisfies-requirement? "2.1.3" '(> "2.1")) => #t)
+      (check (version-satisfies-requirement? "2.0.3" '(> "2.1")) => #f)
+      (check (version-satisfies-requirement? "2.1.3" '(<= "2.1")) => #f)
+      (check (version-satisfies-requirement? "2.0.3" '(<= "2.1")) => #t)
+      (check (version-satisfies-requirement? "2.0.3" '(<= "2.0.3")) => #t)
+      (check (version-satisfies-requirement? "2.1.3" '(>= "2.1")) => #t)
+      (check (version-satisfies-requirement? "2.0.3" '(>= "2.1")) => #f)
+      (check (version-satisfies-requirement? "2.0.3" '(>= "2.0.3")) => #t)
+      (check (version-satisfies-requirement? "2.0.3" '(not (>= "2.1"))) => #t)
 
-      (check-passed? 114))
+      (check (version-satisfies-requirement?
+              "2.0.3" '(and (> "2.0") (< "3.0.3"))) => #t)
+      (check (version-satisfies-requirement?
+              "2.0.3" '(or (> "2.0") (= "1.0.8"))) => #t)
+      (check (version-satisfies-requirement?
+              "1.0.8" '(or (> "2.0") (= "1.0.8"))) => #t)
+      (check (version-satisfies-requirement?
+              "1.0.9" '(or (> "2.0") (= "1.0.8"))) => #f)
+      (check (version-satisfies-requirement?
+              "1.0.9" '(not (or (> "2.0") (= "1.0.8")))) => #t)
 
-    ))
+      (check-passed? 130))))
