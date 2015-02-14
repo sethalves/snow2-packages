@@ -642,8 +642,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 152576)
-    (checksum (md5 "a1525208e61f2c1c352b6e3aaf13a5ce"))
+    (size 153088)
+    (checksum (md5 "3bfc0b45110f0367a81456b3413cd55d"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")
