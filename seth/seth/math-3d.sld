@@ -10,6 +10,7 @@
 (define-library (seth math-3d)
   (export pi
           pi*2
+          pi/2
           number->pretty-string
           vector-max
           delete-from-vector
@@ -138,7 +139,8 @@
   (begin
 
     (define pi 3.14159265358979323846)
-    (define pi*2 (* 2.0 pi))
+    (define pi*2 (* pi 2.0))
+    (define pi/2 (/ pi 2.0))
 
 
     (define (number->pretty-string v places)
@@ -501,11 +503,18 @@
               (+ (vector2-y v0) (vector2-y v1))))
 
 
-    (define (vector3-sum v0 v1)
+    ;; (define (vector3-sum v0 v1)
+    ;;   ;; add up vectors
+    ;;   (vector (+ (vector3-x v0) (vector3-x v1))
+    ;;           (+ (vector3-y v0) (vector3-y v1))
+    ;;           (+ (vector3-z v0) (vector3-z v1))))
+
+    (define (vector3-sum . vs)
       ;; add up vectors
-      (vector (+ (vector3-x v0) (vector3-x v1))
-              (+ (vector3-y v0) (vector3-y v1))
-              (+ (vector3-z v0) (vector3-z v1))))
+      (vector (apply + (map vector3-x vs))
+              (apply + (map vector3-y vs))
+              (apply + (map vector3-z vs))))
+
 
 
     (define (vector-list-sum lst)
@@ -557,8 +566,12 @@
     (define (vector2-average v0 v1)
       (vector2-scale (vector2-sum v0 v1) 0.5))
 
-    (define (vector3-average v0 v1)
-      (vector3-scale (vector3-sum v0 v1) 0.5))
+    ;; (define (vector3-average v0 v1)
+    ;;   (vector3-scale (vector3-sum v0 v1) 0.5))
+
+
+    (define (vector3-average . vs)
+      (vector3-scale (apply vector3-sum vs) (/ 1.0 (length vs))))
 
 
     (define (vector3-normalize v)

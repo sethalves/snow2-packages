@@ -14,7 +14,9 @@
           (srfi 29)
           (srfi 69)
           (snow assert)
-          (snow input-parse))
+          (snow input-parse)
+          (seth cout)
+          (seth math-3d))
   (cond-expand
    (chicken (import (extras)))
    (else))
@@ -43,6 +45,23 @@
       (vertex-index face-corner-vertex-index face-corner-set-vertex-index!)
       (texture-index face-corner-texture-index face-corner-set-texture-index!)
       (normal-index face-corner-normal-index face-corner-set-normal-index!))
+
+
+    (define (face-corner->vertex model face-corner)
+      (snow-assert (model? model))
+      (snow-assert (face-corner? face-corner))
+      (let ((index (face-corner-vertex-index face-corner)))
+        (if (eq? index 'unset) #f
+            (vector-map string->number (list-ref (model-vertices model) index)))))
+
+
+    (define (face-corner->normal model face-corner)
+      (snow-assert (model? model))
+      (snow-assert (face-corner? face-corner))
+      (let ((index (face-corner-normal-index face-corner)))
+        (if (eq? index 'unset) #f
+            (vector-map string->number (list-ref (model-normals model) index)))))
+      
 
     ;; a face is a vector of face-corners
     (define (face? face)
@@ -373,12 +392,51 @@
 
 
     (define (fix-implied-normals model)
-      ;; obj files should have counter-clockwise points
+      (snow-assert (model? model))
+      ;; obj files should have counter-clockwise points.  If we read normals
+      ;; and the ordering on the points that define a face suggest that
+      ;; the normal is more than 90 degrees off of the read normal,
+      ;; flip the ordering of the points in the face.
       (operate-on-faces
        model
        (lambda (mesh face)
-         face)
-      ))
-
+         (snow-assert (mesh? mesh))
+         (snow-assert (face? face))
+         (let ((vertices (vector-map
+                          (lambda (face-corner)
+                            (face-corner->vertex model face-corner))
+                          face)))
+           ;; a face might be defined by more than 3 vertices.  if so, punt.
+           (cond ((= (vector-length vertices) 3)
+                  (let ((normals
+                         `(,(face-corner->normal model (vector-ref face 0))
+                           ,(face-corner->normal model (vector-ref face 1))
+                           ,(face-corner->normal model (vector-ref face 2))))
+                        (vertex-0 (vector-ref vertices 0))
+                        (vertex-1 (vector-ref vertices 1))
+                        (vertex-2 (vector-ref vertices 2)))
+                    (if (memq 'unset normals)
+                        ;; if any of the normals a missing don't try.
+                        face
+                        ;; we have 3 vertices with 3 normals.
+                        ;; average the normals
+                        (let* ((normal (apply vector3-average normals))
+                               ;; get cross-product of triangle sides
+                               (diff-1-0 (vector3-diff vertex-1 vertex-0))
+                               (diff-2-0 (vector3-diff vertex-2 vertex-0))
+                               (cross (cross-product diff-1-0 diff-2-0))
+                               ;; angle between implied normal and read one
+                               (angle-between
+                                (angle-between-vectors
+                                 normal cross (cross-product normal cross))))
+                          (cond ((> (abs angle-between) pi/2)
+                                 ;; the angles don't agree, so flip the face
+                                 (vector (vector-ref face 0)
+                                         (vector-ref face 2)
+                                         (vector-ref face 1)))
+                                ;; the angles agree, leave it alone.
+                                (else face))))))
+                 ;; not 3 vertices in face.
+                 (else face))))))
     
     ))

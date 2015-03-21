@@ -17,8 +17,8 @@
     (name ())
     (version "1.0")
     (url "math-3d.tgz")
-    (size 57856)
-    (checksum (md5 "7a1492305e01d8eadf79c89568ea99db"))
+    (size 59904)
+    (checksum (md5 "ee48896c0b22f8f374bf3f48709b181d"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")
@@ -29,7 +29,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "utilities for doing 3d math")
       (license bsd)
-      (depends (seth cout))
+      (depends (srfi 1) (srfi 13) (seth cout))
       (use-for final))
     (library
       (name (seth math-3d tests))
@@ -41,14 +41,14 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "tests for math-3d")
       (license bsd)
-      (depends (seth math-3d) (seth cout))
+      (depends (srfi 1) (seth math-3d) (seth cout))
       (use-for test)))
   (package
     (name ())
     (version "1.0")
     (url "obj-model.tgz")
-    (size 18944)
-    (checksum (md5 "4a117955ca6f4418effce71e5696c43b"))
+    (size 22528)
+    (checksum (md5 "0084ce9ff62f6e534cb2ce65b8b41087"))
     (library
       (name (seth obj-model))
       (path "seth/obj-model.sld")
@@ -59,7 +59,14 @@
       (authors "Seth Alves <alves@hungry.com>")
       (description "parse and generate obj-models")
       (license bsd)
-      (depends (srfi 13) (srfi 29) (srfi 69) (snow assert) (snow input-parse))
+      (depends
+        (srfi 13)
+        (srfi 29)
+        (srfi 69)
+        (snow assert)
+        (snow input-parse)
+        (seth cout)
+        (seth math-3d))
       (use-for final))
     (library
       (name (seth obj-model tests))
