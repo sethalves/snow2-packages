@@ -18,7 +18,7 @@
     (version "1.0")
     (url "obj-model.tgz")
     (size 18432)
-    (checksum (md5 "4f285fff8cd9bda754c65e6aa18d3a40"))
+    (checksum (md5 "f595db48efd825e45a0c1b4233f58f13"))
     (library
       (name (seth obj-model))
       (path "seth/obj-model.sld")

@@ -14,8 +14,13 @@
           (srfi 69)
           (snow assert)
           (snow input-parse))
+  (cond-expand
+   (chicken (import (extras)))
+   (else))
+
   (begin
 
+    ;; a model has a list of vertices and of normals. A model also has a list of meshes.
     (define-record-type <model>
       (make-model meshes vertices normals)
       model?
@@ -23,13 +28,13 @@
       (vertices model-vertices model-set-vertices!)
       (normals model-normals model-set-normals!))
 
-
+    ;; a mesh is a group of triangles defined by indexing into the model's vertexes
     (define-record-type <mesh>
       (make-mesh faces)
       mesh?
       (faces mesh-faces mesh-set-faces!))
 
-
+    ;; a face corner is a vertex being used as part of the definition for a face
     (define-record-type <face-corner>
       ;; indexes here are zero based
       (make-face-corner vertex-index texture-index normal-index)
@@ -38,7 +43,7 @@
       (texture-index face-corner-texture-index face-corner-set-texture-index!)
       (normal-index face-corner-normal-index face-corner-set-normal-index!))
 
-
+    ;; a face is a vector of face-corners
     (define (face? face)
       (cond ((not (vector? face)) #f)
             (else
