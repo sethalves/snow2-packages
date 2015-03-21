@@ -3,6 +3,7 @@
           read-obj-model
           read-obj-model-file
           compact-obj-model
+          fix-implied-normals
           write-obj-model)
   (import (scheme base)
           (scheme file)
@@ -51,6 +52,36 @@
                (cond ((null? face) #t)
                      ((face-corner? (car face)) (loop (cdr face)))
                      (else #f))))))
+
+
+    (define (for-each-mesh model proc)
+      (for-each proc (model-meshes model)))
+
+
+    ;; call op with and replace every face in model.  op should accept mesh
+    ;; and face and return face
+    (define (operate-on-faces model op)
+      (for-each-mesh
+       model
+       (lambda (mesh)
+         (mesh-set-faces!
+          mesh
+          (map
+           (lambda (face) (op mesh face))
+           (mesh-faces mesh))))))
+
+
+    ;; call op with and replace every face corner.  op should accept mesh and
+    ;; face and face-corner and return face-corner.
+    (define (operate-on-face-corners model op)
+      (operate-on-faces
+       model
+       (lambda (mesh face)
+         (vector-map
+          (lambda (face-corner)
+            (op mesh face face-corner))
+          face))))
+
 
 
     (define (parse-index index-string)
@@ -329,22 +360,25 @@
         (model-set-vertices! model (reverse new-vertices))
         (model-set-normals! model (reverse new-normals))
 
-        (for-each
-         (lambda (mesh)
-           (mesh-set-faces!
-            mesh
-            (map
-             (lambda (face)
-               (vector-map
-                (lambda (face-corner)
-                  (make-face-corner
-                   (remap-index (face-corner-vertex-index face-corner)
-                                original-vertices vertex-ht)
-                   (face-corner-texture-index face-corner)
-                   (remap-index (face-corner-normal-index face-corner)
-                                original-normals normal-ht)))
-                face))
-             (mesh-faces mesh))))
-         (model-meshes model))))
+        (operate-on-face-corners
+         model
+         (lambda (mesh face face-corner)
+           (make-face-corner
+            (remap-index (face-corner-vertex-index face-corner)
+                         original-vertices vertex-ht)
+            (face-corner-texture-index face-corner)
+            (remap-index (face-corner-normal-index face-corner)
+                         original-normals normal-ht))))
+        ))
+
+
+    (define (fix-implied-normals model)
+      ;; obj files should have counter-clockwise points
+      (operate-on-faces
+       model
+       (lambda (mesh face)
+         face)
+      ))
+
     
     ))
