@@ -13,12 +13,16 @@
     (name "Industria")
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/industria/index.scm")
     (trust 1.0))
+  (sibling
+    (name "Evnah")
+    (url "http://foldling.org/snow2/index.scm")
+    (trust 1.0))
   (package
     (name ())
     (version "1.0")
     (url "math-3d.tgz")
-    (size 59904)
-    (checksum (md5 "ee48896c0b22f8f374bf3f48709b181d"))
+    (size 60928)
+    (checksum (md5 "491441de58ac4ca0c7f15eb34c49222d"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")
@@ -47,8 +51,8 @@
     (name ())
     (version "1.0")
     (url "obj-model.tgz")
-    (size 22528)
-    (checksum (md5 "0084ce9ff62f6e534cb2ce65b8b41087"))
+    (size 25088)
+    (checksum (md5 "2053a1cb77b87757417e8102367b58f2"))
     (library
       (name (seth obj-model))
       (path "seth/obj-model.sld")
