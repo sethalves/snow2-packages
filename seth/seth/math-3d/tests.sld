@@ -274,6 +274,11 @@
                         (degrees->radians 90.)
                         0.0000000001)
                #t))
+
+            (< (abs (- (string->number (number->pretty-string -15.1 6)) -15.1)) 0.001)
+            (equal? (number->pretty-string 1123 6) "1123")
+            (equal? (number->pretty-string -1123 6) "-1123")
+
             )
 
       )))
