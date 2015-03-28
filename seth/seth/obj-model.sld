@@ -4,6 +4,10 @@
           read-obj-model-file
           compact-obj-model
           fix-implied-normals
+          model-aa-box
+          model-max-dimension
+          scale-model
+          size-model
           write-obj-model)
   (import (scheme base)
           (scheme file)
@@ -45,6 +49,28 @@
       (vertex-index face-corner-vertex-index face-corner-set-vertex-index!)
       (texture-index face-corner-texture-index face-corner-set-texture-index!)
       (normal-index face-corner-normal-index face-corner-set-normal-index!))
+
+
+    (define-record-type <aa-box>
+      (make-aa-box low-corner high-corner)
+      aa-box?
+      (low-corner aa-box-low-corner aa-box-set-low-corner!)
+      (high-corner aa-box-high-corner aa-box-set-high-corner!))
+
+
+    (define (aa-box-add-point aa-box p)
+      (let ((prev-low (aa-box-low-corner aa-box))
+            (prev-high (aa-box-high-corner aa-box)))
+        (aa-box-set-low-corner!
+         aa-box
+         (vector (min (vector-ref prev-low 0) (vector-ref p 0))
+                 (min (vector-ref prev-low 1) (vector-ref p 1))
+                 (min (vector-ref prev-low 2) (vector-ref p 2))))
+        (aa-box-set-high-corner!
+         aa-box
+         (vector (max (vector-ref prev-high 0) (vector-ref p 0))
+                 (max (vector-ref prev-high 1) (vector-ref p 1))
+                 (max (vector-ref prev-high 2) (vector-ref p 2))))))
 
 
     (define (face-corner->vertex model face-corner)
@@ -438,5 +464,45 @@
                                 (else face))))))
                  ;; not 3 vertices in face.
                  (else face))))))
+
+
+
+    (define (model-aa-box model)
+      (cond ((null? (model-vertices model)) #f)
+            (else
+             (let* ((p0 (vector-map string->number (car (model-vertices model))))
+                    (aa-box (make-aa-box p0 p0)))
+               ;; insert all of the model's vertices into the axis-aligned bounding box
+               (for-each
+                (lambda (p)
+                  (aa-box-add-point aa-box (vector-map string->number p)))
+                (model-vertices model))
+               aa-box))))
+
+    (define (model-max-dimension model)
+      (let* ((aa-box (model-aa-box model))
+             (low (aa-box-low-corner aa-box))
+             (high (aa-box-high-corner aa-box)))
+        (max (- (vector-ref high 0) (vector-ref low 0))
+             (- (vector-ref high 1) (vector-ref low 1))
+             (- (vector-ref high 2) (vector-ref low 2)))))
+
+
+    (define (scale-model model scaling-factor)
+      (model-set-vertices!
+       model
+       (map
+        (lambda (vertex)
+          (vector-map
+           (lambda (p)
+             (number->pretty-string (* (string->number p) scaling-factor) 6))
+           vertex))
+        (model-vertices model))))
+
+
+    (define (size-model model desired-max-dimension)
+      (let ((max-dimension (model-max-dimension model)))
+        (scale-model model (/ (inexact desired-max-dimension) (inexact max-dimension)))))
+
     
     ))
