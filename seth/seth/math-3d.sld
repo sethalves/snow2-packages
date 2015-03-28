@@ -144,23 +144,40 @@
 
 
     (define (number->pretty-string v places)
-      ;; convert a number to a base 10 string with at most 'places' decimal places.
-      ;; try to use as few characters as possible.
-      (let* ((p-mult (inexact (expt 10 places)))
-             (s0 (number->string (/ (round (* p-mult v)) p-mult)))
-             (len0 (string-length s0)))
-        (let* ((s1 (cond ((string-suffix? ".0" s0) (substring s0 0 (- len0 2)))
-                         ((string-suffix? "." s0) (substring s0 0 (- len0 1)))
-                         (else s0)))
-               (len1 (string-length s1)))
-          (cond
-           ((equal? s1 "-0") "0")
-           ((string-prefix? "." s1) (string-append "0" s1))
-           ;; ((and (> len1 2) (equal? (substring s1 0 2) "0."))
-           ;;  (substring s1 1 len1))
-           ;; ((and (> len1 3) (equal? (substring s1 0 3) "-0."))
-           ;;  (string-append "-" (substring s1 2 len1)))
-           (else s1)))))
+      ;; I didn't want to write this.  Why did I have to write this?
+      ;; number->string will return scientific notation on some platforms.
+      (define n->s (vector "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
+      (define (first-power v)
+        (let loop ((p 1))
+          (if (> (expt 10 (inexact p)) v) (- p 1)
+              (loop (+ p 1)))))
+      (define (next-digit v p)
+        (let loop ((v v)
+                   (result 0))
+          (let ((x (expt 10 (inexact p))))
+            (cond ((< v x) result)
+                  (else
+                   (loop (- v x) (+ result 1)))))))
+      (define (do-loop v)
+        (let loop ((p (if (>= v 0) (first-power v) (first-power (- v))))
+                   (result "")
+                   (v v))
+          (cond ((< v (expt 10 (inexact (- places)))) result)
+                ((= v 0) result)
+                (else
+                 (let* ((n (next-digit v p))
+                        (next-v (- v (* n (expt 10 (inexact p))))))
+                   (loop (- p 1)
+                         (if (and (> next-v 0) (= p 0))
+                             (string-append result (vector-ref n->s n) ".")
+                             (string-append result (vector-ref n->s n)))
+                         next-v))))))
+      (let ((result (if (< v 0)
+                        (string-append "-" (do-loop (- v)))
+                        (do-loop v))))
+        (cond ((equal? result "") "0")
+              ((equal? result "-") "0")
+              (else result))))
 
 
     (define (vector-max v)
