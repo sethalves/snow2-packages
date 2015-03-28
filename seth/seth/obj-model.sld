@@ -37,18 +37,26 @@
 
     ;; a mesh is a group of triangles defined by indexing into the model's vertexes
     (define-record-type <mesh>
-      (make-mesh faces)
+      (make-mesh name faces)
       mesh?
+      (name mesh-name mesh-set-name!)
       (faces mesh-faces mesh-set-faces!))
 
     ;; a face corner is a vertex being used as part of the definition for a face
     (define-record-type <face-corner>
       ;; indexes here are zero based
-      (make-face-corner vertex-index texture-index normal-index)
+      (make-face-corner~ vertex-index texture-index normal-index)
       face-corner?
       (vertex-index face-corner-vertex-index face-corner-set-vertex-index!)
       (texture-index face-corner-texture-index face-corner-set-texture-index!)
       (normal-index face-corner-normal-index face-corner-set-normal-index!))
+
+
+    (define (make-face-corner vertex-index texture-index normal-index)
+      (snow-assert (integer? vertex-index))
+      (snow-assert (or (integer? texture-index) (eq? texture-index 'unset)))
+      (snow-assert (or (integer? normal-index) (eq? normal-index 'unset)))
+      (make-face-corner~ vertex-index texture-index normal-index))
 
 
     (define-record-type <aa-box>
@@ -192,10 +200,13 @@
 
     (define (unparse-face-corner face-corner)
       (snow-assert (face-corner? face-corner))
-      (format "~a/~a/~a"
-              (unparse-index (face-corner-vertex-index face-corner))
-              (unparse-index (face-corner-texture-index face-corner))
-              (unparse-index (face-corner-normal-index face-corner))))
+      (if (and (eq? (face-corner-texture-index face-corner) 'unset)
+               (eq? (face-corner-normal-index face-corner) 'unset))
+          (unparse-index (face-corner-vertex-index face-corner))
+          (format "~a/~a/~a"
+                  (unparse-index (face-corner-vertex-index face-corner))
+                  (unparse-index (face-corner-texture-index face-corner))
+                  (unparse-index (face-corner-normal-index face-corner)))))
 
 
     (define (shift-face-indices face vertex-index-start normal-index-start)
@@ -206,8 +217,9 @@
        (lambda (corner)
          (face-corner-set-vertex-index!
           corner (+ (face-corner-vertex-index corner) vertex-index-start))
-         (face-corner-set-normal-index!
-          corner (+ (face-corner-normal-index corner) normal-index-start)))
+         (if (not (eq? (face-corner-normal-index corner) 'unset))
+             (face-corner-set-normal-index!
+              corner (+ (face-corner-normal-index corner) normal-index-start))))
        face))
 
 
@@ -249,18 +261,19 @@
                    face-vertex-indices)))))))
 
 
-    (define (read-mesh model vertex-index-start normal-index-start inport)
+    (define (read-mesh model mesh-name vertex-index-start normal-index-start inport)
       (snow-assert (model? model))
       (snow-assert (input-port? inport))
-      (let ((mesh (make-mesh '())))
-        (define (done result)
+      (let ((mesh (make-mesh #f '())))
+        (define (done result next-mesh-name)
           (cond ((not (null? (mesh-faces mesh)))
+                 (if mesh-name (mesh-set-name! mesh mesh-name))
                  (mesh-set-faces! mesh (reverse (mesh-faces mesh)))
                  (model-prepend-mesh model mesh)))
-          result)
+          (values result next-mesh-name))
         (let loop ()
           (let ((line (read-line inport)))
-            (cond ((eof-object? line) (done #f))
+            (cond ((eof-object? line) (done #f #f))
                   (else
                    ;; consume the next line
                    (let* ((line-trimmmed (string-trim-both line)))
@@ -288,28 +301,35 @@
                                       normal-index-start inport)
                                      (loop))
                                     ((equal? first-token "g")
-                                     (done #t))
+                                     (let ((next-mesh-name (nt)))
+                                       (done #t
+                                             (if (eof-object? next-mesh-name)
+                                                 #f
+                                                 next-mesh-name))))
                                     (else
                                      (loop)))))))))))))
 
 
     (define (read-obj-model inport . maybe-model)
       (snow-assert (input-port? inport))
-      (let ((model (if (null? maybe-model)
-                       (make-model '() '() '())
-                       (car maybe-model))))
+      (let* ((model (if (null? maybe-model)
+                        (make-model '() '() '())
+                        (car maybe-model)))
+             (vertex-index-start (length (model-vertices model)))
+             (normal-index-start (length (model-normals model))))
         (snow-assert (model? model))
-        (let loop ()
-          (cond ((read-mesh model
-                            (length (model-vertices model))
-                            (length (model-normals model))
-                            inport)
-                 (loop))
-                (else
-                 (model-set-meshes! model (reverse (model-meshes model)))
-                 (model-set-vertices! model (reverse (model-vertices model)))
-                 (model-set-normals! model (reverse (model-normals model)))
-                 model)))))
+        (let loop ((mesh-name #f))
+          (let-values (((continue next-model-name)
+                        (read-mesh model mesh-name
+                                   vertex-index-start
+                                   normal-index-start
+                                   inport)))
+            (cond (continue (loop next-model-name))
+                  (else
+                   (model-set-meshes! model (reverse (model-meshes model)))
+                   (model-set-vertices! model (reverse (model-vertices model)))
+                   (model-set-normals! model (reverse (model-normals model)))
+                   model))))))
 
 
     (define (read-obj-model-file input-file-name . maybe-model)
@@ -345,8 +365,10 @@
                  (nth 1))
         (cond ((null? meshes) #t)
               (else 
-               (display (format "\ng mesh-~a\n" nth) port)
                (let ((mesh (car meshes)))
+                 (if (mesh-name mesh)
+                     (display (format "\ng ~a\n" (mesh-name mesh)) port)
+                     (display (format "\ng mesh-~a\n" nth) port))
                  (for-each
                   (lambda (face)
                     (display (format "f ~a"
