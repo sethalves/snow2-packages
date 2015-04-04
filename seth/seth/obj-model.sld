@@ -5,10 +5,16 @@
           compact-obj-model
           fix-implied-normals
           model-aa-box
+          model-dimensions
           model-max-dimension
           scale-model
           size-model
-          write-obj-model)
+          translate-model
+          write-obj-model
+
+          aa-box-low-corner aa-box-set-low-corner!
+          aa-box-high-corner aa-box-set-high-corner!
+          )
   (import (scheme base)
           (scheme file)
           (scheme write)
@@ -318,6 +324,11 @@
              (vertex-index-start (length (model-vertices model)))
              (normal-index-start (length (model-normals model))))
         (snow-assert (model? model))
+
+        (model-set-meshes! model (reverse (model-meshes model)))
+        (model-set-vertices! model (reverse (model-vertices model)))
+        (model-set-normals! model (reverse (model-normals model)))
+
         (let loop ((mesh-name #f))
           (let-values (((continue next-model-name)
                         (read-mesh model mesh-name
@@ -501,13 +512,18 @@
                 (model-vertices model))
                aa-box))))
 
-    (define (model-max-dimension model)
+
+    (define (model-dimensions model)
       (let* ((aa-box (model-aa-box model))
              (low (aa-box-low-corner aa-box))
              (high (aa-box-high-corner aa-box)))
-        (max (- (vector-ref high 0) (vector-ref low 0))
-             (- (vector-ref high 1) (vector-ref low 1))
-             (- (vector-ref high 2) (vector-ref low 2)))))
+        (vector (- (vector-ref high 0) (vector-ref low 0))
+                (- (vector-ref high 1) (vector-ref low 1))
+                (- (vector-ref high 2) (vector-ref low 2)))))
+
+
+    (define (model-max-dimension model)
+      (vector-max (model-dimensions model)))
 
 
     (define (scale-model model scaling-factor)
@@ -525,6 +541,16 @@
     (define (size-model model desired-max-dimension)
       (let ((max-dimension (model-max-dimension model)))
         (scale-model model (/ (inexact desired-max-dimension) (inexact max-dimension)))))
+
+
+    (define (translate-model model by-offset)
+      (model-set-vertices!
+       model
+       (map
+        (lambda (vertex)
+          (let ((fvertex (vector-map string->number vertex)))
+            (vector-map number->string (vector3-sum fvertex by-offset))))
+        (model-vertices model))))
 
     
     ))
