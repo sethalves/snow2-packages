@@ -385,8 +385,8 @@
                     (display (format "f ~a"
                                      (string-join
                                       (vector->list
-                                       (vector-map unparse-face-corner face)))
-                                     port))
+                                       (vector-map unparse-face-corner face))))
+                             port)
                     (newline port))
                   (mesh-faces mesh))
                  (loop (cdr meshes) (+ nth 1)))))))
