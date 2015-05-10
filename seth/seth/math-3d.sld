@@ -1156,8 +1156,8 @@
 
 
     (define (clamp-number in low high)
-      (cond ((< in low) low)
-            ((> in high) high)
+      (cond ((and low (< in low)) low)
+            ((and high (> in high)) high)
             (else in)))
 
     (define (normalize-angle ang)
