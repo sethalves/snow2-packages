@@ -425,8 +425,8 @@
       (for-each
        (lambda (coord)
          (display (format "vt ~a ~a"
-                          (vector2-x coord)
-                          (vector2-y coord)) port)
+                          (number->pretty-string (vector2-x coord) 4)
+                          (number->pretty-string (vector2-y coord) 4)) port)
          (newline port))
        (model-texture-coordinates model))
       (newline port)
