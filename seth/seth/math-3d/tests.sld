@@ -11,9 +11,9 @@
     (define (run-tests)
 
 
-      (define (test-rotations x-rot y-rot z-rot vec-to-rotate)
+      (define (test-vector-rotations x-rot y-rot z-rot vec-to-rotate e->q)
         (let* ((eu (vector x-rot y-rot z-rot))
-               (q-from-eu (euler->quaternion eu))
+               (q-from-eu (e->q eu))
 
                (q-xrot (rotation-quaternion (vector 1 0 0) x-rot))
                (q-yrot (rotation-quaternion (vector 0 1 0) y-rot))
@@ -48,28 +48,37 @@
 
 
 
-      (define (test-rotation-set v)
-        (cout "testing " v "\n")
-        (do ((x-rot -90 (+ x-rot 60)))
-            ((>= x-rot 360) #t)
-          (do ((y-rot -90 (+ y-rot 60)))
-              ((>= y-rot 450) #t)
-            (do ((z-rot 0 (+ z-rot 60)))
-                ((>= z-rot 450) #t)
-              (test-rotations (degrees->radians x-rot)
-                              (degrees->radians y-rot)
-                              (degrees->radians z-rot)
-                              v)))))
+      (define (test-rotation-set tester)
+        (let ((result #t))
+          (do ((x-rot -90 (+ x-rot 60)))
+              ((>= x-rot 360) #t)
+            (do ((y-rot -90 (+ y-rot 60)))
+                ((>= y-rot 450) #t)
+              (do ((z-rot 0 (+ z-rot 60)))
+                  ((>= z-rot 450) #t)
+                (if (not (tester (vector (degrees->radians x-rot)
+                                         (degrees->radians y-rot)
+                                         (degrees->radians z-rot))))
+                    (set! result #f)))))
+          result))
 
 
-      (define (test-rotation-sets)
-        (do ((x -2 (+ x 0.5)))
-            ((> x 2) #t)
-          (do ((y -2 (+ y 0.5)))
-              ((> y 2) #t)
-            (do ((z -2 (+ z 0.5)))
-                ((> z 2) #t)
-              (test-rotation-set (vector x y z))))))
+      (define (test-vector-rotation-sets e->q)
+          (do ((x -2 (+ x 0.5)))
+              ((> x 2) #t)
+            (do ((y -2 (+ y 0.5)))
+                ((> y 2) #t)
+              (do ((z -2 (+ z 0.5)))
+                  ((> z 2) #t)
+                (let ((tester (lambda (rot)
+                                (test-vector-rotations
+                                 (vector3-x rot)
+                                 (vector3-y rot)
+                                 (vector3-z rot)
+                                 (vector x y z)
+                                 e->q))))
+                  (cout "testing " (vector x y z) "\n")
+                  (test-rotation-set tester))))))
 
 
       (define (test-distance-from-point-to-plane)
@@ -107,6 +116,21 @@
                                              (vector (vector 0.0 0.0 0.0)
                                                      (vector 0.0 0.0 1.0)))
                  (vector 5.0 5.0 0.0))))
+
+
+      (define (test-quatenion-and-euler e->q q->e euler-rotation)
+        (let* ((q (e->q euler-rotation))
+               (e (q->e q))
+               (q~ (e->q e)))
+          (cond ((< (min (vector-magnitude (vector-diff q q~)) (vector-magnitude (vector-diff q (vector-scale q~ -1.0))))
+                    epsilon)
+                 #t)
+                (else
+                 (cout "mismatch -- " euler-rotation " : "
+                       (vector-magnitude (vector-diff q q~)) " "
+                       (vector-magnitude (vector-diff q (vector-scale q~ -1.0))) "\n")
+                 #f))))
+
 
 
       (and  (= (+f 2 4) 6)
@@ -279,6 +303,20 @@
             (equal? (number->pretty-string 1123 6) "1123")
             (equal? (number->pretty-string -1123 6) "-1123")
 
-            )
+            ;; XXX why does this one have some mismatches?
+            ;; (test-rotation-set
+            ;;  (lambda (rot)
+            ;;    (test-quatenion-and-euler
+            ;;     euler->quaternion
+            ;;     quaternion->euler
+            ;;     rot)))
 
+            (test-rotation-set
+             (lambda (rot)
+               (test-quatenion-and-euler
+                euler->quaternion~zyx
+                quaternion->euler~zyx
+                rot)))
+
+            )
       )))

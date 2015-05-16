@@ -38,13 +38,13 @@
           quaternion
           atan2
           quaternion->euler
-          quaternion->euler~0
-          quaternion->euler~1
-          quaternion->euler~hifi
+          ;; quaternion->euler~0 broken
+          ;; quaternion->euler~1 broken
+          quaternion->euler~zyx
           euler->quaternion
+          euler->quaternion~0
           euler->quaternion~1
-          euler->quaternion~2
-          euler->quaternion
+          euler->quaternion~zyx
           rotation-quaternion
           rotation-quaternion-d
           zero-rotation
@@ -59,6 +59,7 @@
           vector3-diff
           point-diff
           vector2-diff
+          vector-diff
           vector3-abs
           vector2-scale
           vector3-scale
@@ -74,6 +75,7 @@
           vector3-rotate
           combine-rotations
           dot-product
+          vector-magnitude
           vector3-magnitude
           cross-product
           distance-between-points
@@ -131,6 +133,7 @@
           bounding-box2-=?
           bounding-box2-add-point
           best-aligned-vector
+          epsilon
           )
   (import (scheme base)
           (scheme write)
@@ -378,7 +381,7 @@
                                                    (+ .5 (- tx) (- tz))))))))))
 
 
-    (define (quaternion->euler~hifi q)
+    (define (quaternion->euler~zyx q)
       (let* ((w (quat-s q))
              (x (quat-x q))
              (y (quat-y q))
@@ -464,7 +467,7 @@
                 (+ (* aw bw cz) (* ax by cw))
                 )))
 
-    (define (euler->quaternion~1 eu)
+    (define (euler->quaternion~0 eu)
       ;; this gives the same results as euler->quaternion, but it's easier to
       ;; understand what's happening.  the vector is rotated around the x, y, and
       ;; then z axis, but the axis rotate also.  the y rotation isn't around
@@ -479,8 +482,15 @@
         (combine-rotations x-rot y-rot z-rot)))
 
 
-    (define (euler->quaternion~2 eu)
-      ;; don't use this one, it's bogus.
+    (define (euler->quaternion~1 eu)
+      ;; another version, even slower, even easier to understand
+      (combine-rotations
+       (rotation-quaternion (vector 0 0 1) (vector3-z eu))
+       (rotation-quaternion (vector 0 1 0) (vector3-y eu))
+       (rotation-quaternion (vector 1 0 0) (vector3-x eu))))
+
+
+    (define (euler->quaternion~zyx eu)
       (combine-rotations
        (rotation-quaternion (vector 1 0 0) (vector3-x eu))
        (rotation-quaternion (vector 0 1 0) (vector3-y eu))
@@ -649,6 +659,12 @@
               (- (vector3-y v0) (vector3-y v1))))
 
 
+    (define (vector-diff v0 v1)
+      (vector-map
+       (lambda (elt0 elt1) (- elt0 elt1))
+       v0 v1))
+
+
     (define (vector3-abs v)
       (vector (abs (vector3-x v))
               (abs (vector3-y v))
@@ -773,8 +789,11 @@
                      (+ index 1))))))
 
 
-    (define (vector3-magnitude v0)
-      (sqrt (dot-product v0 v0)))
+
+    (define (vector-magnitude v)
+      (sqrt (dot-product v v)))
+
+    (define vector3-magnitude vector-magnitude)
 
 
     (define (cross-product v0 v1)
