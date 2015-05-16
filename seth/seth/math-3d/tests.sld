@@ -132,7 +132,6 @@
                  #f))))
 
 
-
       (and  (= (+f 2 4) 6)
             (eq? (+f #f 4) #f)
             (eq? (+f 4 #f) #f)
@@ -302,6 +301,7 @@
             (< (abs (- (string->number (number->pretty-string -15.1 6)) -15.1)) 0.001)
             (equal? (number->pretty-string 1123 6) "1123")
             (equal? (number->pretty-string -1123 6) "-1123")
+            (equal? (number->pretty-string 0.17 4) "0.17")
 
             ;; XXX why does this one have some mismatches?
             ;; (test-rotation-set
