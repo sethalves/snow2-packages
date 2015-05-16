@@ -156,6 +156,7 @@
     (define (number->pretty-string v places)
       ;; I didn't want to write this.  Why did I have to write this?
       ;; number->string will return scientific notation on some platforms.
+      (define epsilon (expt 10 (inexact (- (- places) 1))))
       (define n->s (vector "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
       (define (first-power v)
         (let loop ((p 1))
@@ -165,7 +166,7 @@
         (let loop ((v v)
                    (result 0))
           (let ((x (expt 10 (inexact p))))
-            (cond ((< v x) result)
+            (cond ((< v (- x epsilon)) result)
                   (else
                    (loop (- v x) (+ result 1)))))))
       (define (do-loop v)
@@ -182,6 +183,7 @@
                              (string-append result (vector-ref n->s n) ".")
                              (string-append result (vector-ref n->s n)))
                          next-v))))))
+
       (let ((result (if (< v 0)
                         (string-append "-" (do-loop (- v)))
                         (do-loop v))))
