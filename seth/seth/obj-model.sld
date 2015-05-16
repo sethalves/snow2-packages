@@ -425,8 +425,8 @@
       (for-each
        (lambda (coord)
          (display (format "vt ~a ~a"
-                          (exact (round (vector2-x coord)))
-                          (exact (round (vector2-y coord)))) port)
+                          (vector2-x coord)
+                          (vector2-y coord)) port)
          (newline port))
        (model-texture-coordinates model))
       (newline port)
@@ -564,6 +564,44 @@
                  (else face))))))
 
 
+    (define (pick-u-v-axis vertices)
+      (snow-assert (vector? vertices))
+      (snow-assert (> (vector-length vertices) 2))
+      (let* ((vertex-0 (vector-ref vertices 0))
+             (vertex-1 (vector-ref vertices 1))
+             (vertex-last (vector-ref vertices (- (vector-length vertices) 1)))
+             ;; pick u and v axis.  u is along the line from vertex-0
+             ;; to vertex-1.  v is perpendicular to the u axis and to
+             ;; the normal of the triangle.
+             (u-axis (vector3-normalize (vector3-diff vertex-1 vertex-0)))
+             (diff-last-0 (vector3-diff vertex-last vertex-0))
+             (normal (cross-product u-axis diff-last-0))
+             (v-axis (vector3-normalize (cross-product normal u-axis))))
+        (values u-axis v-axis)))
+
+
+;;     (define (pick-u-v-axis vertices)
+;;       (snow-assert (vector? vertices))
+;;       (snow-assert (> (vector-length vertices) 2))
+
+;; ;; XXX http://mathworld.wolfram.com/Plane-PlaneIntersection.html
+
+;;       (let* ((vertex-0 (vector-ref vertices 0))
+;;              (vertex-1 (vector-ref vertices 1))
+;;              (diff-1-0 (vector3-diff vertex-1 vertex-0))
+;;              (x (vector-ref diff-1-0 0))
+;;              (y (vector-ref diff-1-0 1))
+;;              (z (vector-ref diff-1-0 2))
+;;              (sx (vector3-normalize (vector 0 y z)))
+;;              (sy (vector3-normalize (vector x 0 z)))
+;;              (sz (vector3-normalize (vector x y 0)))
+;;              (u-axis (best-aligned-vector diff-1-0 (list sx sy sz)))
+;;              (vertex-last (vector-ref vertices (- (vector-length vertices) 1)))
+;;              (diff-last-0 (vector3-diff vertex-last vertex-0))
+;;              (normal (cross-product diff-1-0 diff-last-0))
+;;              (v-axis (vector3-normalize (cross-product normal u-axis))))
+;;         (values u-axis v-axis)))
+
 
     (define (add-simple-texture-coordinates model scale)
       ;; transform each face to the corner of some supposed texture and decide
@@ -579,41 +617,37 @@
          (snow-assert (face? face))
          (let ((vertices (face->vertices model face)))
            (snow-assert (> (vector-length vertices) 2))
-           (let* ((vertex-0 (vector-ref vertices 0))
-                  (vertex-1 (vector-ref vertices 1))
-                  (vertex-last
-                   (vector-ref vertices (- (vector-length vertices) 1)))
-                  ;; pick x and y axis.  x is along the line from vertex-0
-                  ;; to vertex-1.  y is perpendicular to the x axis and to
-                  ;; the normal of the triangle.
-                  (x-axis (vector3-normalize (vector3-diff vertex-1 vertex-0)))
-                  (diff-last-0 (vector3-diff vertex-last vertex-0))
-                  (normal (cross-product x-axis diff-last-0))
-                  (y-axis (vector3-normalize (cross-product normal x-axis)))
-                  ;; vertex-transformer takes a vertex in 3 space and maps
-                  ;; it into the coordinate system defined by the axis
-                  ;; we defined, above.
-                  (vertex-transformer
-                   (lambda (vertex x-offset)
-                     (let* ((dv (vector3-diff vertex vertex-0))
-                            (x (+ (dot-product x-axis dv) x-offset))
-                            (y (dot-product y-axis dv)))
-                       (vector2-scale (vector x y) scale))))
-                  (first-tex-v (vertex-transformer vertex-0 0.0))
-                  (last-tex-v (vertex-transformer vertex-last 0.0))
-                  (offset (- (min (vector2-x first-tex-v) (vector2-x last-tex-v)))))
+           (let-values (((u-axis v-axis) (pick-u-v-axis vertices)))
+             (let* ((vertex-0 (vector-ref vertices 0))
+                    ;; vertex-transformer takes a vertex in 3 space and maps
+                    ;; it into the coordinate system defined by the axis
+                    ;; we defined, above.
+                    (vertex-transformer
+                     (lambda (vertex x-offset)
+                       (let* ((dv (vector3-diff vertex vertex-0))
+                              (x (+ (dot-product u-axis dv) x-offset))
+                              (y (dot-product v-axis dv)))
+                         (vector2-scale (vector x y) scale))))
+                    (vertex-transformer-no-offset
+                     (lambda (vertex) (vertex-transformer vertex 0.0)))
+                    ;; figure out how much we have to slide this face over
+                    ;; in order to have all the uv coord be positive.
+                    (un-offset-uvs
+                     (vector->list
+                      (vector-map vertex-transformer-no-offset vertices)))
+                    (offset
+                     (- (apply min (map vector2-x un-offset-uvs)))))
 
-             (vector-for-each
-              (lambda (face-corner)
-                (snow-assert (face-corner? face-corner))
-                (let* ((vertex (face-corner->vertex model face-corner)))
-                  (model-append-texture-coordinate!
-                   model (vertex-transformer vertex offset))
-                  (let ((index (length (model-texture-coordinates model))))
-                    (face-corner-set-texture-index! face-corner index))))
-              face)
-
-             face)))))
+               (vector-for-each
+                (lambda (face-corner)
+                  (snow-assert (face-corner? face-corner))
+                  (let ((index (length (model-texture-coordinates model)))
+                        (vertex (face-corner->vertex model face-corner)))
+                    (model-append-texture-coordinate!
+                     model (vertex-transformer vertex offset))
+                    (face-corner-set-texture-index! face-corner index)))
+                face))))
+         face)))
 
 
     (define (model-aa-box model)
