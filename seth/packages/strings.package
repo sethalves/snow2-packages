@@ -1,0 +1,20 @@
+(package
+ (name ())
+ (url "strings.tgz")
+ (library
+  (path "seth/strings.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <alves@hungry.com>")
+  (authors "Seth Alves <alves@hungry.com>")
+  (description "for when srfi-13 makes my head hurt")
+  (license bsd))
+ (library
+  (path "seth/strings/tests.sld")
+  (use-for test)
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <alves@hungry.com>")
+  (authors "Seth Alves <alves@hungry.com>")
+  (description "tests for strings")
+  (license bsd)))

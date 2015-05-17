@@ -1,6 +1,5 @@
 (define-library (seth obj-model)
-  (export make-model
-          make-empty-model
+  (export 
           read-obj-model
           read-obj-model-file
           compact-obj-model
@@ -20,8 +19,6 @@
           add-material-library
           add-material-libraries
 
-          aa-box-low-corner aa-box-set-low-corner!
-          aa-box-high-corner aa-box-set-high-corner!
           )
   (import (scheme base)
           (scheme file)
@@ -34,218 +31,14 @@
           (snow assert)
           (snow input-parse)
           (seth cout)
-          (seth math-3d))
+          (seth strings)
+          (seth math-3d)
+          (seth model-3d))
   (cond-expand
    (chicken (import (extras)))
    (else))
 
   (begin
-
-    ;; a model has a list of vertices and of normals. A model also has a list of meshes.
-    (define-record-type <model>
-      (make-model meshes vertices texture-coordinates normals material-libraries materials)
-      model?
-      (meshes model-meshes model-set-meshes!)
-      (vertices model-vertices model-set-vertices!)
-      (texture-coordinates model-texture-coordinates model-set-texture-coordinates!)
-      (normals model-normals model-set-normals!)
-      (material-libraries model-material-libraries model-set-material-libraries!)
-      (materials model-materials model-set-materials!))
-
-    (define (make-empty-model)
-      (make-model '() '() '() '() '() (make-hash-table)))
-
-
-    ;; a material is a reference into an external .mtl file
-    (define-record-type <material>
-      (make-material name)
-      material?
-      (name material-name material-set-name!))
-
-    ;; look up a material by name.  if this is the first reference to it, create it.
-    (define (model-get-material-by-name model material-name)
-      (snow-assert (model? model))
-      (snow-assert (or (string? material-name) (not material-name)))
-      (cond ((not material-name) #f)
-            (else
-             (let ((materials (model-materials model)))
-               (cond ((hash-table-exists? materials material-name)
-                      (hash-table-ref materials material-name))
-                     (else
-                      (let ((new-material (make-material material-name)))
-                        (hash-table-set! materials material-name new-material)
-                        new-material)))))))
-
-
-    ;; a mesh is a group of triangles defined by indexing into the model's vertexes
-    (define-record-type <mesh>
-      (make-mesh name faces)
-      mesh?
-      (name mesh-name mesh-set-name!)
-      (faces mesh-faces mesh-set-faces~!))
-
-    (define (mesh-set-faces! mesh faces)
-      (snow-assert (mesh? mesh))
-      (snow-assert (list? faces))
-      (for-each
-       (lambda (face)
-         (snow-assert (face? face)))
-       faces)
-      (mesh-set-faces~! mesh faces))
-
-    ;; a face corner is a vertex being used as part of the definition for a face
-    (define-record-type <face-corner>
-      ;; indexes here are zero based
-      (make-face-corner~ vertex-index texture-index normal-index)
-      face-corner?
-      (vertex-index face-corner-vertex-index face-corner-set-vertex-index!)
-      (texture-index face-corner-texture-index face-corner-set-texture-index!)
-      (normal-index face-corner-normal-index face-corner-set-normal-index!))
-
-
-    (define (make-face-corner vertex-index texture-index normal-index)
-      (snow-assert (integer? vertex-index))
-      (snow-assert (or (integer? texture-index) (eq? texture-index 'unset)))
-      (snow-assert (or (integer? normal-index) (eq? normal-index 'unset)))
-      (make-face-corner~ vertex-index texture-index normal-index))
-
-
-    ;; a face is a list of face corners and a material
-    (define-record-type <face>
-      (make-face~ corners material)
-      face?
-      (corners face-corners face-set-corners!) ;; corners is a vector
-      (material face-material face-set-material!))
-
-
-    (define (make-face model corners material)
-      (snow-assert (model? model))
-      (snow-assert (vector? corners))
-      (vector-for-each
-       (lambda (corner)
-         (snow-assert (face-corner? corner)))
-       corners)
-      (snow-assert (or (material? material) (not material)))
-      (make-face~ corners material))
-
-    (define-record-type <aa-box>
-      (make-aa-box~ low-corner high-corner)
-      aa-box?
-      (low-corner aa-box-low-corner aa-box-set-low-corner!)
-      (high-corner aa-box-high-corner aa-box-set-high-corner!))
-
-
-    (define (make-aa-box initial-low initial-high)
-      (make-aa-box~
-       (if (> (vector-length initial-low) 2)
-           initial-low
-           (vector (vector2-x initial-low)
-                   (vector2-y initial-low)
-                   0))
-       (if (> (vector-length initial-high) 2)
-           initial-high
-           (vector (vector2-x initial-high)
-                   (vector2-y initial-high)
-                   0))))
-
-
-    (define (model-clear-texture-coordinates! model)
-      (model-set-texture-coordinates! model '()))
-
-    (define (model-append-texture-coordinate! model v)
-      (snow-assert (model? model))
-      (snow-assert (vector? v))
-      (snow-assert (= (vector-length v) 2))
-      (model-set-texture-coordinates!
-       model (reverse (cons v (reverse (model-texture-coordinates model))))))
-
-
-    (define (aa-box-add-point! aa-box p)
-      (let ((prev-low (aa-box-low-corner aa-box))
-            (prev-high (aa-box-high-corner aa-box)))
-        (aa-box-set-low-corner!
-         aa-box
-         (vector (min (vector-ref prev-low 0) (vector-ref p 0))
-                 (min (vector-ref prev-low 1) (vector-ref p 1))
-                 (if (> (vector-length p) 2)
-                     (min (vector-ref prev-low 2) (vector-ref p 2))
-                     (vector-ref prev-low 2))))
-        (aa-box-set-high-corner!
-         aa-box
-         (vector (max (vector-ref prev-high 0) (vector-ref p 0))
-                 (max (vector-ref prev-high 1) (vector-ref p 1))
-                 (if (> (vector-length p) 2)
-                     (max (vector-ref prev-high 2) (vector-ref p 2))
-                     (vector-ref prev-high 2))))))
-
-
-    (define (face-corner->vertex model face-corner)
-      (snow-assert (model? model))
-      (snow-assert (face-corner? face-corner))
-      (let ((index (face-corner-vertex-index face-corner)))
-        (if (eq? index 'unset) #f
-            (vector-map string->number (list-ref (model-vertices model) index)))))
-
-
-    (define (face-corner->normal model face-corner)
-      (snow-assert (model? model))
-      (snow-assert (face-corner? face-corner))
-      (let ((index (face-corner-normal-index face-corner)))
-        (if (eq? index 'unset) #f
-            (vector-map string->number (list-ref (model-normals model) index)))))
-
-
-    (define (for-each-mesh model proc)
-      (for-each proc (model-meshes model)))
-
-
-    ;; call op with and replace every face in model.  op should accept mesh
-    ;; and face and return face
-    (define (operate-on-faces model op)
-      (for-each-mesh
-       model
-       (lambda (mesh)
-         (snow-assert (mesh? mesh))
-         (mesh-set-faces!
-          mesh
-          (map
-           (lambda (face) (op mesh face))
-           (mesh-faces mesh))))))
-
-
-    ;; call op with and replace every face corner.  op should accept mesh and
-    ;; face and face-corner and return face-corner.
-    (define (operate-on-face-corners model op)
-      (snow-assert (model? model))
-      (operate-on-faces
-       model
-       (lambda (mesh face)
-         (snow-assert (mesh? mesh))
-         (snow-assert (face? face))
-         (face-set-corners!
-          face
-          (vector-map
-           (lambda (face-corner)
-             (snow-assert (face-corner? face-corner))
-             (let ((op-result (op mesh face face-corner)))
-               (snow-assert (face-corner? op-result))
-               op-result))
-           (face-corners face)))
-         face)))
-
-
-
-    ;; a face includes a vector of indexes into the models vertices.  turn
-    ;; a face into a vector of vertices.
-    (define (face->vertices model face)
-      (snow-assert (model? model))
-      (snow-assert (face? face))
-      (vector-map
-       (lambda (face-corner)
-         (snow-assert (face-corner? face-corner))
-         (face-corner->vertex model face-corner))
-       (face-corners face)))
-
 
     (define (parse-index index-string)
       ;; return a zero-based index value
@@ -266,34 +59,9 @@
              (number->string (+ index 1)))))
 
 
-    (define (model-prepend-mesh! model mesh)
-      (snow-assert (model? model))
-      (snow-assert (mesh? mesh))
-      (model-set-meshes! model (cons mesh (model-meshes model))))
-
-
-    (define (string-split str tester)
-      (snow-assert (string? str))
-      (snow-assert (procedure? tester))
-      (let loop ((chars (string->list str))
-                 (result '())
-                 (results '()))
-        (cond ((null? chars)
-               (reverse (cons (list->string (reverse result)) results)))
-              ((tester (car chars))
-               (loop (cdr chars)
-                     '()
-                     (cons (list->string (reverse result)) results)))
-              (else
-               (loop (cdr chars)
-                     (cons (car chars) result)
-                     results)))))
-
-
     (define (parse-face-corner face-corner-string)
       (snow-assert (string? face-corner-string))
-      (let* ((parts
-              (string-split face-corner-string (lambda (c) (eqv? c #\/))))
+      (let* ((parts (string-split face-corner-string #\/))
              (parts-length (length parts)))
         (cond ((= parts-length 1)
                (make-face-corner (parse-index (car parts)) 'unset 'unset))

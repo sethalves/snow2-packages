@@ -1,0 +1,20 @@
+(package
+ (name ())
+ (url "model-3d.tgz")
+ (library
+  (path "seth/model-3d.sld")
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <alves@hungry.com>")
+  (authors "Seth Alves <alves@hungry.com>")
+  (description "code common to 3d-model related packages")
+  (license bsd))
+ (library
+  (path "seth/model-3d/tests.sld")
+  (use-for test)
+  (version "1.0")
+  (homepage "https://github.com/sethalves")
+  (maintainers "Seth Alves <alves@hungry.com>")
+  (authors "Seth Alves <alves@hungry.com>")
+  (description "tests for model-3d")
+  (license bsd)))
