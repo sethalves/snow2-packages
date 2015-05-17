@@ -15,6 +15,11 @@
           translate-model
           write-obj-model
 
+          set-all-faces-to-material
+          clear-material-libraries
+          add-material-library
+          add-material-libraries
+
           aa-box-low-corner aa-box-set-low-corner!
           aa-box-high-corner aa-box-set-high-corner!
           )
@@ -38,16 +43,17 @@
 
     ;; a model has a list of vertices and of normals. A model also has a list of meshes.
     (define-record-type <model>
-      (make-model meshes vertices texture-coordinates normals materials)
+      (make-model meshes vertices texture-coordinates normals material-libraries materials)
       model?
       (meshes model-meshes model-set-meshes!)
       (vertices model-vertices model-set-vertices!)
       (texture-coordinates model-texture-coordinates model-set-texture-coordinates!)
       (normals model-normals model-set-normals!)
+      (material-libraries model-material-libraries model-set-material-libraries!)
       (materials model-materials model-set-materials!))
 
     (define (make-empty-model)
-      (make-model '() '() '() '() (make-hash-table)))
+      (make-model '() '() '() '() '() (make-hash-table)))
 
 
     ;; a material is a reference into an external .mtl file
@@ -426,6 +432,12 @@
                                                  #f
                                                  next-mesh-name)
                                              material)))
+                                    ((equal? first-token "mtllib")
+                                     (let ((material-library (nt)))
+                                       (model-set-material-libraries!
+                                        model
+                                        (cons material-library (model-material-libraries model)))
+                                       (loop material)))
                                     ((equal? first-token "usemtl")
                                      (let* ((next-material-name (nt))
                                             (next-material (model-get-material-by-name model next-material-name)))
@@ -437,7 +449,7 @@
     (define (read-obj-model inport . maybe-model)
       (snow-assert (input-port? inport))
       (let* ((model (if (null? maybe-model)
-                        (make-model '() '() '() '() (make-hash-table))
+                        (make-model '() '() '() '() '() (make-hash-table))
                         (car maybe-model)))
              (vertex-index-start (length (model-vertices model)))
              (texture-index-start (length (model-texture-coordinates model)))
@@ -475,32 +487,36 @@
     (define (write-obj-model model port)
       (snow-assert (model? model))
       (snow-assert (output-port? port))
+
+      (for-each
+       (lambda (material-library)
+         (display (format "mtllib ~a\n" material-library) port))
+       (model-material-libraries model))
+      (newline port)
+
       (for-each
        (lambda (vertex)
-         (display (format "v ~a ~a ~a"
+         (display (format "v ~a ~a ~a\n"
                           (vector3-x vertex)
                           (vector3-y vertex)
-                          (vector3-z vertex)) port)
-         (newline port))
+                          (vector3-z vertex)) port))
        (model-vertices model))
       (newline port)
 
       (for-each
        (lambda (coord)
-         (display (format "vt ~a ~a"
+         (display (format "vt ~a ~a\n"
                           (number->pretty-string (vector2-x coord) 4)
-                          (number->pretty-string (vector2-y coord) 4)) port)
-         (newline port))
+                          (number->pretty-string (vector2-y coord) 4)) port))
        (model-texture-coordinates model))
       (newline port)
 
       (for-each
        (lambda (normal)
-         (display (format "vn ~a ~a ~a"
+         (display (format "vn ~a ~a ~a\n"
                           (vector3-x normal)
                           (vector3-y normal)
-                          (vector3-z normal)) port)
-         (newline port))
+                          (vector3-z normal)) port))
        (model-normals model))
 
       (let loop ((meshes (model-meshes model))
@@ -788,6 +804,9 @@
 
 
     (define (translate-model model by-offset)
+      (snow-assert (model? model))
+      (snow-assert (vector? by-offset))
+      (snow-assert (= (vector-length by-offset) 3))
       (model-set-vertices!
        model
        (map
@@ -796,5 +815,39 @@
             (vector-map number->string (vector3-sum fvertex by-offset))))
         (model-vertices model))))
 
-    
+
+    (define (set-all-faces-to-material model material-name)
+      (snow-assert (model? model))
+      (snow-assert (string? material-name))
+      (let ((material (model-get-material-by-name model material-name)))
+        (operate-on-faces
+         model
+         (lambda (mesh face)
+           (face-set-material! face material)
+           face))))
+
+
+    (define (clear-material-libraries model)
+      (snow-assert (model? model))
+      (model-set-material-libraries! model '()))
+
+
+    (define (add-material-library model material-library-name)
+      (snow-assert (model? model))
+      (snow-assert (string? material-library-name))
+      (cond ((member material-library-name (model-material-libraries model))
+             #t)
+            (else
+             (model-set-material-libraries!
+              model
+              (cons material-library-name (model-material-libraries model))))))
+
+
+    (define (add-material-libraries model material-library-names)
+      (snow-assert (model? model))
+      (for-each
+       (lambda (material-library-name)
+         (add-material-library model material-library-name))
+       material-library-names))
+
     ))
