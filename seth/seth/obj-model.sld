@@ -38,22 +38,53 @@
 
     ;; a model has a list of vertices and of normals. A model also has a list of meshes.
     (define-record-type <model>
-      (make-model meshes vertices texture-coordinates normals)
+      (make-model meshes vertices texture-coordinates normals materials)
       model?
       (meshes model-meshes model-set-meshes!)
       (vertices model-vertices model-set-vertices!)
       (texture-coordinates model-texture-coordinates model-set-texture-coordinates!)
-      (normals model-normals model-set-normals!))
+      (normals model-normals model-set-normals!)
+      (materials model-materials model-set-materials!))
 
     (define (make-empty-model)
-      (make-model '() '() '() '()))
+      (make-model '() '() '() '() (make-hash-table)))
+
+
+    ;; a material is a reference into an external .mtl file
+    (define-record-type <material>
+      (make-material name)
+      material?
+      (name material-name material-set-name!))
+
+    ;; look up a material by name.  if this is the first reference to it,
+    ;; create it.
+    (define (model-get-material-by-name model material-name)
+      (snow-assert (model? model))
+      (snow-assert (string? material-name))
+      (let ((materials (model-materials model)))
+        (cond ((hash-table-exists? materials material-name)
+               (hash-table-ref materials material-name))
+              (else
+               (let ((new-material (make-material material-name)))
+                 (hash-table-set! materials material-name new-material)
+                 new-material)))))
+
 
     ;; a mesh is a group of triangles defined by indexing into the model's vertexes
     (define-record-type <mesh>
       (make-mesh name faces)
       mesh?
       (name mesh-name mesh-set-name!)
-      (faces mesh-faces mesh-set-faces!))
+      (faces mesh-faces mesh-set-faces~!))
+
+    (define (mesh-set-faces! mesh faces)
+      (snow-assert (mesh? mesh))
+      (snow-assert (list? faces))
+      (for-each
+       (lambda (face)
+         (snow-assert (face? face)))
+       faces)
+      (mesh-set-faces~! mesh faces))
 
     ;; a face corner is a vertex being used as part of the definition for a face
     (define-record-type <face-corner>
@@ -70,6 +101,36 @@
       (snow-assert (or (integer? texture-index) (eq? texture-index 'unset)))
       (snow-assert (or (integer? normal-index) (eq? normal-index 'unset)))
       (make-face-corner~ vertex-index texture-index normal-index))
+
+
+    ;; a face is a list of face corners and a material
+    (define-record-type <face>
+      (make-face~ corners material)
+      face?
+      (corners face-corners face-set-corners!) ;; corners is a vector
+      (material face-material face-set-material!))
+
+
+    (define (make-face model corners material-name)
+      (snow-assert (model? model))
+      (snow-assert (vector? corners))
+      (vector-for-each
+       (lambda (corner)
+         (snow-assert (face-corner? corner)))
+       corners)
+      (snow-assert (string? material-name))
+      (make-face~ corners (model-get-material-by-name model material-name)))
+
+    ;; a face is a vector of face-corners
+    ;; (define (face? face)
+    ;;   (cond ((not (vector? face)) #f)
+    ;;         (else
+    ;;          (let loop ((face (vector->list face)))
+    ;;            (cond ((null? face) #t)
+    ;;                  ((face-corner? (car face)) (loop (cdr face)))
+    ;;                  (else #f))))))
+
+
 
 
     (define-record-type <aa-box>
@@ -137,16 +198,6 @@
       (let ((index (face-corner-normal-index face-corner)))
         (if (eq? index 'unset) #f
             (vector-map string->number (list-ref (model-normals model) index)))))
-      
-
-    ;; a face is a vector of face-corners
-    (define (face? face)
-      (cond ((not (vector? face)) #f)
-            (else
-             (let loop ((face (vector->list face)))
-               (cond ((null? face) #t)
-                     ((face-corner? (car face)) (loop (cdr face)))
-                     (else #f))))))
 
 
     (define (for-each-mesh model proc)
@@ -159,6 +210,7 @@
       (for-each-mesh
        model
        (lambda (mesh)
+         (snow-assert (mesh? mesh))
          (mesh-set-faces!
           mesh
           (map
@@ -169,23 +221,35 @@
     ;; call op with and replace every face corner.  op should accept mesh and
     ;; face and face-corner and return face-corner.
     (define (operate-on-face-corners model op)
+      (snow-assert (model? model))
       (operate-on-faces
        model
        (lambda (mesh face)
-         (vector-map
-          (lambda (face-corner)
-            (op mesh face face-corner))
-          face))))
+         (snow-assert (mesh? mesh))
+         (snow-assert (face? face))
+         (face-set-corners!
+          face
+          (vector-map
+           (lambda (face-corner)
+             (snow-assert (face-corner? face-corner))
+             (let ((op-result (op mesh face face-corner)))
+               (snow-assert (face-corner? op-result))
+               op-result))
+           (face-corners face)))
+         face)))
 
 
 
     ;; a face includes a vector of indexes into the models vertices.  turn
     ;; a face into a vector of vertices.
     (define (face->vertices model face)
+      (snow-assert (model? model))
+      (snow-assert (face? face))
       (vector-map
        (lambda (face-corner)
+         (snow-assert (face-corner? face-corner))
          (face-corner->vertex model face-corner))
-       face))
+       (face-corners face)))
 
 
     (define (parse-index index-string)
@@ -262,11 +326,12 @@
 
     (define (shift-face-indices face vertex-index-start texture-index-start normal-index-start)
       (snow-assert (face? face))
-      (snow-assert (number? vertex-index-start))
-      (snow-assert (number? texture-index-start))
-      (snow-assert (number? normal-index-start))
+      (snow-assert (integer? vertex-index-start))
+      (snow-assert (integer? texture-index-start))
+      (snow-assert (integer? normal-index-start))
       (vector-map
        (lambda (corner)
+         (snow-assert (face-corner? corner))
          (face-corner-set-vertex-index!
           corner (+ (face-corner-vertex-index corner) vertex-index-start))
          (if (not (eq? (face-corner-texture-index corner) 'unset))
@@ -274,9 +339,8 @@
               corner (+ (face-corner-texture-index corner) texture-index-start)))
          (if (not (eq? (face-corner-normal-index corner) 'unset))
              (face-corner-set-normal-index!
-              corner (+ (face-corner-normal-index corner) normal-index-start)))
-         )
-       face))
+              corner (+ (face-corner-normal-index corner) normal-index-start))))
+       (face-corners face)))
 
 
     (define (model-prepend-vertex! model x y z)
@@ -295,13 +359,13 @@
       (model-set-normals! model (cons (vector x y z) (model-normals model))))
 
 
-    (define (mesh-prepend-face! mesh face-corner-strings
-                               vertex-index-start texture-index-start
-                               normal-index-start inport)
+    (define (mesh-prepend-face! model mesh face-corner-strings
+                                vertex-index-start texture-index-start
+                                normal-index-start inport)
       (snow-assert (mesh? mesh))
       (snow-assert (list? face-corner-strings))
       (let* ((parsed-corners (map parse-face-corner face-corner-strings))
-             (face (list->vector parsed-corners)))
+             (face (make-face model (list->vector parsed-corners) "some_mtl")))
         (shift-face-indices face vertex-index-start texture-index-start normal-index-start)
         (mesh-set-faces! mesh (cons face (mesh-faces mesh)))))
 
@@ -360,7 +424,7 @@
                                        (loop)))
                                     ((equal? first-token "f")
                                      (mesh-prepend-face!
-                                      mesh (read-face nt) vertex-index-start
+                                      model mesh (read-face nt) vertex-index-start
                                       texture-index-start normal-index-start inport)
                                      (loop))
                                     ((equal? first-token "g")
@@ -376,7 +440,7 @@
     (define (read-obj-model inport . maybe-model)
       (snow-assert (input-port? inport))
       (let* ((model (if (null? maybe-model)
-                        (make-model '() '() '() '())
+                        (make-model '() '() '() '() (make-hash-table))
                         (car maybe-model)))
              (vertex-index-start (length (model-vertices model)))
              (texture-index-start (length (model-texture-coordinates model)))
@@ -450,10 +514,11 @@
                      (display (format "\ng mesh-~a\n" nth) port))
                  (for-each
                   (lambda (face)
+                    (snow-assert (face? face))
                     (display (format "f ~a"
                                      (string-join
                                       (vector->list
-                                       (vector-map unparse-face-corner face))))
+                                       (vector-map unparse-face-corner (face-corners face)))))
                              port)
                     (newline port))
                   (mesh-faces mesh))
@@ -506,15 +571,21 @@
         (model-set-vertices! model (reverse new-vertices))
         (model-set-normals! model (reverse new-normals))
 
+
         (operate-on-face-corners
          model
          (lambda (mesh face face-corner)
+           (snow-assert (mesh? mesh))
+           (snow-assert (face? face))
+           (snow-assert (face-corner? face-corner))
+
            (make-face-corner
             (remap-index (face-corner-vertex-index face-corner)
                          original-vertices vertex-ht)
-            (face-corner-texture-index face-corner)
+            (face-corner-texture-index face-corner) ;; XXX compact these also
             (remap-index (face-corner-normal-index face-corner)
-                         original-normals normal-ht))))
+                         original-normals normal-ht))
+           ))
         ))
 
 
@@ -529,7 +600,8 @@
        (lambda (mesh face)
          (snow-assert (mesh? mesh))
          (snow-assert (face? face))
-         (let ((vertices (face->vertices model face)))
+         (let ((vertices (face->vertices model face))
+               (corners (face-corners face)))
            ;; a face might be defined by more than 3 vertices.  if so, punt.
            (cond ((= (vector-length vertices) 3)
                   (let ((normals
@@ -555,9 +627,12 @@
                                  normal cross (cross-product normal cross))))
                           (cond ((> (abs angle-between) pi/2)
                                  ;; the angles don't agree, so flip the face
-                                 (vector (vector-ref face 0)
-                                         (vector-ref face 2)
-                                         (vector-ref face 1)))
+                                 (face-set-corners!
+                                  face
+                                  (vector (vector-ref corners 0)
+                                          (vector-ref corners 2)
+                                          (vector-ref corners 1)))
+                                 face)
                                 ;; the angles agree, leave it alone.
                                 (else face))))))
                  ;; not 3 vertices in face, pass it back unchanged.
@@ -646,7 +721,7 @@
                     (model-append-texture-coordinate!
                      model (vertex-transformer vertex offset))
                     (face-corner-set-texture-index! face-corner index)))
-                face))))
+                (face-corners face)))))
          face)))
 
 
