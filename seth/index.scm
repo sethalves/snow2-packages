@@ -22,7 +22,7 @@
     (version "1.0")
     (url "strings.tgz")
     (size 8704)
-    (checksum (md5 "5927594c691d7825c4850a585eed2cd0"))
+    (checksum (md5 "5896f7f66adcf8ad81bb7493f702d39e"))
     (library
       (name (seth strings))
       (path "seth/strings.sld")

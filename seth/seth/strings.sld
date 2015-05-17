@@ -1,12 +1,10 @@
 (define-library (seth strings)
   (export string-starts-with?
           string-ends-with?
-          string-split
-          )
+          string-split)
   (import (scheme base)
           (srfi 13)
-          (snow assert)
-          )
+          (snow assert))
 
   (begin
 
@@ -44,7 +42,6 @@
             (equal? (substring s (- len-s len-ending) len-s) ending))))
 
 
-
     (define (string-split-with-tester str tester)
       (snow-assert (string? str))
       (snow-assert (procedure? tester))
@@ -63,18 +60,15 @@
                      results)))))
 
 
-    (define (string-split-with-string str delim . nth-oa)
+    (define (string-split-with-string str delim)
+      (snow-assert (string? str))
       (let loop ((ret (list))
                  (this-part '())
                  (str str))
         (cond
          ((not str) #f)
          ((= (string-length str) 0)
-          (let ((final (reverse (cons (reverse-list->string this-part) ret))))
-            ;; if nth-oa was given, the caller only wants one part
-            (cond ((null? nth-oa) final)
-                  ((> (length ret) (car nth-oa)) (list-ref final (car nth-oa)))
-                  (else #f))))
+          (reverse (cons (reverse-list->string this-part) ret)))
          ((string-starts-with? str delim)
           (loop (cons (reverse-list->string this-part) ret) ""
                 (substring str (string-length delim) (string-length str))))
@@ -85,26 +79,15 @@
 
 
     ;; srfi-13's string-tokenize will skip empty tokens.
-    (define (string-split str with-what . nth-oa)
-      (let ((nth (if (null? nth-oa) #f (car nth-oa))))
-        (cond ((procedure? with-what)
-               (string-split-with-tester str with-what nth))
-              ((char? with-what)
-               (string-split-with-tester str (lambda (c) (eqv? c #\/))) nth)
-              ((string? with-what)
-               (string-split-with-string str with-what nth))
-              (else
-               (error "string-split: bad with-what argument" with-what)))))
-
-
-    ;; (define (string-join items delim)
-    ;;   (if (null? items)
-    ;;       ""
-    ;;       (let loop ((result '())
-    ;;                  (items items))
-    ;;         (if (null? items)
-    ;;             (apply string-append (reverse (cdr result)))
-    ;;             (loop (cons delim (cons (car items) result))
-    ;;                   (cdr items))))))
+    (define (string-split str with-what)
+      (snow-assert (string? str))
+      (cond ((procedure? with-what)
+             (string-split-with-tester str with-what))
+            ((char? with-what)
+             (string-split-with-tester str (lambda (c) (eqv? c #\/))))
+            ((string? with-what)
+             (string-split-with-string str with-what))
+            (else
+             (error "string-split: bad with-what argument" with-what))))
 
     ))
