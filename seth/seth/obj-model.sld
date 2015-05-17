@@ -56,18 +56,19 @@
       material?
       (name material-name material-set-name!))
 
-    ;; look up a material by name.  if this is the first reference to it,
-    ;; create it.
+    ;; look up a material by name.  if this is the first reference to it, create it.
     (define (model-get-material-by-name model material-name)
       (snow-assert (model? model))
-      (snow-assert (string? material-name))
-      (let ((materials (model-materials model)))
-        (cond ((hash-table-exists? materials material-name)
-               (hash-table-ref materials material-name))
-              (else
-               (let ((new-material (make-material material-name)))
-                 (hash-table-set! materials material-name new-material)
-                 new-material)))))
+      (snow-assert (or (string? material-name) (not material-name)))
+      (cond ((not material-name) #f)
+            (else
+             (let ((materials (model-materials model)))
+               (cond ((hash-table-exists? materials material-name)
+                      (hash-table-ref materials material-name))
+                     (else
+                      (let ((new-material (make-material material-name)))
+                        (hash-table-set! materials material-name new-material)
+                        new-material)))))))
 
 
     ;; a mesh is a group of triangles defined by indexing into the model's vertexes
@@ -111,27 +112,15 @@
       (material face-material face-set-material!))
 
 
-    (define (make-face model corners material-name)
+    (define (make-face model corners material)
       (snow-assert (model? model))
       (snow-assert (vector? corners))
       (vector-for-each
        (lambda (corner)
          (snow-assert (face-corner? corner)))
        corners)
-      (snow-assert (string? material-name))
-      (make-face~ corners (model-get-material-by-name model material-name)))
-
-    ;; a face is a vector of face-corners
-    ;; (define (face? face)
-    ;;   (cond ((not (vector? face)) #f)
-    ;;         (else
-    ;;          (let loop ((face (vector->list face)))
-    ;;            (cond ((null? face) #t)
-    ;;                  ((face-corner? (car face)) (loop (cdr face)))
-    ;;                  (else #f))))))
-
-
-
+      (snow-assert (or (material? material) (not material)))
+      (make-face~ corners material))
 
     (define-record-type <aa-box>
       (make-aa-box~ low-corner high-corner)
@@ -359,13 +348,13 @@
       (model-set-normals! model (cons (vector x y z) (model-normals model))))
 
 
-    (define (mesh-prepend-face! model mesh face-corner-strings
+    (define (mesh-prepend-face! model mesh face-corner-strings material
                                 vertex-index-start texture-index-start
                                 normal-index-start inport)
       (snow-assert (mesh? mesh))
       (snow-assert (list? face-corner-strings))
       (let* ((parsed-corners (map parse-face-corner face-corner-strings))
-             (face (make-face model (list->vector parsed-corners) "some_mtl")))
+             (face (make-face model (list->vector parsed-corners) material)))
         (shift-face-indices face vertex-index-start texture-index-start normal-index-start)
         (mesh-set-faces! mesh (cons face (mesh-faces mesh)))))
 
@@ -382,24 +371,26 @@
                    face-vertex-indices)))))))
 
 
-    (define (read-mesh model mesh-name vertex-index-start texture-index-start normal-index-start inport)
+    (define (read-mesh model mesh-name material vertex-index-start texture-index-start normal-index-start inport)
       (snow-assert (model? model))
       (snow-assert (input-port? inport))
+      (snow-assert (or (material? material) (not material)))
       (let ((mesh (make-mesh #f '())))
-        (define (done result next-mesh-name)
+        (define (done result next-mesh-name next-material)
+          (snow-assert (or (material? material) (not material)))
           (cond ((not (null? (mesh-faces mesh)))
                  (if mesh-name (mesh-set-name! mesh mesh-name))
                  (mesh-set-faces! mesh (reverse (mesh-faces mesh)))
                  (model-prepend-mesh! model mesh)))
-          (values result next-mesh-name))
-        (let loop ()
+          (values result next-mesh-name next-material))
+        (let loop ((material material))
           (let ((line (read-line inport)))
-            (cond ((eof-object? line) (done #f #f))
+            (cond ((eof-object? line) (done #f #f material))
                   (else
                    ;; consume the next line
                    (let* ((line-trimmmed (string-trim-both line)))
-                     (cond ((= (string-length line-trimmmed) 0) (loop))
-                           ((eqv? (string-ref line-trimmmed 0) #\#) (loop))
+                     (cond ((= (string-length line-trimmmed) 0) (loop material))
+                           ((eqv? (string-ref line-trimmmed 0) #\#) (loop material))
                            (else
                             (let* ((line-hndl
                                     (open-input-string line-trimmmed))
@@ -411,30 +402,36 @@
                               (cond ((equal? first-token "v")
                                      (let* ((x (nt)) (y (nt)) (z (nt)))
                                        (model-prepend-vertex! model x y z)
-                                       (loop)))
+                                       (loop material)))
                                     ((equal? first-token "vt")
                                      (let* ((x (string->number (nt)))
                                             (y (string->number (nt))))
                                        (model-append-texture-coordinate!
                                         model (vector x y))
-                                       (loop)))
+                                       (loop material)))
                                     ((equal? first-token "vn")
                                      (let* ((x (nt)) (y (nt)) (z (nt)))
                                        (model-prepend-normal! model x y z)
-                                       (loop)))
+                                       (loop material)))
                                     ((equal? first-token "f")
                                      (mesh-prepend-face!
-                                      model mesh (read-face nt) vertex-index-start
-                                      texture-index-start normal-index-start inport)
-                                     (loop))
+                                      model mesh (read-face nt) material
+                                      vertex-index-start texture-index-start
+                                      normal-index-start inport)
+                                     (loop material))
                                     ((equal? first-token "g")
                                      (let ((next-mesh-name (nt)))
                                        (done #t
                                              (if (eof-object? next-mesh-name)
                                                  #f
-                                                 next-mesh-name))))
+                                                 next-mesh-name)
+                                             material)))
+                                    ((equal? first-token "usemtl")
+                                     (let* ((next-material-name (nt))
+                                            (next-material (model-get-material-by-name model next-material-name)))
+                                       (loop next-material)))
                                     (else
-                                     (loop)))))))))))))
+                                     (loop material)))))))))))))
 
 
     (define (read-obj-model inport . maybe-model)
@@ -451,14 +448,16 @@
         (model-set-vertices! model (reverse (model-vertices model)))
         (model-set-normals! model (reverse (model-normals model)))
 
-        (let loop ((mesh-name #f))
-          (let-values (((continue next-model-name)
+        (let loop ((mesh-name #f)
+                   (material #f))
+          (let-values (((continue next-model-name next-material)
                         (read-mesh model mesh-name
+                                   material
                                    vertex-index-start
                                    texture-index-start
                                    normal-index-start
                                    inport)))
-            (cond (continue (loop next-model-name))
+            (cond (continue (loop next-model-name next-material))
                   (else
                    (model-set-meshes! model (reverse (model-meshes model)))
                    (model-set-vertices! model (reverse (model-vertices model)))
@@ -505,24 +504,31 @@
        (model-normals model))
 
       (let loop ((meshes (model-meshes model))
-                 (nth 1))
+                 (nth 1)
+                 (material #f))
         (cond ((null? meshes) #t)
               (else 
-               (let ((mesh (car meshes)))
+               (let ((mesh (car meshes))
+                     (current-material material))
                  (if (mesh-name mesh)
                      (display (format "\ng ~a\n" (mesh-name mesh)) port)
                      (display (format "\ng mesh-~a\n" nth) port))
                  (for-each
                   (lambda (face)
                     (snow-assert (face? face))
-                    (display (format "f ~a"
-                                     (string-join
-                                      (vector->list
-                                       (vector-map unparse-face-corner (face-corners face)))))
-                             port)
-                    (newline port))
+
+                    (let ((next-material (face-material face)))
+                      (cond ((not (eq? next-material current-material))
+                             (display (format "usemtl ~a\n" (material-name next-material)) port)
+                             (set! current-material next-material)))
+                      (display (format "f ~a"
+                                       (string-join
+                                        (vector->list
+                                         (vector-map unparse-face-corner (face-corners face)))))
+                               port)
+                      (newline port)))
                   (mesh-faces mesh))
-                 (loop (cdr meshes) (+ nth 1)))))))
+                 (loop (cdr meshes) (+ nth 1) current-material))))))
 
 
 
