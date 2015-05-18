@@ -14,15 +14,15 @@
     (url "http://snow2.s3-website-us-east-1.amazonaws.com/industria/index.scm")
     (trust 1.0))
   (sibling
-    (name "Evnah")
+    (name "Evhan")
     (url "http://foldling.org/snow2/index.scm")
     (trust 1.0))
   (package
     (name ())
     (version "1.0")
     (url "stl-model.tgz")
-    (size 9728)
-    (checksum (md5 "5459ec2172a3885c42a840908b63e9de"))
+    (size 10752)
+    (checksum (md5 "e00658b59d69341d127b33a19230b212"))
     (library
       (name (seth stl-model))
       (path "seth/stl-model.sld")
@@ -34,7 +34,6 @@
       (description "parse and generate stl-models")
       (license bsd)
       (depends
-        (srfi 13)
         (srfi 29)
         (srfi 69)
         (snow assert)
@@ -91,8 +90,8 @@
     (name ())
     (version "1.0")
     (url "model-3d.tgz")
-    (size 28160)
-    (checksum (md5 "75d31aa5ae0c42d504a76c52b9208a78"))
+    (size 29696)
+    (checksum (md5 "50449e04d5b2fc51ff08022227e2cd59"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
@@ -128,8 +127,8 @@
     (name ())
     (version "1.0")
     (url "math-3d.tgz")
-    (size 69120)
-    (checksum (md5 "ef41a13d1356c542066a44627a5f8cdd"))
+    (size 69632)
+    (checksum (md5 "caea7b5669285e8ea11423a23848ce6f"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")

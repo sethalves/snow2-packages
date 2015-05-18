@@ -329,7 +329,7 @@
     (version "1.0")
     (url "bytevector.tgz")
     (size 17408)
-    (checksum (md5 "bd61c7ae7dd96e951fa32166cc2bc636"))
+    (checksum (md5 "f722270d277496ed4818406f15f2bb54"))
     (library
       (name (snow bytevector))
       (path "snow/bytevector.sld")
