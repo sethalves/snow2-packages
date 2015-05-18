@@ -186,7 +186,9 @@
 
     (define (read-obj-model-file input-file-name . maybe-model)
       (snow-assert (string? input-file-name))
-      (let ((model (if (null? maybe-model) #f (car maybe-model))))
+      (let ((model (if (null? maybe-model)
+                       (make-model '() '() '() '() '() (make-hash-table))
+                       (car maybe-model))))
         (snow-assert (model? model))
         (read-obj-model (open-input-file input-file-name) model)))
 

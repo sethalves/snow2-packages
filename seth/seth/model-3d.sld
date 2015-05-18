@@ -19,6 +19,7 @@
    model-clear-texture-coordinates!
    model-append-texture-coordinate!
    model-prepend-vertex!
+   model-append-vertex!
    model-prepend-normal!
    ;; materials
    make-material
@@ -35,6 +36,7 @@
    mesh-name mesh-set-name!
    mesh-faces mesh-set-faces!
    mesh-prepend-face!
+   mesh-append-face!
    ;; face-corners
    make-face-corner
    face-corner?
@@ -286,6 +288,19 @@
       (model-set-vertices! model (cons (vector x y z) (model-vertices model))))
 
 
+
+    (define (model-append-vertex! model v)
+      ;; returns the index of the new vertex
+      (snow-assert (model? model))
+      (snow-assert (vector? v))
+      (snow-assert (= (vector-length v) 3))
+      (snow-assert (string? (vector-ref v 0)))
+      (snow-assert (string? (vector-ref v 1)))
+      (snow-assert (string? (vector-ref v 2)))
+      (model-set-vertices! model (reverse (cons v (reverse (model-vertices model)))))
+      (- (length (model-vertices model)) 1))
+
+
     (define (model-prepend-normal! model x y z)
       (snow-assert (model? model))
       (snow-assert (string? x))
@@ -302,6 +317,13 @@
       (let ((face (make-face model (list->vector face-corners) material)))
         (shift-face-indices face vertex-index-start texture-index-start normal-index-start)
         (mesh-set-faces! mesh (cons face (mesh-faces mesh)))))
+
+
+    (define (mesh-append-face! model mesh face)
+      (snow-assert (model? model))
+      (snow-assert (mesh? mesh))
+      (snow-assert (face? face))
+      (mesh-set-faces! mesh (reverse (cons face (reverse (mesh-faces mesh))))))
 
 
     (define (compact-obj-model model)
