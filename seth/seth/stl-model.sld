@@ -3,11 +3,12 @@
           read-stl-model-file
           write-stl-model)
   (import (scheme base)
+          (scheme char)
           (scheme file)
           (scheme write)
           (scheme cxr)
           (scheme process-context)
-          (srfi 13)
+          ;; (srfi 13)
           (srfi 29)
           (srfi 69)
           (snow assert)
@@ -31,7 +32,8 @@
 
       (let loop ((state 'start)
                  (mesh #f)
-                 (vertexes '()))
+                 (vertexes '())
+                 (normal 'unset))
 
         (case state
 
@@ -39,7 +41,7 @@
            (let* ((solid-str (read-word f))
                   (model-name-str (read-word f)))
              (if (equal? (string-downcase solid-str) "solid")
-                 (loop 'read-triangle (make-mesh model-name-str '()) '())
+                 (loop 'read-triangle (make-mesh model-name-str '()) '() normal)
                  (error "stl file didn't start with \"solid\":" solid-str))))
 
           ((read-triangle)
@@ -49,7 +51,10 @@
                       (if (and (equal? (list-ref words 0) "normal")
                                (equal? (list-ref words 4) "outer")
                                (equal? (list-ref words 5) "loop"))
-                          (loop 'read-vertex mesh '())
+                          (let ((new-normal (vector (list-ref words 1)
+                                                    (list-ref words 2)
+                                                    (list-ref words 3))))
+                            (loop 'read-vertex mesh '() new-normal))
                           (error "triangle is malformed"))))
                    ((equal? facet-str "endsolid")
                     ;; all done.
@@ -69,7 +74,8 @@
                            (cons (vector (list-ref coord-strs 0)
                                          (list-ref coord-strs 1)
                                          (list-ref coord-strs 2))
-                                 vertexes))
+                                 vertexes)
+                           normal)
                      (error "vertex is malformed."))))
               ((equal? vertex-str "endloop")
                (let ((endfacet-str (string-downcase (read-word f))))
@@ -80,11 +86,11 @@
                                       (lambda (vertex)
                                         (make-face-corner (model-append-vertex! model vertex)
                                                           'unset
-                                                          'unset))
+                                                          (model-append-normal! model normal)))
                                       (list->vector vertexes))
                                      #f)))
                           (mesh-append-face! model mesh face)
-                          (loop 'read-triangle mesh (list))))
+                          (loop 'read-triangle mesh '() 'unset)))
                        (else
                         (error "didn't see \"endfacet\"")))))
               (else
