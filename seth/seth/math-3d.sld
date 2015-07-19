@@ -320,6 +320,7 @@
     ;; http://www.euclideanspace.com/maths/geometry/rotations/conversions/quaternionToEuler/
     ;; http://en.wikipedia.org/wiki/Conversion_between_quaternions_and_Euler_angles
     ;; http://wiki.call-cc.org/eggref/4/quaternions
+    ;; http://www.wolframalpha.com/input/?i=euler%20angles
 
     (define (quaternion->euler~1 q)
       ;; convert a quaternion into rotations about x, y, and z axis.
@@ -910,8 +911,9 @@
     (define (angle-between-vectors v0 v1 . axis)
       ;; return the angle (positive or negative) that rotates
       ;; v0 to v1 around axis or (v0 X v1) if axis is not provided
-      (let* ((aa (acos (dot-product (vector3-normalize v0)
-                                    (vector3-normalize v1))))
+      (let* ((dp (dot-product (vector3-normalize v0) (vector3-normalize v1)))
+             (dp~ (clamp-number dp -1.0 1.0)) ;; the wonders of ieee floating-point
+             (aa (acos dp~))
              (xp (if (null? axis)
                      (cross-product (vector3-normalize v0) (vector3-normalize v1))
                      (car axis)))
