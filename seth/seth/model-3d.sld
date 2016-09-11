@@ -1,5 +1,12 @@
 (define-library (seth model-3d)
   (export
+   ;; coordinates
+   make-coordinates
+   coordinates-append!
+   coordinates?
+   coordinates-length
+   coordinates-ref
+   coordinates-as-vector
    ;; models
    make-model
    make-empty-model
@@ -18,9 +25,7 @@
    model-texture-aa-box
    model-clear-texture-coordinates!
    model-append-texture-coordinate!
-   model-prepend-vertex!
    model-append-vertex!
-   model-prepend-normal!
    model-append-normal!
    ;; materials
    make-material
@@ -69,6 +74,7 @@
           (scheme file)
           (scheme write)
           (scheme cxr)
+          (srfi 1)
           (srfi 13)
           (srfi 29)
           (srfi 69)
@@ -83,19 +89,86 @@
 
   (begin
 
-    ;; a model has a list of vertices and of normals. A model also has a list of meshes.
+    ;; a generic sequence of vectors of strings (coordinates)
+    (define-record-type <coordinates>
+      (make-coordinates~ vec rev-lst lst-len)
+      coordinates?
+      (vec coordinates-vec coordinates-set-vec!)
+      (rev-lst coordinates-lst coordinates-set-lst!)
+      (lst-len coordinates-lst-len coordinates-set-lst-len!))
+
+    (define (make-coordinates)
+      (make-coordinates~ (vector) (list) 0))
+
+    (define (coordinates-append! coords new-coord)
+      (snow-assert (coordinates? coords))
+      (snow-assert (vector? new-coord))
+      (snow-assert (every string? (vector->list new-coord)))
+      (coordinates-set-lst!
+       coords
+       (cons new-coord (coordinates-lst coords)))
+      (coordinates-set-lst-len!
+       coords
+       (+ (coordinates-lst-len coords) 1)))
+
+    (define (coordinates-compact coords)
+      (snow-assert (coordinates? coords))
+      (cond ((not (null? (coordinates-lst coords)))
+             (coordinates-set-vec!
+              coords
+              (vector-append
+               (coordinates-vec coords)
+               (list->vector (reverse (coordinates-lst coords)))))
+             (coordinates-set-lst! coords '())
+             (coordinates-set-lst-len! coords 0))))
+
+    (define (coordinates-length coords)
+      (+ (vector-length (coordinates-vec coords))
+         (coordinates-lst-len coords)))
+
+    (define (coordinates-ref coords n)
+      (coordinates-compact coords)
+      (vector-ref (coordinates-vec coords) n))
+
+    (define (coordinates-as-vector coords)
+      (coordinates-compact coords)
+      (coordinates-vec coords))
+
+    (define (coordinates-null? coords)
+      (coordinates-compact coords)
+      (= (vector-length (coordinates-vec coords)) 0))
+
+
+    ;; a model has a list of vertices and of normals. A model also has a
+    ;; list of meshes.
     (define-record-type <model>
-      (make-model meshes vertices texture-coordinates normals material-libraries materials)
+      (make-model~ meshes vertices texture-coordinates normals
+                  material-libraries materials)
       model?
       (meshes model-meshes model-set-meshes!) ;; list of meshes
-      (vertices model-vertices model-set-vertices!) ;; list of vertices
-      (texture-coordinates model-texture-coordinates model-set-texture-coordinates!)
-      (normals model-normals model-set-normals!)
-      (material-libraries model-material-libraries model-set-material-libraries!)
+      (vertices model-vertices model-set-vertices!) ;; coordinates
+      (texture-coordinates model-texture-coordinates
+                           model-set-texture-coordinates!)  ;; coordinates
+      (normals model-normals model-set-normals!)  ;; coordinates
+      (material-libraries model-material-libraries
+                          model-set-material-libraries!)
       (materials model-materials model-set-materials!))
 
+    (define (make-model meshes vertices texture-coordinates normals
+                        material-libraries materials)
+      (snow-assert (list? meshes))
+      (snow-assert (coordinates? vertices))
+      (snow-assert (coordinates? texture-coordinates))
+      (snow-assert (coordinates? normals))
+      (snow-assert (list? material-libraries))
+      (snow-assert (hash-table? materials))
+      (make-model~ meshes vertices texture-coordinates normals
+                   material-libraries materials))
+
     (define (make-empty-model)
-      (make-model '() '() '() '() '() (make-hash-table)))
+      (make-model '()
+                  (make-coordinates) (make-coordinates) (make-coordinates)
+                  '() (make-hash-table)))
 
 
     ;; a material is a reference into an external .mtl file
@@ -104,7 +177,8 @@
       material?
       (name material-name material-set-name!))
 
-    ;; look up a material by name.  if this is the first reference to it, create it.
+    ;; look up a material by name.  if this is the first reference to
+    ;; it, create it.
     (define (model-get-material-by-name model material-name)
       (snow-assert (model? model))
       (snow-assert (or (string? material-name) (not material-name)))
@@ -120,7 +194,8 @@
 
 
 
-    ;; a mesh is a group of triangles defined by indexing into the model's vertexes
+    ;; a mesh is a group of triangles defined by indexing into the
+    ;; model's vertexes
     (define-record-type <mesh>
       (make-mesh name faces)
       mesh?
@@ -176,16 +251,14 @@
 
 
     (define (model-clear-texture-coordinates! model)
-      (model-set-texture-coordinates! model '()))
+      (model-set-texture-coordinates! model (make-coordinates)))
 
 
     (define (model-append-texture-coordinate! model v)
       (snow-assert (model? model))
       (snow-assert (vector? v))
       (snow-assert (= (vector-length v) 2))
-      (model-set-texture-coordinates!
-       model (reverse (cons v (reverse (model-texture-coordinates model))))))
-
+      (coordinates-append! (model-texture-coordinates model) v))
 
 
     (define (face-corner->vertex model face-corner)
@@ -193,7 +266,8 @@
       (snow-assert (face-corner? face-corner))
       (let ((index (face-corner-vertex-index face-corner)))
         (if (eq? index 'unset) #f
-            (vector-map string->number (list-ref (model-vertices model) index)))))
+            (vector-map string->number
+                        (coordinates-ref (model-vertices model) index)))))
 
 
     (define (face-corner->normal model face-corner)
@@ -201,16 +275,19 @@
       (snow-assert (face-corner? face-corner))
       (let ((index (face-corner-normal-index face-corner)))
         (if (eq? index 'unset) 'unset
-            (vector-map string->number (list-ref (model-normals model) index)))))
+            (vector-map string->number
+                        (coordinates-ref (model-normals model) index)))))
 
 
     (define (for-each-mesh model proc)
+      (snow-assert (model? model))
       (for-each proc (model-meshes model)))
 
 
     ;; call op with and replace every face in model.  op should accept mesh
     ;; and face and return face
     (define (operate-on-faces model op)
+      (snow-assert (model? model))
       (for-each-mesh
        model
        (lambda (mesh)
@@ -262,7 +339,8 @@
 
 
 
-    (define (shift-face-indices face vertex-index-start texture-index-start normal-index-start)
+    (define (shift-face-indices
+             face vertex-index-start texture-index-start normal-index-start)
       (snow-assert (face? face))
       (snow-assert (integer? vertex-index-start))
       (snow-assert (integer? texture-index-start))
@@ -274,20 +352,13 @@
           corner (+ (face-corner-vertex-index corner) vertex-index-start))
          (if (not (eq? (face-corner-texture-index corner) 'unset))
              (face-corner-set-texture-index!
-              corner (+ (face-corner-texture-index corner) texture-index-start)))
+              corner (+ (face-corner-texture-index corner)
+                        texture-index-start)))
          (if (not (eq? (face-corner-normal-index corner) 'unset))
              (face-corner-set-normal-index!
-              corner (+ (face-corner-normal-index corner) normal-index-start))))
+              corner (+ (face-corner-normal-index corner)
+                        normal-index-start))))
        (face-corners face)))
-
-
-    (define (model-prepend-vertex! model x y z)
-      (snow-assert (model? model))
-      (snow-assert (string? x))
-      (snow-assert (string? y))
-      (snow-assert (string? z))
-      (model-set-vertices! model (cons (vector x y z) (model-vertices model))))
-
 
 
     (define (model-append-vertex! model v)
@@ -298,16 +369,8 @@
       (snow-assert (string? (vector-ref v 0)))
       (snow-assert (string? (vector-ref v 1)))
       (snow-assert (string? (vector-ref v 2)))
-      (model-set-vertices! model (reverse (cons v (reverse (model-vertices model)))))
-      (- (length (model-vertices model)) 1))
-
-
-    (define (model-prepend-normal! model x y z)
-      (snow-assert (model? model))
-      (snow-assert (string? x))
-      (snow-assert (string? y))
-      (snow-assert (string? z))
-      (model-set-normals! model (cons (vector x y z) (model-normals model))))
+      (coordinates-append! (model-vertices model) v)
+      (- (coordinates-length (model-vertices model)) 1))
 
 
     (define (model-append-normal! model v)
@@ -318,8 +381,8 @@
       (snow-assert (string? (vector-ref v 0)))
       (snow-assert (string? (vector-ref v 1)))
       (snow-assert (string? (vector-ref v 2)))
-      (model-set-normals! model (reverse (cons v (reverse (model-normals model)))))
-      (- (length (model-normals model)) 1))
+      (coordinates-append! (model-normals model) v)
+      (- (coordinates-length (model-normals model)) 1))
 
 
     (define (mesh-prepend-face! model mesh face-corners material
@@ -354,35 +417,35 @@
 
       (snow-assert (model? model))
 
-      (let ((original-vertices (list->vector (model-vertices model)))
-            (new-vertices '())
+      (let ((original-vertices (coordinates-as-vector (model-vertices model)))
+            (new-vertices (make-coordinates))
             (vertex-ht (make-hash-table))
             (vertex-n 0)
-            (original-normals (list->vector (model-normals model)))
-            (new-normals '())
+            (original-normals (coordinates-as-vector (model-normals model)))
+            (new-normals (make-coordinates))
             (normal-ht (make-hash-table))
             (normal-n 0))
 
-        (for-each
+        (vector-for-each
          (lambda (vertex)
            (let ((key (string-join (vector->list vertex))))
              (cond ((not (hash-table-exists? vertex-ht key))
                     (hash-table-set! vertex-ht key vertex-n)
                     (set! vertex-n (+ vertex-n 1))
-                    (set! new-vertices (cons vertex new-vertices))))))
-         (model-vertices model))
+                    (coordinates-append! new-vertices vertex)))))
+         (coordinates-as-vector (model-vertices model)))
 
-        (for-each
+        (vector-for-each
          (lambda (normal)
            (let ((key (string-join (vector->list normal))))
              (cond ((not (hash-table-exists? normal-ht key))
                     (hash-table-set! normal-ht key normal-n)
                     (set! normal-n (+ normal-n 1))
-                    (set! new-normals (cons normal new-normals))))))
-         (model-normals model))
+                    (coordinates-append! new-normals normal)))))
+         (coordinates-as-vector (model-normals model)))
 
-        (model-set-vertices! model (reverse new-vertices))
-        (model-set-normals! model (reverse new-normals))
+        (model-set-vertices! model new-vertices)
+        (model-set-normals! model new-normals)
 
 
         (operate-on-face-corners
@@ -486,9 +549,8 @@
              (center (vector3-scale
                       (apply vector3-sum (vector->list vertices))
                       (/ 1.0 (vector-length vertices))))
-             (plane-intersection (triangle-plane-intersection vertices (vector center best-normal-axis)))
-
-             )
+             (plane-intersection (triangle-plane-intersection
+                                  vertices (vector center best-normal-axis))))
         (cond ((not plane-intersection)
                (pick-u-v-axis~ vertices))
 
@@ -497,7 +559,8 @@
                       (u1 (vector-ref plane-intersection 1))
                       (u-direction (vector3-diff u1 u0))
                       (u-axis (vector3-normalize u-direction))
-                      (v-axis (vector3-normalize (cross-product normal u-axis))))
+                      (v-axis (vector3-normalize
+                               (cross-product normal u-axis))))
                  (values u-axis v-axis))))))
 
 
@@ -539,25 +602,33 @@
                (vector-for-each
                 (lambda (face-corner)
                   (snow-assert (face-corner? face-corner))
-                  (let ((index (length (model-texture-coordinates model)))
+                  (let ((index (coordinates-length
+                                (model-texture-coordinates model)))
                         (vertex (face-corner->vertex model face-corner)))
                     (model-append-texture-coordinate!
-                     model (vertex-transformer vertex offset))
+                     model
+                     (vector-map
+                      (lambda (v) (number->pretty-string v 6))
+                      (vertex-transformer vertex offset)))
                     (face-corner-set-texture-index! face-corner index)))
                 (face-corners face)))))
          face)))
 
 
     (define (model-aa-box model)
-      (cond ((null? (model-vertices model)) #f)
+      (cond ((coordinates-null? (model-vertices model)) #f)
             (else
-             (let* ((p0 (vector-map string->number (car (model-vertices model))))
+             (let* ((p0 (vector-map
+                         string->number
+                         (vector-ref
+                          (coordinates-as-vector (model-vertices model)) 0)))
                     (aa-box (make-aa-box p0 p0)))
-               ;; insert all of the model's vertices into the axis-aligned bounding box
-               (for-each
+               ;; insert all of the model's vertices into the axis-aligned
+               ;; bounding box
+               (vector-for-each
                 (lambda (p)
                   (aa-box-add-point! aa-box (vector-map string->number p)))
-                (model-vertices model))
+                (coordinates-as-vector (model-vertices model)))
                aa-box))))
 
 
@@ -575,46 +646,49 @@
 
 
     (define (model-texture-aa-box model)
-      (cond ((null? (model-texture-coordinates model)) #f)
+      (cond ((coordinates-null? (model-texture-coordinates model)) #f)
             (else
-             (let* ((p0 (car (model-texture-coordinates model)))
+             (let* ((p0 (vector-ref (coordinates-as-vector
+                                     (model-texture-coordinates model)) 0))
                     (aa-box (make-aa-box p0 p0)))
-               ;; insert all of the model's texture-coordinates into the axis-aligned bounding box
-               (for-each
+               ;; insert all of the model's texture-coordinates into the
+               ;; axis-aligned bounding box
+               (vector-for-each
                 (lambda (p)
                   (aa-box-add-point! aa-box p))
-                (model-texture-coordinates model))
+                (coordinates-as-vector (model-texture-coordinates model)))
                aa-box))))
 
 
     (define (scale-model model scaling-factor)
-      (model-set-vertices!
-       model
-       (map
+      (coordinates-set-vec!
+       (model-vertices model)
+       (vector-map
         (lambda (vertex)
           (vector-map
            (lambda (p)
              (number->pretty-string (* (string->number p) scaling-factor) 6))
            vertex))
-        (model-vertices model))))
+        (coordinates-as-vector (model-vertices model)))))
 
 
     (define (size-model model desired-max-dimension)
       (let ((max-dimension (model-max-dimension model)))
-        (scale-model model (/ (inexact desired-max-dimension) (inexact max-dimension)))))
+        (scale-model model (/ (inexact desired-max-dimension)
+                              (inexact max-dimension)))))
 
 
     (define (translate-model model by-offset)
       (snow-assert (model? model))
       (snow-assert (vector? by-offset))
       (snow-assert (= (vector-length by-offset) 3))
-      (model-set-vertices!
-       model
-       (map
+      (coordinates-set-vec!
+       (model-vertices model)
+       (vector-map
         (lambda (vertex)
           (let ((fvertex (vector-map string->number vertex)))
             (vector-map number->string (vector3-sum fvertex by-offset))))
-        (model-vertices model))))
+        (coordinates-as-vector (model-vertices model)))))
 
 
     (define (set-all-faces-to-material model material-name)

@@ -82,105 +82,160 @@
                    face-vertex-indices)))))))
 
 
-    (define (read-mesh model mesh-name material vertex-index-start texture-index-start normal-index-start inport)
+    (define (tokenizer-for-line line-trimmed)
+      (cond ((not line-trimmed) (lambda () #f))
+            ((eof-object? line-trimmed) (lambda () #f))
+            (else
+             (let ((line-hndl (open-input-string line-trimmed)))
+               (lambda ()
+                 (next-token '(#\space) '(#\space *eof*) #\# line-hndl))))))
+
+
+    (define (interpret-mesh-line line-trimmed material prepend-face! model
+                                 unget-line)
+      (snow-assert (material? material))
+      (let* ((nt (tokenizer-for-line line-trimmed))
+             (first-token (nt)))
+        (cond
+         ;; geometry vertex
+         ((equal? first-token "v")
+          (let* ((x (nt)) (y (nt)) (z (nt)))
+            (model-append-vertex! model (vector x y z))
+            material))
+         ;; texture vertex
+         ((equal? first-token "vt")
+          (let* ((x (nt))
+                 (y (nt)))
+            (model-append-texture-coordinate!
+             model (vector x y))
+            material))
+         ;; vertex normal
+         ((equal? first-token "vn")
+          (let* ((x (nt)) (y (nt)) (z (nt)))
+            (model-append-normal! model (vector x y z))
+            material))
+         ;; face
+         ((equal? first-token "f")
+          (prepend-face! (map parse-face-corner (read-face nt)) material)
+          material)
+         ;; group
+         ((equal? first-token "g")
+          (unget-line line-trimmed)
+          #f)
+         ;; material library
+         ((equal? first-token "mtllib")
+          (let ((material-library (nt)))
+            (model-set-material-libraries!
+             model
+             (cons material-library (model-material-libraries model)))
+            material))
+         ;; switch materials
+         ((equal? first-token "usemtl")
+          (let* ((next-material-name (nt))
+                 (next-material
+                  (model-get-material-by-name model next-material-name)))
+            next-material))
+         (else
+          material))))
+
+
+    (define (read-mesh model material prepend-face! get-line unget-line)
+      ;; read an optional "g" line and all the faces after it.  stop
+      ;; upon encountering another "g" line.
       (snow-assert (model? model))
-      (snow-assert (input-port? inport))
-      (snow-assert (or (material? material) (not material)))
+      (snow-assert (material? material))
       (let ((mesh (make-mesh #f '())))
-        (define (done result next-mesh-name next-material)
-          (snow-assert (or (material? material) (not material)))
+
+        (define (prepend-face-to-mesh! face material)
+          (snow-assert (material? material))
+          (prepend-face! mesh face material))
+
+        ;; read mesh-name first
+        (define mesh-name
+          (let* ((mesh-name-line (get-line))
+                 (nt (tokenizer-for-line mesh-name-line))
+                 (first-token (nt)))
+            (cond ((equal? first-token "g") (nt))
+                  (else
+                   ;; no "g" line, carry on without a name
+                   (unget-line mesh-name-line)
+                   #f))))
+
+        (define (material-done material)
           (cond ((not (null? (mesh-faces mesh)))
                  (if mesh-name (mesh-set-name! mesh mesh-name))
                  (mesh-set-faces! mesh (reverse (mesh-faces mesh)))
                  (model-prepend-mesh! model mesh)))
-          (values result next-mesh-name next-material))
+          material)
+
         (let loop ((material material))
-          (let ((line (read-line inport)))
-            (cond ((eof-object? line) (done #f #f material))
+          (snow-assert (material? material))
+          (let ((line-trimmed (get-line)))
+            ;; consume the next line
+            (cond ((eof-object? line-trimmed) (material-done #f))
                   (else
-                   ;; consume the next line
-                   (let* ((line-trimmmed (string-trim-both line)))
-                     (cond ((= (string-length line-trimmmed) 0) (loop material))
-                           ((eqv? (string-ref line-trimmmed 0) #\#) (loop material))
-                           (else
-                            (let* ((line-hndl
-                                    (open-input-string line-trimmmed))
-                                   (nt (lambda ()
-                                         (next-token '(#\space)
-                                                     '(#\space *eof*)
-                                                     #\# line-hndl)))
-                                   (first-token (nt)))
-                              (cond ((equal? first-token "v")
-                                     (let* ((x (nt)) (y (nt)) (z (nt)))
-                                       (model-prepend-vertex! model x y z)
-                                       (loop material)))
-                                    ((equal? first-token "vt")
-                                     (let* ((x (string->number (nt)))
-                                            (y (string->number (nt))))
-                                       (model-append-texture-coordinate!
-                                        model (vector x y))
-                                       (loop material)))
-                                    ((equal? first-token "vn")
-                                     (let* ((x (nt)) (y (nt)) (z (nt)))
-                                       (model-prepend-normal! model x y z)
-                                       (loop material)))
-                                    ((equal? first-token "f")
-                                     (mesh-prepend-face!
-                                      model mesh
-                                      (map parse-face-corner (read-face nt))
-                                      material
-                                      vertex-index-start texture-index-start
-                                      normal-index-start inport)
-                                     (loop material))
-                                    ((equal? first-token "g")
-                                     (let ((next-mesh-name (nt)))
-                                       (done #t
-                                             (if (eof-object? next-mesh-name)
-                                                 #f
-                                                 next-mesh-name)
-                                             material)))
-                                    ((equal? first-token "mtllib")
-                                     (let ((material-library (nt)))
-                                       (model-set-material-libraries!
-                                        model
-                                        (cons material-library (model-material-libraries model)))
-                                       (loop material)))
-                                    ((equal? first-token "usemtl")
-                                     (let* ((next-material-name (nt))
-                                            (next-material (model-get-material-by-name model next-material-name)))
-                                       (loop next-material)))
-                                    (else
-                                     (loop material)))))))))))))
+                   (let ((next-material
+                          (interpret-mesh-line line-trimmed material
+                                               prepend-face-to-mesh! model
+                                               unget-line)))
+                     (if next-material
+                         (loop next-material)
+                         (material-done material)))))))))
 
 
     (define (read-obj-model inport . maybe-model)
       (snow-assert (input-port? inport))
       (let* ((model (if (null? maybe-model)
-                        (make-model '() '() '() '() '() (make-hash-table))
+                        (make-empty-model)
                         (car maybe-model)))
-             (vertex-index-start (length (model-vertices model)))
-             (texture-index-start (length (model-texture-coordinates model)))
-             (normal-index-start (length (model-normals model))))
+             (vertex-index-start (coordinates-length (model-vertices model)))
+             (texture-index-start (coordinates-length
+                                   (model-texture-coordinates model)))
+             (normal-index-start (coordinates-length (model-normals model)))
+             (pushed-back-line #f))
+
+        (define (get-line)
+          (if pushed-back-line
+              (let ((line pushed-back-line))
+                (set! pushed-back-line #f)
+                line)
+              (let loop ((line (read-line inport)))
+                (if (eof-object? line)
+                    line
+                    (let ((line-trimmed (string-trim-both line)))
+                      (cond ((= (string-length line-trimmed) 0)
+                             (loop (read-line inport))) ;; blank line
+                            ((eqv? (string-ref line-trimmed 0) #\#)
+                             (loop (read-line inport))) ;; comment
+                            (else
+                             line-trimmed)))))))
+        (define (unget-line line)
+          (snow-assert (eq? pushed-back-line #f))
+          (set! pushed-back-line line))
+
+
+        (define (prepend-face! mesh face material)
+          (mesh-prepend-face!
+           model mesh
+           face
+           material
+           vertex-index-start texture-index-start
+           normal-index-start inport))
+
         (snow-assert (model? model))
 
         (model-set-meshes! model (reverse (model-meshes model)))
-        (model-set-vertices! model (reverse (model-vertices model)))
-        (model-set-normals! model (reverse (model-normals model)))
 
-        (let loop ((mesh-name #f)
-                   (material #f))
-          (let-values (((continue next-model-name next-material)
-                        (read-mesh model mesh-name
-                                   material
-                                   vertex-index-start
-                                   texture-index-start
-                                   normal-index-start
-                                   inport)))
-            (cond (continue (loop next-model-name next-material))
+        (let loop ((material
+                    (model-get-material-by-name model "default")))
+          (snow-assert (material? material))
+          (let ((next-material (read-mesh model
+                                          material
+                                          prepend-face!
+                                          get-line unget-line)))
+            (cond (next-material (loop next-material))
                   (else
                    (model-set-meshes! model (reverse (model-meshes model)))
-                   (model-set-vertices! model (reverse (model-vertices model)))
-                   (model-set-normals! model (reverse (model-normals model)))
                    model))))))
 
 
@@ -203,36 +258,36 @@
        (model-material-libraries model))
       (newline port)
 
-      (for-each
+      (vector-for-each
        (lambda (vertex)
          (display (format "v ~a ~a ~a\n"
                           (vector3-x vertex)
                           (vector3-y vertex)
                           (vector3-z vertex)) port))
-       (model-vertices model))
+       (coordinates-as-vector (model-vertices model)))
       (newline port)
 
-      (for-each
+      (vector-for-each
        (lambda (coord)
          (display (format "vt ~a ~a\n"
-                          (number->pretty-string (vector2-x coord) 4)
-                          (number->pretty-string (vector2-y coord) 4)) port))
-       (model-texture-coordinates model))
+                          (vector2-x coord)
+                          (vector2-y coord)) port))
+       (coordinates-as-vector (model-texture-coordinates model)))
       (newline port)
 
-      (for-each
+      (vector-for-each
        (lambda (normal)
          (display (format "vn ~a ~a ~a\n"
                           (vector3-x normal)
                           (vector3-y normal)
                           (vector3-z normal)) port))
-       (model-normals model))
+       (coordinates-as-vector (model-normals model)))
 
       (let loop ((meshes (model-meshes model))
                  (nth 1)
                  (material #f))
         (cond ((null? meshes) #t)
-              (else 
+              (else
                (let ((mesh (car meshes))
                      (current-material material))
                  (if (mesh-name mesh)
@@ -244,12 +299,15 @@
 
                     (let ((next-material (face-material face)))
                       (cond ((not (eq? next-material current-material))
-                             (display (format "usemtl ~a\n" (material-name next-material)) port)
+                             (display (format "usemtl ~a\n"
+                                              (material-name next-material))
+                                      port)
                              (set! current-material next-material)))
                       (display (format "f ~a"
                                        (string-join
                                         (vector->list
-                                         (vector-map unparse-face-corner (face-corners face)))))
+                                         (vector-map unparse-face-corner
+                                                     (face-corners face)))))
                                port)
                       (newline port)))
                   (mesh-faces mesh))
