@@ -84,9 +84,10 @@
                                      model
                                      (vector-map
                                       (lambda (vertex)
-                                        (make-face-corner (model-append-vertex! model vertex)
-                                                          'unset
-                                                          (model-append-normal! model normal)))
+                                        (make-face-corner
+                                         (model-append-vertex! model vertex)
+                                         'unset
+                                         (model-append-normal! model normal)))
                                       (list->vector vertexes))
                                      #f)))
                           (mesh-append-face! model mesh face)
@@ -104,11 +105,14 @@
       (snow-assert (input-port? inport))
 
       (let* ((model (if (null? maybe-model)
-                        (make-model '() '() '() '() '() (make-hash-table))
+                        (make-empty-model)
                         (car maybe-model)))
-             (vertex-index-start (length (model-vertices model)))
-             (texture-index-start (length (model-texture-coordinates model)))
-             (normal-index-start (length (model-normals model))))
+             (vertex-index-start
+              (coordinates-length (model-vertices model)))
+             (texture-index-start
+              (coordinates-length (model-texture-coordinates model)))
+             (normal-index-start
+              (coordinates-length (model-normals model))))
         (snow-assert (model? model))
         (parse-stl inport model)
         model))
@@ -117,7 +121,7 @@
     (define (read-stl-model-file input-file-name . maybe-model)
       (snow-assert (string? input-file-name))
       (let ((model (if (null? maybe-model)
-                       (make-model '() '() '() '() '() (make-hash-table))
+                       (make-empty-model)
                        (car maybe-model))))
         (snow-assert (model? model))
         (read-stl-model (open-input-file input-file-name) model)))

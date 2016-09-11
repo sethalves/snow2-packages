@@ -5,4 +5,6 @@
           (seth stl-model))
   (begin
     (define (run-tests)
-      #t)))
+      (read-stl-model-file "test.stl")
+      #t
+      )))
