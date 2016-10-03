@@ -214,11 +214,10 @@
           (set! pushed-back-line line))
 
 
-        (define (prepend-face! mesh face material)
-          (if (not (face-is-degenerate? model face))
-              (mesh-prepend-face! model mesh face material
-                                  vertex-index-start texture-index-start
-                                  normal-index-start inport)))
+        (define (prepend-face! mesh face-corners material)
+          (mesh-prepend-face! model mesh face-corners material
+                              vertex-index-start texture-index-start
+                              normal-index-start inport))
 
         (snow-assert (model? model))
 

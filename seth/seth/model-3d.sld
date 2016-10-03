@@ -465,9 +465,10 @@
       (snow-assert (mesh? mesh))
       (snow-assert (list? face-corners))
       (let ((face (make-face model (list->vector face-corners) material)))
-        (shift-face-indices
-         face vertex-index-start texture-index-start normal-index-start)
-        (mesh-set-faces! mesh (cons face (mesh-faces mesh)))))
+        (cond ((not (face-is-degenerate? model face))
+               (shift-face-indices
+                face vertex-index-start texture-index-start normal-index-start)
+               (mesh-set-faces! mesh (cons face (mesh-faces mesh)))))))
 
 
     (define (mesh-append-face! model mesh face)

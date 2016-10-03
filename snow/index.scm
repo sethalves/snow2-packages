@@ -10,7 +10,7 @@
     (version "1.0")
     (url "hello.tgz")
     (size 6144)
-    (checksum (md5 "c373e3498feafdc86804b6c925864a58"))
+    (checksum (md5 "09bd4752bb942a2ad9296b40019e9f0c"))
     (library
       (name (snow hello))
       (path "snow/hello.sld")
@@ -40,7 +40,7 @@
     (version "1.0")
     (url "tar.tgz")
     (size 27648)
-    (checksum (md5 "bd49eff69d0d4e60360831dae50fc9ee"))
+    (checksum (md5 "a0e6affc3f532c4ba296cec373bf6b9f"))
     (library
       (name (snow tar))
       (path "snow/tar.sld")
@@ -75,7 +75,7 @@
     (version "1.0")
     (url "bignum.tgz")
     (size 44544)
-    (checksum (md5 "3e5f94d72bd21e1eb4ff19a68407f510"))
+    (checksum (md5 "406a4293bf1226cf6e04d2983220e656"))
     (library
       (name (snow bignum))
       (path "snow/bignum.sld")
@@ -105,7 +105,7 @@
     (version "1.0")
     (url "processio.tgz")
     (size 15872)
-    (checksum (md5 "a402392c205be05c4f0b17f753990890"))
+    (checksum (md5 "ceb519289d6e13d5bba5c52c35cc0c30"))
     (library
       (name (snow processio))
       (path "snow/processio.sld")
@@ -143,7 +143,7 @@
     (version "1.0")
     (url "genport.tgz")
     (size 16384)
-    (checksum (md5 "277ce22d74d8db8fc64d8bc356dc01bb"))
+    (checksum (md5 "19831b32aedb072f9e44ef661b03b99e"))
     (library
       (name (snow genport))
       (path "snow/genport.sld")
@@ -173,7 +173,7 @@
     (version "1.0")
     (url "filesys.tgz")
     (size 23552)
-    (checksum (md5 "d6cafe690d83be6163cb925fab46507f"))
+    (checksum (md5 "3b5e7965ae0b83a8982640bba2a2efa1"))
     (library
       (name (snow filesys))
       (path "snow/filesys.sld")
@@ -203,7 +203,7 @@
     (version "1.0")
     (url "pi.tgz")
     (size 7680)
-    (checksum (md5 "cee8f2e616e7993f59bf497bd1960d6e"))
+    (checksum (md5 "278d9053743e59e16e752ec4e71bbc39"))
     (library
       (name (snow pi))
       (path "snow/pi.sld")
@@ -233,7 +233,7 @@
     (version "1.0")
     (url "extio.tgz")
     (size 50176)
-    (checksum (md5 "07179fef0fc8bb5f418e22f91670dad6"))
+    (checksum (md5 "df567f0bb5120b12697f378532c462df"))
     (library
       (name (snow extio))
       (path "snow/extio.sld")
@@ -263,7 +263,7 @@
     (version "1.0")
     (url "zlib.tgz")
     (size 48640)
-    (checksum (md5 "fecf35bb621fea5ac3da379580f039dd"))
+    (checksum (md5 "5c640caca662e41d9cdd41b6dfc93559"))
     (library
       (name (snow zlib))
       (path "snow/zlib.sld")
@@ -299,7 +299,7 @@
     (version "1.0")
     (url "random.tgz")
     (size 8192)
-    (checksum (md5 "0ddeebae4767afb48107973f80d1c798"))
+    (checksum (md5 "27a5a7590bdffc3c45569013e348de15"))
     (library
       (name (snow random))
       (path "snow/random.sld")
@@ -329,7 +329,7 @@
     (version "1.0")
     (url "bytevector.tgz")
     (size 17408)
-    (checksum (md5 "f722270d277496ed4818406f15f2bb54"))
+    (checksum (md5 "ef49a76943296980e53a51d642133e11"))
     (library
       (name (snow bytevector))
       (path "snow/bytevector.sld")
@@ -359,7 +359,7 @@
     (version "1.0")
     (url "input-parse.tgz")
     (size 15360)
-    (checksum (md5 "a0f0b8cf5148d08e21381348f406f2b7"))
+    (checksum (md5 "74128424167947c595b18ce1a45c212a"))
     (library
       (name (snow input-parse))
       (path "snow/input-parse.sld")
@@ -390,7 +390,7 @@
     (version "1.0")
     (url "binio.tgz")
     (size 11264)
-    (checksum (md5 "5773941d26e5616396d7072a728073cf"))
+    (checksum (md5 "837afd3756d04dd8e85f5b1cc68006f8"))
     (library
       (name (snow binio))
       (path "snow/binio.sld")
@@ -420,7 +420,7 @@
     (version "1.0")
     (url "assert.tgz")
     (size 5632)
-    (checksum (md5 "2e02830c145e15c2ca703f8335d09107"))
+    (checksum (md5 "c2f0f9fd3ce46081e0ca226945624b96"))
     (library
       (name (snow assert))
       (path "snow/assert.sld")
@@ -450,7 +450,7 @@
     (version "1.0")
     (url "digest.tgz")
     (size 59392)
-    (checksum (md5 "e4f5d094b1cfc6be8f30cb43afe8f548"))
+    (checksum (md5 "79e88817de4b2a6970b17a99eb6eb2d0"))
     (library
       (name (snow digest))
       (path "snow/digest.sld")
