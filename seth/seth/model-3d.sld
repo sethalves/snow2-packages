@@ -54,9 +54,11 @@
    ;; faces
    make-face
    face?
+   face-is-degenerate?
    face-corners face-set-corners!
    face-material face-set-material!
    face->vertices
+   face->vertices-list
    fix-face-winding
    shift-face-indices
    ;; mapers/iterators
@@ -80,7 +82,6 @@
           (srfi 69)
           (snow assert)
           (snow input-parse)
-          (seth cout)
           (seth math-3d))
 
   (cond-expand
@@ -88,6 +89,8 @@
    (else))
 
   (begin
+
+    (define vector-tolerance 0.000001)
 
     ;; a generic sequence of vectors of strings (coordinates)
     (define-record-type <coordinates>
@@ -249,6 +252,75 @@
       (make-face~ corners material))
 
 
+    (define (vertex-deltas vertices)
+      (let loop ((vertices-lst vertices)
+                 (deltas (list)))
+        (cond ((null? vertices-lst)
+               (reverse deltas))
+              ((null? (cdr vertices-lst))
+               (let ((v0 (car vertices-lst))
+                     (v1 (car vertices)))
+                 (loop (cdr vertices-lst)
+                       (cons (vector3-diff v1 v0) deltas))))
+              (else
+               (let ((v0 (car vertices-lst))
+                     (v1 (cadr vertices-lst)))
+                 (loop (cdr vertices-lst)
+                       (cons (vector3-diff v1 v0) deltas)))))))
+
+    (define (face-has-vertices-in-a-line model face)
+      (snow-assert (model? model))
+      (snow-assert (face? face))
+      (let loop ((deltas (vertex-deltas (face->vertices-list model face))))
+        (if (or (null? deltas)
+                (null? (cdr deltas)))
+             #f ;; not degenerate
+            (let ((next-delta (car deltas))
+                  (other-deltas (cdr deltas)))
+              (let inner-loop ((other-deltas other-deltas))
+                (cond ((null? other-deltas) (loop (cdr deltas)))
+                      ((vector3-almost-equal?
+                        next-delta zero-vector vector-tolerance)
+                       #t)
+                      ((vector3-almost-equal?
+                        (car other-deltas) zero-vector vector-tolerance)
+                       #t)
+                      ((vector3-almost-equal?
+                        (vector3-normalize next-delta)
+                        (vector3-normalize (car other-deltas))
+                        vector-tolerance)
+                       #t)
+                      ((vector3-almost-equal?
+                        (vector3-scale (vector3-normalize next-delta) -1.0)
+                        (vector3-normalize (car other-deltas))
+                        vector-tolerance)
+                       #t)
+                      (else (inner-loop (cdr other-deltas)))))))))
+
+    (define (face-has-concurrent-vertices model face)
+      (snow-assert (model? model))
+      (snow-assert (face? face))
+      (let loop ((vertices (face->vertices-list model face)))
+        (if (or (null? vertices)
+                (null? (cdr vertices)))
+            #f ;; not degenerate, according to this part of the test
+            (let ((next-vertex (car vertices))
+                  (other-vertices (cdr vertices)))
+              (let inner-loop ((other-vertices other-vertices))
+                (cond ((null? other-vertices) (loop (cdr vertices)))
+                      ((vector3-almost-equal?
+                        next-vertex
+                        (car other-vertices)
+                        vector-tolerance)
+                       #t)
+                      (else (inner-loop (cdr other-vertices)))))))))
+
+    (define (face-is-degenerate? model face)
+      (snow-assert (model? model))
+      (snow-assert (face? face))
+      (cond ((face-has-concurrent-vertices model face) #t)
+            ((face-has-vertices-in-a-line model face) #t)
+            (else #f)))
 
     (define (model-clear-texture-coordinates! model)
       (model-set-texture-coordinates! model (make-coordinates)))
@@ -331,6 +403,8 @@
          (face-corner->vertex model face-corner))
        (face-corners face)))
 
+    (define (face->vertices-list model face)
+      (vector->list (face->vertices model face)))
 
     (define (model-prepend-mesh! model mesh)
       (snow-assert (model? model))
@@ -391,7 +465,8 @@
       (snow-assert (mesh? mesh))
       (snow-assert (list? face-corners))
       (let ((face (make-face model (list->vector face-corners) material)))
-        (shift-face-indices face vertex-index-start texture-index-start normal-index-start)
+        (shift-face-indices
+         face vertex-index-start texture-index-start normal-index-start)
         (mesh-set-faces! mesh (cons face (mesh-faces mesh)))))
 
 
@@ -464,6 +539,24 @@
            ))
         ))
 
+    (define (get-normal-wrongness vertex-0 vertex-1 vertex-2 normals)
+      ;; angle between implied normal and read one
+      (let* ((normal (apply vector3-average normals))
+             ;; get cross-product of triangle sides
+             (diff-1-0 (vector3-diff vertex-1 vertex-0))
+             (diff-2-0 (vector3-diff vertex-2 vertex-0))
+             (cross (cross-product diff-1-0 diff-2-0))
+             (normal-cross (cross-product normal cross)))
+        (cond ((vector3-equal? normal-cross zero-vector)
+               (if (vector3-almost-equal?
+                    (vector3-normalize normal)
+                    (vector3-normalize cross)
+                    vector-tolerance)
+                   0 ;; don't flip
+                   pi)) ;; flip
+              (else
+               (angle-between-vectors normal cross normal-cross)))))
+
 
     (define (fix-face-winding model)
       (snow-assert (model? model))
@@ -492,15 +585,9 @@
                         face
                         ;; we have 3 vertices with 3 normals.
                         ;; average the normals
-                        (let* ((normal (apply vector3-average normals))
-                               ;; get cross-product of triangle sides
-                               (diff-1-0 (vector3-diff vertex-1 vertex-0))
-                               (diff-2-0 (vector3-diff vertex-2 vertex-0))
-                               (cross (cross-product diff-1-0 diff-2-0))
-                               ;; angle between implied normal and read one
-                               (angle-between
-                                (angle-between-vectors
-                                 normal cross (cross-product normal cross))))
+                        (let ((angle-between (get-normal-wrongness
+                                              vertex-0 vertex-1 vertex-2
+                                              normals)))
                           (cond ((> (abs angle-between) pi/2)
                                  ;; the angles don't agree, so flip the face
                                  (face-set-corners!
@@ -553,6 +640,9 @@
                                   vertices (vector center best-normal-axis))))
         (cond ((not plane-intersection)
                (pick-u-v-axis~ vertices))
+
+              ;; ((vector3-almost-equal? normal zero-vector vector-tolerance)
+              ;;  (pick-u-v-axis~ vertices))
 
               (else
                (let* ((u0 (vector-ref plane-intersection 0))

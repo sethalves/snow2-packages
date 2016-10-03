@@ -22,7 +22,7 @@
     (version "1.0")
     (url "stl-model.tgz")
     (size 10752)
-    (checksum (md5 "c7c2c3b4d0a867645e00b3633bc956f9"))
+    (checksum (md5 "5e313e84f470b95c8b2d0ded4dbee308"))
     (library
       (name (seth stl-model))
       (path "seth/stl-model.sld")
@@ -90,8 +90,8 @@
     (name ())
     (version "1.0")
     (url "model-3d.tgz")
-    (size 32768)
-    (checksum (md5 "6c4cc80c27a5082718a96593f3767ab8"))
+    (size 36352)
+    (checksum (md5 "64b40ecd9a4fcfe786c43b2ec5af75b3"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
@@ -109,7 +109,6 @@
         (srfi 69)
         (snow assert)
         (snow input-parse)
-        (seth cout)
         (seth math-3d))
       (use-for final))
     (library
@@ -128,8 +127,8 @@
     (name ())
     (version "1.0")
     (url "math-3d.tgz")
-    (size 70144)
-    (checksum (md5 "b13ef1dcdabcff742faaede117734dd2"))
+    (size 70656)
+    (checksum (md5 "9adabca7bd03dafba64cadb1f737276e"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")
@@ -140,7 +139,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "utilities for doing 3d math")
       (license bsd)
-      (depends (srfi 1) (srfi 13) (seth cout))
+      (depends (srfi 1) (srfi 13) (snow assert) (seth cout))
       (use-for final))
     (library
       (name (seth math-3d tests))
@@ -159,7 +158,7 @@
     (version "1.0")
     (url "obj-model.tgz")
     (size 17408)
-    (checksum (md5 "d49fdee8289cb14ca395dc6257b7352b"))
+    (checksum (md5 "34b1269f31a4e8ba2b793e85a6e2d5c3"))
     (library
       (name (seth obj-model))
       (path "seth/obj-model.sld")
@@ -348,7 +347,7 @@
     (version "1.0")
     (url "aws.tgz")
     (size 27136)
-    (checksum (md5 "06856ea959086207c0f27bab6ea0f70b"))
+    (checksum (md5 "46dd9729c39fd53f877c5de4c4b7b46c"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -387,6 +386,7 @@
         (srfi 95)
         (srfi 29)
         (srfi 19)
+        (srfi 69)
         (snow extio)
         (seth http)
         (seth crypt hmac-sha-1)

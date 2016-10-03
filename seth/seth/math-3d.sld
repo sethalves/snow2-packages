@@ -66,6 +66,7 @@
           vector-scale
           almost=
           vector3-equal?
+          vector3-almost-equal?
           vector2-average
           vector3-average
           vector3-normalize
@@ -149,6 +150,7 @@
           (scheme char)
           (srfi 1)
           (srfi 13)
+          (snow assert)
           (seth cout)
           )
 
@@ -527,6 +529,7 @@
     ;; }
 
     (define (rotation-quaternion axis angle)
+      (snow-assert (not (vector3-equal? axis zero-vector)))
       (let* ((unit-axis (vector3-normalize axis))
              (sine-half-angle (sin (/ angle 2.0)))
              (cosine-half-angle (cos (/ angle 2.0))))
@@ -700,7 +703,10 @@
 
     (define (vector3-equal? v0 v1)
       ;; return #t if v0 and v1 are the same or almost the same
-      (> 0.000001 (vector-max (vector3-abs (vector3-diff v0 v1)))))
+      (= 0.0 (vector-max (vector3-abs (vector3-diff v0 v1)))))
+
+    (define (vector3-almost-equal? v0 v1 tolerance)
+      (> tolerance (vector-max (vector3-abs (vector3-diff v0 v1)))))
 
     (define (vector2-average v0 v1)
       (vector2-scale (vector2-sum v0 v1) 0.5))
@@ -714,10 +720,11 @@
 
 
     (define (vector3-normalize v)
+      (snow-assert (not (vector3-equal? v zero-vector)))
       (let ((d (sqrt (+ (* (vector3-x v) (vector3-x v))
                         (* (vector3-y v) (vector3-y v))
                         (* (vector3-z v) (vector3-z v))))))
-
+        (snow-assert (> d 0.0))
         (vector (/ (vector3-x v) d)
                 (/ (vector3-y v) d)
                 (/ (vector3-z v) d))))
@@ -911,11 +918,16 @@
     (define (angle-between-vectors v0 v1 . axis)
       ;; return the angle (positive or negative) that rotates
       ;; v0 to v1 around axis or (v0 X v1) if axis is not provided
+      (snow-assert (not (vector3-equal? v0 zero-vector)))
+      (snow-assert (not (vector3-equal? v1 zero-vector)))
+      (snow-assert (or (null? axis)
+                       (not (vector3-equal? (car axis) zero-vector))))
       (let* ((dp (dot-product (vector3-normalize v0) (vector3-normalize v1)))
              (dp~ (clamp-number dp -1.0 1.0)) ;; the wonders of ieee floating-point
              (aa (acos dp~))
              (xp (if (null? axis)
-                     (cross-product (vector3-normalize v0) (vector3-normalize v1))
+                     (cross-product (vector3-normalize v0)
+                                    (vector3-normalize v1))
                      (car axis)))
              ;;
              (rot+ (rotation-quaternion xp aa))

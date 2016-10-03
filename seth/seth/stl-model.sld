@@ -90,7 +90,8 @@
                                          (model-append-normal! model normal)))
                                       (list->vector vertexes))
                                      #f)))
-                          (mesh-append-face! model mesh face)
+                          (if (not (face-is-degenerate? model face))
+                              (mesh-append-face! model mesh face))
                           (loop 'read-triangle mesh '() 'unset)))
                        (else
                         (error "didn't see \"endfacet\"")))))
