@@ -60,11 +60,14 @@
           point-diff
           vector2-diff
           vector-diff
+          vector2-abs
           vector3-abs
           vector2-scale
           vector3-scale
           vector-scale
           almost=
+          vector2-equal?
+          vector2-almost-equal?
           vector3-equal?
           vector3-almost-equal?
           vector2-average
@@ -680,6 +683,9 @@
        (lambda (elt0 elt1) (- elt0 elt1))
        v0 v1))
 
+    (define (vector2-abs v)
+      (vector (abs (vector3-x v))
+              (abs (vector3-y v))))
 
     (define (vector3-abs v)
       (vector (abs (vector3-x v))
@@ -700,6 +706,13 @@
 
     (define (almost= a b tolerance)
       (<= (abs (- a b)) tolerance))
+
+    (define (vector2-equal? v0 v1)
+      ;; return #t if v0 and v1 are the same or almost the same
+      (= 0.0 (vector-max (vector2-abs (vector2-diff v0 v1)))))
+
+    (define (vector2-almost-equal? v0 v1 tolerance)
+      (> tolerance (vector-max (vector2-abs (vector2-diff v0 v1)))))
 
     (define (vector3-equal? v0 v1)
       ;; return #t if v0 and v1 are the same or almost the same
