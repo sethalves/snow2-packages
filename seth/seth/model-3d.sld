@@ -53,6 +53,7 @@
    face-corner->normal
    ;; faces
    make-face
+   model-contains-face
    face?
    face-is-degenerate?
    face-corners face-set-corners!
@@ -80,6 +81,7 @@
           (srfi 13)
           (srfi 29)
           (srfi 69)
+          (srfi 95)
           (snow assert)
           (snow input-parse)
           (seth math-3d))
@@ -196,8 +198,7 @@
                         new-material)))))))
 
 
-
-    ;; a mesh is a group of triangles defined by indexing into the
+   ;; a mesh is a group of triangles defined by indexing into the
     ;; model's vertexes
     (define-record-type <mesh>
       (make-mesh name faces)
@@ -250,6 +251,23 @@
        corners)
       (snow-assert (or (material? material) (not material)))
       (make-face~ corners material))
+
+
+    (define (model-contains-face model face)
+      (define (face->sorted-indices f)
+        (let* ((corners (vector->list (face-corners f)))
+               (indices (map face-corner-vertex-index corners)))
+          (sort indices)))
+      ;; search model for a face with the same vertices
+      (let ((face-indices-sorted (face->sorted-indices face))
+            (result #f))
+        (operate-on-faces
+         model
+         (lambda (mesh other-face)
+           (if (equal? (face->sorted-indices other-face) face-indices-sorted)
+               (set! result #t))
+           other-face))
+        result))
 
 
     (define (vertex-deltas vertices)
