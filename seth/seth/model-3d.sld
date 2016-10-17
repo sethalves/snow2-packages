@@ -60,6 +60,8 @@
    face-material face-set-material!
    face->vertices
    face->vertices-list
+   face->center-vertex
+   face-set-normals!
    fix-face-winding
    shift-face-indices
    ;; mapers/iterators
@@ -424,6 +426,13 @@
     (define (face->vertices-list model face)
       (vector->list (face->vertices model face)))
 
+
+    (define (face->center-vertex model face)
+      (vector3-scale
+       (fold vector3-sum (vector 0 0 0) (face->vertices-list model face))
+       (/ 1.0 (vector-length (face-corners face)))))
+
+
     (define (model-prepend-mesh! model mesh)
       (snow-assert (model? model))
       (snow-assert (mesh? mesh))
@@ -576,6 +585,22 @@
               (else
                (angle-between-vectors normal cross normal-cross)))))
 
+
+    (define (face-set-normals! model face)
+      (let* ((vertices (face->vertices model face))
+             (vertex-0 (vector-ref vertices 0))
+             (vertex-1 (vector-ref vertices 1))
+             (vertex-2 (vector-ref vertices 2))
+             (diff-1-0 (vector3-diff vertex-1 vertex-0))
+             (diff-2-0 (vector3-diff vertex-2 vertex-0))
+             (normal (cross-product diff-1-0 diff-2-0))
+             (normal-normalized (vector3-normalize normal))
+             (normal-s (vector-map number->string normal-normalized))
+             (normal-index (model-append-normal! model normal-s)))
+        (for-each
+         (lambda (corner)
+           (face-corner-set-normal-index! corner normal-index))
+         (vector->list (face-corners face)))))
 
     (define (fix-face-winding model)
       (snow-assert (model? model))
