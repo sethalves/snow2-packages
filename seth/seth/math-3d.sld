@@ -73,6 +73,8 @@
           vector2-average
           vector3-average
           vector3-normalize
+          vector2-length
+          vector3-length
           quaternion-equal?
           quaternion-conjugate
           multiply-quaternions
@@ -727,6 +729,10 @@
     ;; (define (vector3-average v0 v1)
     ;;   (vector3-scale (vector3-sum v0 v1) 0.5))
 
+    (define (vector2-length v)
+      (sqrt (fold + 0 (map (lambda (n) (* n n)) (vector->list v)))))
+
+    (define vector3-length vector2-length)
 
     (define (vector3-average . vs)
       (vector3-scale (apply vector3-sum vs) (/ 1.0 (length vs))))

@@ -90,8 +90,8 @@
     (name ())
     (version "1.0")
     (url "model-3d.tgz")
-    (size 37376)
-    (checksum (md5 "8ae84a6eefb97ec75c2ebeccc65c26c6"))
+    (size 38400)
+    (checksum (md5 "c91f28c11e4b3b10cbcb2bd336756442"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
