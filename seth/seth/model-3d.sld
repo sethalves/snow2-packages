@@ -54,6 +54,7 @@
    ;; faces
    make-face
    model-contains-face
+   model-contains-equivalent-face
    face?
    face-is-degenerate?
    face-corners face-set-corners!
@@ -86,6 +87,7 @@
           (srfi 95)
           (snow assert)
           (snow input-parse)
+          (seth cout)
           (seth math-3d))
 
   (cond-expand
@@ -268,6 +270,27 @@
          (lambda (mesh other-face)
            (if (equal? (face->sorted-indices other-face) face-indices-sorted)
                (set! result #t))
+           other-face))
+        result))
+
+    (define (model-contains-equivalent-face model face tolerance)
+      (let ((face-as-vertices (sort (face->vertices-list model face)))
+            (result #f))
+        (operate-on-faces
+         model
+         (lambda (mesh other-face)
+           (let ((other-vertices (sort (face->vertices-list model other-face))))
+             (let loop ((face-as-vertices face-as-vertices)
+                        (other-vertices other-vertices))
+               (cond ((and (null? face-as-vertices) (null? other-vertices))
+                      (set! result #t))
+                     ((null? face-as-vertices) #t)
+                     ((null? other-vertices) #t)
+                     ((not (vector3-almost-equal? (car face-as-vertices) (car other-vertices) tolerance))
+                      #t)
+                     (else
+                      (loop (cdr face-as-vertices) (cdr other-vertices)))))
+             )
            other-face))
         result))
 

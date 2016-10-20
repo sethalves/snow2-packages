@@ -72,6 +72,7 @@
           vector3-almost-equal?
           vector2-average
           vector3-average
+          vector2-normalize
           vector3-normalize
           vector2-length
           vector3-length
@@ -676,8 +677,8 @@
 
     (define (vector2-diff v0 v1)
       ;; subtract vectors
-      (vector (- (vector3-x v0) (vector3-x v1))
-              (- (vector3-y v0) (vector3-y v1))))
+      (vector (- (vector2-x v0) (vector2-x v1))
+              (- (vector2-y v0) (vector2-y v1))))
 
 
     (define (vector-diff v0 v1)
@@ -686,8 +687,8 @@
        v0 v1))
 
     (define (vector2-abs v)
-      (vector (abs (vector3-x v))
-              (abs (vector3-y v))))
+      (vector (abs (vector2-x v))
+              (abs (vector2-y v))))
 
     (define (vector3-abs v)
       (vector (abs (vector3-x v))
@@ -737,6 +738,13 @@
     (define (vector3-average . vs)
       (vector3-scale (apply vector3-sum vs) (/ 1.0 (length vs))))
 
+    (define (vector2-normalize v)
+      (snow-assert (not (vector2-equal? v zero-vector)))
+      (let ((d (sqrt (+ (* (vector2-x v) (vector2-x v))
+                        (* (vector2-y v) (vector2-y v))))))
+        (snow-assert (> d 0.0))
+        (vector (/ (vector2-x v) d)
+                (/ (vector2-y v) d))))
 
     (define (vector3-normalize v)
       (snow-assert (not (vector3-equal? v zero-vector)))
@@ -1322,6 +1330,7 @@
             (else in)))
 
     (define (normalize-angle ang)
+      ;; represent ang as an angle between [-pi and pi)
       (let loop ((result ang))
         (cond ((< result (- pi))
                (loop (+ result pi*2)))
@@ -1332,6 +1341,7 @@
 
 
     (define (normalize-angle+ ang)
+      ;; represent ang as an angle between 0 and pi*2
       (let loop ((result ang))
         (cond ((< result 0)
                (loop (+ result pi*2)))

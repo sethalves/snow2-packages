@@ -129,7 +129,7 @@
     (version "1.0")
     (url "math-3d.tgz")
     (size 71168)
-    (checksum (md5 "a575d27396136b48ab49cf029650ef10"))
+    (checksum (md5 "94f27c712fe743e37a573698f0af639c"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")
@@ -719,7 +719,7 @@
     (version "1.0")
     (url "cout.tgz")
     (size 7168)
-    (checksum (md5 "915e92d652a8d57831faa9dd4649a93f"))
+    (checksum (md5 "89208ed11c72b18a22f5a579c5457fb3"))
     (library
       (name (seth cout))
       (path "seth/cout.sld")
