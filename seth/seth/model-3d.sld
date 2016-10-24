@@ -32,6 +32,7 @@
    material?
    material-name material-set-name!
    add-simple-texture-coordinates
+   add-top-texture-coordinates
    set-all-faces-to-material
    clear-material-libraries
    add-material-library
@@ -772,6 +773,30 @@
          face)))
 
 
+    (define (add-top-texture-coordinates model xz-scale)
+      ;; put a y-normal texture face up over the rectangle from (0,0) to xz-scale
+      (snow-assert (model? model))
+      (model-clear-texture-coordinates! model)
+      (operate-on-faces
+       model
+       (lambda (mesh face)
+         (snow-assert (mesh? mesh))
+         (snow-assert (face? face))
+         (vector-for-each
+          (lambda (face-corner)
+            (snow-assert (face-corner? face-corner))
+            (let ((index (coordinates-length
+                          (model-texture-coordinates model)))
+                  (vertex (face-corner->vertex model face-corner)))
+              (model-append-texture-coordinate!
+               model
+               (vector (number->pretty-string (/ (vector3-x vertex) (vector2-x xz-scale)) 6)
+                       (number->pretty-string (/ (vector3-z vertex) (vector2-y xz-scale)) 6)))
+              (face-corner-set-texture-index! face-corner index)))
+          (face-corners face))
+         face)))
+
+
     (define (model-aa-box model)
       (cond ((coordinates-null? (model-vertices model)) #f)
             (else
@@ -807,12 +832,13 @@
             (else
              (let* ((p0 (vector-ref (coordinates-as-vector
                                      (model-texture-coordinates model)) 0))
-                    (aa-box (make-aa-box p0 p0)))
+                    (p0-n (vector-map string->number p0))
+                    (aa-box (make-aa-box p0-n p0-n)))
                ;; insert all of the model's texture-coordinates into the
                ;; axis-aligned bounding box
                (vector-for-each
                 (lambda (p)
-                  (aa-box-add-point! aa-box p))
+                  (aa-box-add-point! aa-box (vector-map string->number p)))
                 (coordinates-as-vector (model-texture-coordinates model)))
                aa-box))))
 
