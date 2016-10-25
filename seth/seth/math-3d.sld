@@ -90,6 +90,7 @@
           line-plane-intersection
           segment-plane-intersection
           triangle-plane-intersection
+          segment-triangle-intersection
           triangle-is-degenerate?
           triangle-normal
           angle-between-vectors
@@ -922,6 +923,41 @@
         (if (= (length intersections) 2)
             (list->vector intersections)
             #f)))
+
+
+
+    (define (segment-triangle-intersection S T)
+      ;; S is #(#point #point)
+      ;; T is #(P0 P1 P2), the P's are vectors of length 3
+      ;; http://www.lighthouse3d.com/tutorials/maths/ray-triangle-intersection/
+      ;; http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
+      ;; returns #t or #f
+      (let* ((p (vector-ref S 0))
+             (d (vector3-diff (vector-ref S 1) p))
+             (v0 (vector-ref T 0))
+             (v1 (vector-ref T 1))
+             (v2 (vector-ref T 2))
+             (e1 (vector3-diff v1 v0))
+             (e2 (vector3-diff v2 v0))
+             (h (cross-product d e2))
+             (a (dot-product e1 h)))
+        (if (and (> a -0.00001) (< a 0.00001))
+            #f
+            (let* ((f (/ 1.0 a))
+                   (s (vector3-diff p v0))
+                   (u (* f (dot-product s h))))
+              (if (or (< u 0.0) (> u 1.0))
+                  #f
+                  (let* ((q (cross-product s e1))
+                         (v (* f (dot-product d q))))
+                    (if (or (< v 0.0) (> (+ u v) 1.0))
+                        #f
+                        (let ((t (* f (dot-product e2 q))))
+                          (if (> t 0.00001)
+                              (vector3-sum p (vector3-scale d t)) ;; ray intersection
+                              #f ;; line but not ray intersection
+                              )))))))))
+
 
 
     ;; http://mathworld.wolfram.com/Plane-PlaneIntersection.html
