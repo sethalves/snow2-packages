@@ -63,6 +63,8 @@
    face->vertices
    face->vertices-list
    face->center-vertex
+   face->normals
+   face->average-normal
    face-set-normals!
    fix-face-winding
    shift-face-indices
@@ -455,6 +457,23 @@
       (vector3-scale
        (fold vector3-sum (vector 0 0 0) (face->vertices-list model face))
        (/ 1.0 (vector-length (face-corners face)))))
+
+
+    (define (face->normals model face)
+      (snow-assert (model? model))
+      (snow-assert (face? face))
+      (vector-map
+       (lambda (face-corner)
+         (snow-assert (face-corner? face-corner))
+         (face-corner->normal model face-corner))
+       (face-corners face)))
+
+
+    (define (face->average-normal model face)
+      (let* ((vertices (face->vertices model face))
+             (v10 (vector3-diff (vector-ref vertices 1) (vector-ref vertices 0)))
+             (v20 (vector3-diff (vector-ref vertices 2) (vector-ref vertices 0))))
+        (vector3-normalize (cross-product v10 v20))))
 
 
     (define (model-prepend-mesh! model mesh)
