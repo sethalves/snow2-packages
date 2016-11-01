@@ -47,6 +47,7 @@
           euler->quaternion~zyx
           rotation-quaternion
           rotation-quaternion-d
+          quaternion-inverse
           zero-rotation
           zero-vector
           parse-vector-full
@@ -91,9 +92,11 @@
           segment-plane-intersection
           triangle-plane-intersection
           segment-triangle-intersection
+          segment-aa-box-intersection
           triangle-is-degenerate?
           triangle-normal
           angle-between-vectors
+          rotation-between-vectors
           quaternion-normalize
           quaternion->matrix
           vector-numbers->strings
@@ -142,9 +145,13 @@
           bounding-box2-add-point
 
           make-aa-box
+          aa-box?
+          make-empty-2-aa-box
+          make-empty-3-aa-box
           aa-box-add-point!
           aa-box-low-corner aa-box-set-low-corner!
           aa-box-high-corner aa-box-set-high-corner!
+          aa-box-contains-aa-box
 
 
           best-aligned-vector
@@ -163,6 +170,10 @@
 
 
   (begin
+
+    ;; http://www.j3d.org/matrix_faq/matrfaq_latest.html
+    ;; http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/steps/index.htm
+
 
     (define pi 3.14159265358979323846)
     (define pi*2 (* pi 2.0))
@@ -355,7 +366,7 @@
     ;;  asin(2*(q0*q2 - q3*q1))
     ;; atan2(2*(q0*q3 + q1*q2), 1 - 2*(q2^2 + q3^2))
 
- 
+
     (define (quaternion->euler~0 r)
       (let* ((q0 (quat-s r))
              (q1 (quat-x r))
@@ -877,6 +888,8 @@
         (vector3-magnitude d)))
 
 
+    ;; http://www.realtimerendering.com/intersections.html
+
     (define (line-plane-intersection S P)
       ;; S is #(#point #point)
       ;; P is a plane: #(#(point) #(normal))
@@ -931,7 +944,7 @@
       ;; T is #(P0 P1 P2), the P's are vectors of length 3
       ;; http://www.lighthouse3d.com/tutorials/maths/ray-triangle-intersection/
       ;; http://www.cs.virginia.edu/~gfx/Courses/2003/ImageSynthesis/papers/Acceleration/Fast%20MinimumStorage%20RayTriangle%20Intersection.pdf
-      ;; returns #t or #f
+      ;; returns a point or #f
       (let* ((p (vector-ref S 0))
              (d (vector3-diff (vector-ref S 1) p))
              (v0 (vector-ref T 0))
@@ -961,6 +974,23 @@
 
 
     ;; http://mathworld.wolfram.com/Plane-PlaneIntersection.html
+
+
+    (define (segment-aa-box-intersection S aa-box)
+      ;; http://www.scratchapixel.com/code.php?id=10&origin=/lessons/3d-basic-rendering/ray-tracing-rendering-simple-shapes&src=1
+      ;; S is #(#point #point)
+      ;; returns #t or #f
+      (let* ((p (vector-ref S 0))
+             (d (vector3-diff (vector-ref S 1) p))
+             (aa-box-low (aa-box-low-corner aa-box))
+             (aa-box-high (aa-box-high-corner aa-box))
+             )
+        ;; XXX
+        ;; XXX
+        (and (> (vector3-x (vector-ref S 0)) (vector3-x aa-box-low))
+             (< (vector3-x (vector-ref S 0)) (vector3-x aa-box-high))
+             (> (vector3-z (vector-ref S 0)) (vector3-z aa-box-low))
+             (< (vector3-z (vector-ref S 0)) (vector3-z aa-box-high)))))
 
 
 
@@ -1002,6 +1032,29 @@
              (dx+ (distance-between-points v1 v0-rot+))
              (dx- (distance-between-points v1 v0-rot-)))
         (if (< dx+ dx-) aa (- aa))))
+
+
+    (define (quaternion-inverse q)
+      (quaternion-conjugate (quaternion-normalize q)))
+
+
+    (define (rotation-between-vectors v0 v1)
+      (let ((dot (dot-product v0 v1)))
+        (cond ((> dot 0.999999) (vector 0 0 0 1)) ;; parallel
+              ((< dot -0.999999) (vector 0 0 1 0)) ;; 180 degrees
+              (else
+               ;; Quaternion q;
+               ;; vector a = crossproduct(v1, v2)
+               ;; q.xyz = a;
+               ;; q.w = sqrt((v1.Length ^ 2) * (v2.Length ^ 2)) + dotproduct(v1, v2)
+               (let* ((a (cross-product v0 v1))
+                      (v0-len (vector3-length v0))
+                      (v1-len (vector3-length v1))
+                      (w (sqrt (+ (* v0-len v0-len v1-len v1-len) dot))))
+                 (quaternion-normalize (vector w
+                                               (vector3-x a)
+                                               (vector3-y a)
+                                               (vector3-z a))))))))
 
 
     (define (quaternion-normalize q)
@@ -1492,23 +1545,56 @@
                    0))))
 
 
+    (define (make-empty-2-aa-box)
+      (make-aa-box (vector #f #f) (vector #f #f)))
+
+
+    (define (make-empty-3-aa-box)
+      (make-aa-box (vector #f #f #f) (vector #f #f #f)))
+
+
+    (define (minf a b)
+      (cond ((not a) b)
+            ((not b) a)
+            ((< a b) a)
+            (else b)))
+
+    (define (maxf a b)
+      (cond ((not a) b)
+            ((not b) a)
+            ((> a b) a)
+            (else b)))
+
+
     (define (aa-box-add-point! aa-box p)
       (let ((prev-low (aa-box-low-corner aa-box))
             (prev-high (aa-box-high-corner aa-box)))
         (aa-box-set-low-corner!
          aa-box
-         (vector (min (vector-ref prev-low 0) (vector-ref p 0))
-                 (min (vector-ref prev-low 1) (vector-ref p 1))
+         (vector (minf (vector-ref prev-low 0) (vector-ref p 0))
+                 (minf (vector-ref prev-low 1) (vector-ref p 1))
                  (if (> (vector-length p) 2)
-                     (min (vector-ref prev-low 2) (vector-ref p 2))
+                     (minf (vector-ref prev-low 2) (vector-ref p 2))
                      (vector-ref prev-low 2))))
         (aa-box-set-high-corner!
          aa-box
-         (vector (max (vector-ref prev-high 0) (vector-ref p 0))
-                 (max (vector-ref prev-high 1) (vector-ref p 1))
+         (vector (maxf (vector-ref prev-high 0) (vector-ref p 0))
+                 (maxf (vector-ref prev-high 1) (vector-ref p 1))
                  (if (> (vector-length p) 2)
-                     (max (vector-ref prev-high 2) (vector-ref p 2))
+                     (maxf (vector-ref prev-high 2) (vector-ref p 2))
                      (vector-ref prev-high 2))))))
+
+    (define (aa-box-contains-aa-box big-box small-box)
+      (let ((big-box-low (aa-box-low-corner big-box))
+            (big-box-high (aa-box-high-corner big-box))
+            (small-box-low (aa-box-low-corner small-box))
+            (small-box-high (aa-box-high-corner small-box)))
+        (and (<= (vector3-x big-box-low) (vector3-x small-box-low))
+             (<= (vector3-y big-box-low) (vector3-y small-box-low))
+             (<= (vector3-z big-box-low) (vector3-z small-box-low))
+             (>= (vector3-x big-box-high) (vector3-x small-box-high))
+             (>= (vector3-y big-box-high) (vector3-y small-box-high))
+             (>= (vector3-z big-box-high) (vector3-z small-box-high)))))
 
 
     ))

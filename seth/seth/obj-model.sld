@@ -286,7 +286,10 @@
         (cond ((null? meshes) #t)
               (else
                (let ((mesh (car meshes))
-                     (current-material material))
+                     (current-material material)
+                     (a-group-face-has-been-output #f)
+                     )
+                 (mesh-sort-faces-by-material-name model mesh)
                  (if (mesh-name mesh)
                      (display (format "\ng ~a\n" (mesh-name mesh)) port)
                      (display (format "\ng mesh-~a\n" nth) port))
@@ -296,6 +299,12 @@
 
                     (let ((next-material (face-material face)))
                       (cond ((not (eq? next-material current-material))
+                             ;; force a new group if material changes
+                             (if a-group-face-has-been-output
+                                 (if (mesh-name mesh)
+                                     (display (format "\ng ~a-~a\n" (mesh-name mesh) (material-name next-material)) port)
+                                     (display (format "\ng mesh-~a-~a\n" nth (material-name next-material)) port)))
+                             (set! a-group-face-has-been-output #f)
                              (display (format "usemtl ~a\n"
                                               (material-name next-material))
                                       port)
@@ -306,6 +315,7 @@
                                          (vector-map unparse-face-corner
                                                      (face-corners face)))))
                                port)
+                      (set! a-group-face-has-been-output #t)
                       (newline port)))
                   (mesh-faces mesh))
                  (loop (cdr meshes) (+ nth 1) current-material))))))

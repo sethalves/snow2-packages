@@ -32,6 +32,7 @@
    material?
    material-name material-set-name!
    add-simple-texture-coordinates
+   ray-cast
    add-top-texture-coordinates
    set-all-faces-to-material
    clear-material-libraries
@@ -44,6 +45,7 @@
    mesh-faces mesh-set-faces!
    mesh-prepend-face!
    mesh-append-face!
+   mesh-sort-faces-by-material-name
    ;; face-corners
    make-face-corner
    face-corner?
@@ -62,6 +64,7 @@
    face-material face-set-material!
    face->vertices
    face->vertices-list
+   face->aa-box
    face->center-vertex
    face->normals
    face->average-normal
@@ -77,6 +80,7 @@
    scale-model
    size-model
    translate-model
+   model->octree
    )
 
   (import (scheme base)
@@ -91,7 +95,8 @@
           (snow assert)
           (snow input-parse)
           (seth cout)
-          (seth math-3d))
+          (seth math-3d)
+          (seth octree))
 
   (cond-expand
    (chicken (import (extras)))
@@ -453,6 +458,13 @@
       (vector->list (face->vertices model face)))
 
 
+    (define (face->aa-box model face)
+      (let ((aa-box (make-empty-3-aa-box)))
+        (for-each (lambda (p) (aa-box-add-point! aa-box p))
+                  (face->vertices-list model face))
+        aa-box))
+
+
     (define (face->center-vertex model face)
       (vector3-scale
        (fold vector3-sum (vector 0 0 0) (face->vertices-list model face))
@@ -546,6 +558,19 @@
       (snow-assert (mesh? mesh))
       (snow-assert (face? face))
       (mesh-set-faces! mesh (reverse (cons face (reverse (mesh-faces mesh))))))
+
+
+    (define (mesh-sort-faces-by-material-name model mesh)
+      (mesh-set-faces!
+       mesh
+       (sort (mesh-faces mesh) (lambda (a b)
+                                 (let* ((material-a (face-material a))
+                                        (material-b (face-material b))
+                                        (material-name-a
+                                         (if material-a (material-name material-a) ""))
+                                        (material-name-b
+                                         (if material-b (material-name material-b) "")))
+                                   (string< material-name-a material-name-b))))))
 
 
     (define (compact-obj-model model)
@@ -741,7 +766,7 @@
                  (values u-axis v-axis))))))
 
 
-    (define (add-simple-texture-coordinates model scale)
+    (define (add-simple-texture-coordinates model scale face-filter)
       ;; transform each face to the corner of some supposed texture and decide
       ;; on reasonable texture coords for the face.
       (snow-assert (model? model))
@@ -753,66 +778,92 @@
        (lambda (mesh face)
          (snow-assert (mesh? mesh))
          (snow-assert (face? face))
-         (let ((vertices (face->vertices model face)))
-           (snow-assert (> (vector-length vertices) 2))
-           (let-values (((u-axis v-axis) (pick-u-v-axis vertices)))
-             (let* ((vertex-0 (vector-ref vertices 0))
-                    ;; vertex-transformer takes a vertex in 3 space and maps
-                    ;; it into the coordinate system defined by the axis
-                    ;; we defined, above.
-                    (vertex-transformer
-                     (lambda (vertex x-offset)
-                       (let* ((dv (vector3-diff vertex vertex-0))
-                              (x (+ (dot-product u-axis dv) x-offset))
-                              (y (dot-product v-axis dv)))
-                         (vector2-scale (vector x y) scale))))
-                    (vertex-transformer-no-offset
-                     (lambda (vertex) (vertex-transformer vertex 0.0)))
-                    ;; figure out how much we have to slide this face over
-                    ;; in order to have all the uv coord be positive.
-                    (un-offset-uvs
-                     (vector->list
-                      (vector-map vertex-transformer-no-offset vertices)))
-                    (offset
-                     (- (apply min (map vector2-x un-offset-uvs)))))
+         (if (face-filter model mesh face)
+             (let ((vertices (face->vertices model face)))
+               (snow-assert (> (vector-length vertices) 2))
+               (let-values (((u-axis v-axis) (pick-u-v-axis vertices)))
+                 (let* ((vertex-0 (vector-ref vertices 0))
+                        ;; vertex-transformer takes a vertex in 3 space and maps
+                        ;; it into the coordinate system defined by the axis
+                        ;; we defined, above.
+                        (vertex-transformer
+                         (lambda (vertex x-offset)
+                           (let* ((dv (vector3-diff vertex vertex-0))
+                                  (x (+ (dot-product u-axis dv) x-offset))
+                                  (y (dot-product v-axis dv)))
+                             (vector2-scale (vector x y) scale))))
+                        (vertex-transformer-no-offset
+                         (lambda (vertex) (vertex-transformer vertex 0.0)))
+                        ;; figure out how much we have to slide this face over
+                        ;; in order to have all the uv coord be positive.
+                        (un-offset-uvs
+                         (vector->list
+                          (vector-map vertex-transformer-no-offset vertices)))
+                        (offset
+                         (- (apply min (map vector2-x un-offset-uvs)))))
 
-               (vector-for-each
-                (lambda (face-corner)
-                  (snow-assert (face-corner? face-corner))
-                  (let ((index (coordinates-length
-                                (model-texture-coordinates model)))
-                        (vertex (face-corner->vertex model face-corner)))
-                    (model-append-texture-coordinate!
-                     model
-                     (vector-map
-                      (lambda (v) (number->pretty-string v 6))
-                      (vertex-transformer vertex offset)))
-                    (face-corner-set-texture-index! face-corner index)))
-                (face-corners face)))))
+                   (vector-for-each
+                    (lambda (face-corner)
+                      (snow-assert (face-corner? face-corner))
+                      (let ((index (coordinates-length
+                                    (model-texture-coordinates model)))
+                            (vertex (face-corner->vertex model face-corner)))
+                        (model-append-texture-coordinate!
+                         model
+                         (vector-map
+                          (lambda (v) (number->pretty-string v 6))
+                          (vertex-transformer vertex offset)))
+                        (face-corner-set-texture-index! face-corner index)))
+                    (face-corners face))))))
          face)))
 
 
-    (define (add-top-texture-coordinates model xz-scale)
+    (define (ray-cast model octree segment)
+      ;; returns the closest face that the ray intersects
+      (let loop ((octree-parts (octree-ray-intersection octree segment))
+                 (best-face #f)
+                 (best-distance #f))
+        (if (null? octree-parts) best-face
+            (let face-loop ((faces (octree-contents (car octree-parts)))
+                            (best-face best-face)
+                            (best-distance best-distance))
+              (if (null? faces) (loop (cdr octree-parts) best-face best-distance)
+                  (let* ((vertices (face->vertices model (car faces)))
+                         (intersection-point (segment-triangle-intersection segment vertices))
+                         (distance (if intersection-point
+                                       (vector3-length (vector3-diff intersection-point (vector-ref segment 0)))
+                                       #f)))
+                    (cond ((and intersection-point (not best-face))
+                           (face-loop (cdr faces) (car faces) distance))
+                          ((and intersection-point (< distance best-distance))
+                           (face-loop (cdr faces) (car faces) distance))
+                          (else
+                           (face-loop (cdr faces) best-face best-distance)))))))))
+
+
+
+    (define (add-top-texture-coordinates model xz-scale material face-filter)
       ;; put a y-normal texture face up over the rectangle from (0,0) to xz-scale
       (snow-assert (model? model))
-      (model-clear-texture-coordinates! model)
       (operate-on-faces
        model
        (lambda (mesh face)
          (snow-assert (mesh? mesh))
          (snow-assert (face? face))
-         (vector-for-each
-          (lambda (face-corner)
-            (snow-assert (face-corner? face-corner))
-            (let ((index (coordinates-length
-                          (model-texture-coordinates model)))
-                  (vertex (face-corner->vertex model face-corner)))
-              (model-append-texture-coordinate!
-               model
-               (vector (number->pretty-string (/ (vector3-x vertex) (vector2-x xz-scale)) 6)
-                       (number->pretty-string (/ (vector3-z vertex) (vector2-y xz-scale)) 6)))
-              (face-corner-set-texture-index! face-corner index)))
-          (face-corners face))
+         (cond ((face-filter model mesh face)
+                (vector-for-each
+                 (lambda (face-corner)
+                   (snow-assert (face-corner? face-corner))
+                   (let ((index (coordinates-length
+                                 (model-texture-coordinates model)))
+                         (vertex (face-corner->vertex model face-corner)))
+                     (model-append-texture-coordinate!
+                      model
+                      (vector (number->pretty-string (/ (vector3-x vertex) (vector2-x xz-scale)) 6)
+                              (number->pretty-string (/ (vector3-z vertex) (vector2-y xz-scale)) 6)))
+                     (face-corner-set-texture-index! face-corner index)))
+                 (face-corners face))
+                (face-set-material! face material)))
          face)))
 
 
@@ -893,14 +944,15 @@
         (coordinates-as-vector (model-vertices model)))))
 
 
-    (define (set-all-faces-to-material model material-name)
+    (define (set-all-faces-to-material model material-name face-filter)
       (snow-assert (model? model))
       (snow-assert (string? material-name))
       (let ((material (model-get-material-by-name model material-name)))
         (operate-on-faces
          model
          (lambda (mesh face)
-           (face-set-material! face material)
+           (cond ((face-filter model mesh face)
+                  (face-set-material! face material)))
            face))))
 
 
@@ -927,5 +979,14 @@
          (add-material-library model material-library-name))
        material-library-names))
 
+
+    (define (model->octree model bounds)
+      (let ((octree (make-octree bounds)))
+        (operate-on-faces
+         model
+         (lambda (mesh face)
+           (octree-add-element! octree face (face->aa-box model face))
+           face))
+        octree))
 
     ))
