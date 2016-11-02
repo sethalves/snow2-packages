@@ -766,12 +766,12 @@
                  (values u-axis v-axis))))))
 
 
-    (define (add-simple-texture-coordinates model scale face-filter)
+    (define (add-simple-texture-coordinates model scale material face-filter)
       ;; transform each face to the corner of some supposed texture and decide
       ;; on reasonable texture coords for the face.
       (snow-assert (model? model))
       ;; erase all the existing texture coordinates
-      (model-clear-texture-coordinates! model)
+      ;; (model-clear-texture-coordinates! model)
       ;; set new texture coordinates for every face
       (operate-on-faces
        model
@@ -791,7 +791,7 @@
                            (let* ((dv (vector3-diff vertex vertex-0))
                                   (x (+ (dot-product u-axis dv) x-offset))
                                   (y (dot-product v-axis dv)))
-                             (vector2-scale (vector x y) scale))))
+                             (vector2 (* (vector2-x scale) x) (* (vector2-y scale) y)))))
                         (vertex-transformer-no-offset
                          (lambda (vertex) (vertex-transformer vertex 0.0)))
                         ;; figure out how much we have to slide this face over
@@ -814,7 +814,8 @@
                           (lambda (v) (number->pretty-string v 6))
                           (vertex-transformer vertex offset)))
                         (face-corner-set-texture-index! face-corner index)))
-                    (face-corners face))))))
+                    (face-corners face))))
+               (face-set-material! face material)))
          face)))
 
 
