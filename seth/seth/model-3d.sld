@@ -73,9 +73,12 @@
    shift-face-indices
    ;; mapers/iterators
    for-each-mesh
+   for-each-face
+   for-each-face-corner
    operate-on-faces
    operate-on-face-corners
    ;; utilities
+   combine-near-points
    compact-obj-model
    scale-model
    size-model
@@ -325,28 +328,24 @@
       (let loop ((deltas (vertex-deltas (face->vertices-list model face))))
         (if (or (null? deltas)
                 (null? (cdr deltas)))
-             #f ;; not degenerate
+            #f ;; not degenerate
             (let ((next-delta (car deltas))
-                  (other-deltas (cdr deltas)))
-              (let inner-loop ((other-deltas other-deltas))
-                (cond ((null? other-deltas) (loop (cdr deltas)))
-                      ((vector3-almost-equal?
-                        next-delta zero-vector vector-tolerance)
-                       #t)
-                      ((vector3-almost-equal?
-                        (car other-deltas) zero-vector vector-tolerance)
-                       #t)
-                      ((vector3-almost-equal?
-                        (vector3-normalize next-delta)
-                        (vector3-normalize (car other-deltas))
-                        vector-tolerance)
-                       #t)
-                      ((vector3-almost-equal?
-                        (vector3-scale (vector3-normalize next-delta) -1.0)
-                        (vector3-normalize (car other-deltas))
-                        vector-tolerance)
-                       #t)
-                      (else (inner-loop (cdr other-deltas)))))))))
+                  (other-delta (cadr deltas)))
+              (cond ((vector3-almost-equal?
+                      next-delta zero-vector vector-tolerance)
+                     #t)
+                    ((vector3-almost-equal?
+                      (vector3-normalize next-delta)
+                      (vector3-normalize other-delta)
+                      vector-tolerance)
+                     #t)
+                    ((vector3-almost-equal?
+                      (vector3-scale (vector3-normalize next-delta) -1.0)
+                      (vector3-normalize other-delta)
+                      vector-tolerance)
+                     #t)
+                    (else (loop (cdr deltas))))))))
+
 
     (define (face-has-concurrent-vertices model face)
       (snow-assert (model? model))
@@ -405,6 +404,25 @@
     (define (for-each-mesh model proc)
       (snow-assert (model? model))
       (for-each proc (model-meshes model)))
+
+
+    (define (for-each-face model proc)
+      (snow-assert (model? model))
+      (for-each-mesh
+       model
+       (lambda (mesh)
+         (for-each
+          proc
+          (mesh-faces mesh)))))
+
+    (define (for-each-face-corner model proc)
+      (snow-assert (model? model))
+      (for-each-face
+       model
+       (lambda (face)
+         (for-each
+          proc
+          (face-corners face)))))
 
 
     ;; call op with and replace every face in model.  op should accept mesh
@@ -550,7 +568,14 @@
         (cond ((not (face-is-degenerate? model face))
                (shift-face-indices
                 face vertex-index-start texture-index-start normal-index-start)
-               (mesh-set-faces! mesh (cons face (mesh-faces mesh)))))))
+               (mesh-set-faces! mesh (cons face (mesh-faces mesh))))
+              (else
+               (cerr "warning: face is degenerate: "
+                     (map
+                      (lambda (face-corner) (face-corner->vertex model face-corner))
+                      face-corners)
+                     "\n"))
+              )))
 
 
     (define (mesh-append-face! model mesh face)
@@ -571,6 +596,37 @@
                                         (material-name-b
                                          (if material-b (material-name material-b) "")))
                                    (string< material-name-a material-name-b))))))
+
+
+
+    (define (combine-near-points model threshold)
+      (snow-assert (model? model))
+      ;; make a mapping of vertex index to count of nearby vertexes
+      (let* ((coords (model-vertices model))
+             (vertices (coordinates-as-vector coords))
+             (vertex-index->neighbor-count
+              (vector-map
+               (lambda (vertex)
+                 (snow-assert (vector? vertex))
+                 (snow-assert (= (vector-length vertex) 3))
+                 (let ((neighbor-count 0))
+                   (let loop ((j 0))
+                     (cond ((= j (vector-length vertices)) #t)
+                           ((eq? vertex (vector-ref vertices j))
+                            (loop (+ j 1)))
+                           ((>= (distance-between-points vertex (vector-ref vertices j)) threshold)
+                            (set! neighbor-count (+ neighbor-count 1))
+                            (loop (+ j 1)))
+                           (else
+                            (loop (+ j 1)))))
+                   neighbor-count))
+               vertices)))
+        (cerr vertex-index->neighbor-count "\n")
+        ;;
+        ;; TODO finish this
+        ;;
+
+        #t))
 
 
     (define (compact-obj-model model)
@@ -791,7 +847,7 @@
                            (let* ((dv (vector3-diff vertex vertex-0))
                                   (x (+ (dot-product u-axis dv) x-offset))
                                   (y (dot-product v-axis dv)))
-                             (vector2 (* (vector2-x scale) x) (* (vector2-y scale) y)))))
+                             (vector (* (vector2-x scale) x) (* (vector2-y scale) y)))))
                         (vertex-transformer-no-offset
                          (lambda (vertex) (vertex-transformer vertex 0.0)))
                         ;; figure out how much we have to slide this face over

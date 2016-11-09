@@ -862,11 +862,12 @@
        (- (* (vector3-x v0) (vector3-y v1)) (* (vector3-y v0) (vector3-x v1)))))
 
 
-
     (define (distance-between-points a b)
       (let ((dx (- (point-x a) (point-x b)))
             (dy (- (point-y a) (point-y b)))
-            (dz (- (point-z a) (point-z b))))
+            (dz (if (= (vector-length a) 3)
+                    (- (point-z a) (point-z b))
+                    0)))
         (sqrt (+ (* dx dx)
                  (* dy dy)
                  (* dz dz)))))

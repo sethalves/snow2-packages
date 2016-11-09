@@ -91,7 +91,7 @@
                  (next-token '(#\space) '(#\space *eof*) #\# line-hndl))))))
 
 
-    (define (interpret-mesh-line line-trimmed material prepend-face! model
+    (define (interpret-mesh-line line-trimmed material prepend-face-cb! model
                                  unget-line)
       (snow-assert (material? material))
       (let* ((nt (tokenizer-for-line line-trimmed))
@@ -116,7 +116,7 @@
             material))
          ;; face
          ((equal? first-token "f")
-          (prepend-face! (map parse-face-corner (read-face nt)) material)
+          (prepend-face-cb! (map parse-face-corner (read-face nt)) material)
           material)
          ;; group
          ((equal? first-token "g")
@@ -139,7 +139,7 @@
           material))))
 
 
-    (define (read-mesh model material prepend-face! get-line unget-line)
+    (define (read-mesh model material prepend-face-rm-cb! get-line unget-line)
       ;; read an optional "g" line and all the faces after it.  stop
       ;; upon encountering another "g" line.
       (snow-assert (model? model))
@@ -148,7 +148,7 @@
 
         (define (prepend-face-to-mesh! face material)
           (snow-assert (material? material))
-          (prepend-face! mesh face material))
+          (prepend-face-rm-cb! mesh face material))
 
         ;; read mesh-name first
         (define mesh-name
@@ -172,7 +172,8 @@
           (snow-assert (material? material))
           (let ((line-trimmed (get-line)))
             ;; consume the next line
-            (cond ((eof-object? line-trimmed) (material-done #f))
+            (cond ((eof-object? line-trimmed)
+                   (material-done #f))
                   (else
                    (let ((next-material
                           (interpret-mesh-line line-trimmed material
@@ -230,7 +231,8 @@
                                           material
                                           prepend-face!
                                           get-line unget-line)))
-            (cond (next-material (loop next-material))
+            (cond (next-material
+                   (loop next-material))
                   (else
                    (model-set-meshes! model (reverse (model-meshes model)))
                    model))))))
@@ -283,12 +285,14 @@
       (let loop ((meshes (model-meshes model))
                  (nth 1)
                  (material #f))
+
         (cond ((null? meshes) #t)
               (else
                (let ((mesh (car meshes))
                      (current-material material)
                      (a-group-face-has-been-output #f)
                      )
+
                  (mesh-sort-faces-by-material-name model mesh)
                  (if (mesh-name mesh)
                      (display (format "\ng ~a\n" (mesh-name mesh)) port)
