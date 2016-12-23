@@ -90,8 +90,8 @@
     (name ())
     (version "1.0")
     (url "model-3d.tgz")
-    (size 44032)
-    (checksum (md5 "5fa570dcbe8a2478814cb4d34ae811ec"))
+    (size 45568)
+    (checksum (md5 "369e78668ba39bf2d929ea0b613e34ca"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
@@ -111,7 +111,8 @@
         (snow assert)
         (snow input-parse)
         (seth cout)
-        (seth math-3d))
+        (seth math-3d)
+        (seth octree))
       (use-for final))
     (library
       (name (seth model-3d tests))
@@ -129,8 +130,8 @@
     (name ())
     (version "1.0")
     (url "math-3d.tgz")
-    (size 76288)
-    (checksum (md5 "4f637baf7ae77b977b76a9745e35f5f2"))
+    (size 76800)
+    (checksum (md5 "b391def02f74a96c427fd53ef5859750"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")
@@ -160,7 +161,7 @@
     (version "1.0")
     (url "obj-model.tgz")
     (size 17920)
-    (checksum (md5 "8554bc89d79de5d0a580a654424bbf51"))
+    (checksum (md5 "d5fa8bac65e5c38c1cd80a49e7e86729"))
     (library
       (name (seth obj-model))
       (path "seth/obj-model.sld")
