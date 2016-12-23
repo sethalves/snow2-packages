@@ -17,6 +17,10 @@
     (name "Evhan")
     (url "http://foldling.org/snow2/index.scm")
     (trust 1.0))
+  (sibling
+    (name "Snow2 Repository")
+    (url "http://seth-misc.s3-website-us-east-1.amazonaws.com/index.scm")
+    (trust 1.0))
   (package
     (name ())
     (version "1.0")
@@ -91,7 +95,7 @@
     (version "1.0")
     (url "model-3d.tgz")
     (size 45568)
-    (checksum (md5 "369e78668ba39bf2d929ea0b613e34ca"))
+    (checksum (md5 "48e52ffaa0e3b8d165783cfb907193fc"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
@@ -825,8 +829,8 @@
     (name ())
     (version "1.0")
     (url "snow2-utils.tgz")
-    (size 153088)
-    (checksum (md5 "66daaca88f6acec3bdc08f30d10e1bd2"))
+    (size 153600)
+    (checksum (md5 "14772bb7e9312158fe448d0354d8a036"))
     (library
       (name (seth snow2 client))
       (path "seth/snow2/client.sld")

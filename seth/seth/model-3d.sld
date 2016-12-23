@@ -595,7 +595,7 @@
                                          (if material-a (material-name material-a) ""))
                                         (material-name-b
                                          (if material-b (material-name material-b) "")))
-                                   (string< material-name-a material-name-b))))))
+                                   (string<? material-name-a material-name-b))))))
 
 
 
