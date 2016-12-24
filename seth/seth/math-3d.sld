@@ -95,6 +95,8 @@
           segment-aa-box-intersection
           triangle-is-degenerate?
           triangle-normal
+          triangle->plane
+          point-is-above-plane
           angle-between-vectors
           rotation-between-vectors
           quaternion-normalize
@@ -157,6 +159,7 @@
           best-aligned-vector
           worst-aligned-vector
           epsilon
+          vector3-sort-compare
           )
   (import (scheme base)
           (scheme write)
@@ -888,7 +891,6 @@
              (d (vector3-diff P B)))
         (vector3-magnitude d)))
 
-
     ;; http://www.realtimerendering.com/intersections.html
 
     (define (line-plane-intersection S P)
@@ -995,18 +997,55 @@
 
 
 
-    (define (triangle-is-degenerate? T)
-      (or (vector3-equal? (vector-ref T 0) (vector-ref T 1))
-          (vector3-equal? (vector-ref T 1) (vector-ref T 2))
-          (vector3-equal? (vector-ref T 2) (vector-ref T 0))))
-
+    (define (triangle-is-degenerate? T tolerance)
+      (let ((T0 (vector-ref T 0))
+            (T1 (vector-ref T 1))
+            (T2 (vector-ref T 2)))
+        (or
+         ;; check for coincident points
+         (vector3-almost-equal? T0 T1 tolerance)
+         (vector3-almost-equal? T1 T2 tolerance)
+         (vector3-almost-equal? T2 T0 tolerance)
+         ;; see if they are in a line
+         (vector3-almost-equal? (vector3-abs (vector3-normalize (vector3-diff T1 T0)))
+                                (vector3-abs (vector3-normalize (vector3-diff T2 T1)))
+                                tolerance)
+         ;; (vector3-almost-equal? (vector3-abs (vector3-normalize (vector3-diff T1 T0)))
+         ;;                 (vector3-abs (vector3-normalize (vector3-diff T2 T0))))
+         )))
 
     (define (triangle-normal T)
       ;; T is #(P0 P1 P2), the P's are vectors of length 3
       ;; assumes right-hand rule.
-      (vector3-normalize
-       (cross-product (vector3-diff (vector-ref T 1) (vector-ref T 0))
-                      (vector3-diff (vector-ref T 2) (vector-ref T 0)))))
+      (let ((v (cross-product (vector3-diff (vector-ref T 1) (vector-ref T 0))
+                              (vector3-diff (vector-ref T 2) (vector-ref T 0)))))
+        (if (vector3-equal? v zero-vector) #f
+            (vector3-normalize v))))
+
+    (define (triangle->plane T)
+      (vector (vector-ref T 0)
+              (triangle-normal T)))
+
+
+    (define (point-is-above-plane P plane)
+      ;; P is a vector of size 3.
+      ;; plane is #(#(point) #(normal-vector))
+      ;; https://www.opengl.org/discussion_boards/showthread.php/183759-Finding-if-a-point-is-in-front-or-behind-a-plane
+      (snow-assert (vector? P))
+      (snow-assert (= (vector-length P) 3))
+      (snow-assert (number? (vector-ref P 0)))
+      (snow-assert (number? (vector-ref P 1)))
+      (snow-assert (number? (vector-ref P 2)))
+      (snow-assert (vector? plane))
+      (snow-assert (= (vector-length plane) 2))
+      (snow-assert (vector? (vector-ref plane 0)))
+      (snow-assert (= (vector-length (vector-ref plane 0)) 3))
+      (snow-assert (vector? (vector-ref plane 1)))
+      (snow-assert (= (vector-length (vector-ref plane 1)) 3))
+      (let* ((plane-normal (vector-ref plane 1))
+             (AB (vector3-diff P (vector-ref plane 0)))
+             (dot (dot-product AB plane-normal)))
+        (> 0 dot)))
 
 
     (define (angle-between-vectors v0 v1 . axis)
@@ -1598,4 +1637,11 @@
              (>= (vector3-z big-box-high) (vector3-z small-box-high)))))
 
 
+    (define (vector3-sort-compare a b)
+      (cond ((< (vector3-x a) (vector3-x b)) #t)
+            ((> (vector3-x a) (vector3-x b)) #f)
+            ((< (vector3-y a) (vector3-y b)) #t)
+            ((> (vector3-y a) (vector3-y b)) #f)
+            ((< (vector3-z a) (vector3-y b)) #t)
+            (else #f)))
     ))
