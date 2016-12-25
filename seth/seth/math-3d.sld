@@ -160,6 +160,9 @@
           worst-aligned-vector
           epsilon
           vector3-sort-compare
+
+          polar-coordinates->cartesian
+          cartesian-coordinates->polar
           )
   (import (scheme base)
           (scheme write)
@@ -204,8 +207,11 @@
         (let loop ((p (if (>= v 0) (first-power v) (first-power (- v))))
                    (result "")
                    (v v))
-          (cond ((< v (expt 10 (inexact (- places)))) result)
-                ((= v 0) result)
+          (cond ((< v (expt 10 (inexact (- places))))
+                 (if (>= p 0)
+                     (loop (- p 1) (string-append result "0") v)
+                     result))
+                ;; ((= v 0.0) (if (>= p 0) (string-append result "0") result))
                 (else
                  (let* ((n (next-digit v p))
                         (next-v (- v (* n (expt 10 (inexact p))))))
@@ -1635,6 +1641,22 @@
              (>= (vector3-x big-box-high) (vector3-x small-box-high))
              (>= (vector3-y big-box-high) (vector3-y small-box-high))
              (>= (vector3-z big-box-high) (vector3-z small-box-high)))))
+
+
+    (define (polar-coordinates->cartesian radius theta phi)
+      ;; https://en.wikipedia.org/wiki/Spherical_coordinate_system
+      (vector (* radius (* (sin theta) (cos phi)))
+              (* radius (* (sin theta) (sin phi)))
+              (* radius (cos theta))))
+
+    (define (cartesian-coordinates->polar x y z)
+      ;; https://en.wikipedia.org/wiki/Spherical_coordinate_system
+      (let ((radius (sqrt (+ (* x x) (* y y) (* z z)))))
+        (if (= radius 0.0)
+            (vector 0 0 0)
+            (vector radius
+                    (acos (/ z radius))
+                    (atan2 y x)))))
 
 
     (define (vector3-sort-compare a b)
