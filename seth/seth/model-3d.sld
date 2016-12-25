@@ -1141,6 +1141,7 @@
                    (best-i (vector-ref T-indices 0))
                    (best-above (convex-hull-points-above-triangle vertices (T-with-i (vector-ref T-indices 0)))))
           (cond ((= i (vector-length vertices)) (T-with-i best-i))
+                ((not best-above) (loop (+ i 1) best-i best-above))
                 ((= best-above 0) (T-with-i best-i))
                 ((= i best-i) (loop (+ i 1) best-i best-above))
                 ((= i (vector-ref T-indices 1)) (loop (+ i 1) best-i best-above))
@@ -1168,7 +1169,8 @@
       (let loop ((T-indices T-indices)
                  (above (convex-hull-points-above-triangle vertices T-indices))
                  (no-progress 0))
-        (cond ((= above 0) T-indices)
+        (cond ((not above) #f)
+              ((= above 0) T-indices)
               ((= no-progress 6) #f)
               (else
                (let* ((spun-T-indices (convex-hull-rotate-triangle T-indices))
@@ -1176,7 +1178,7 @@
                       (new-above (convex-hull-points-above-triangle vertices spun-lifted-T-indices)))
                  (loop spun-lifted-T-indices
                        new-above
-                       (if (= above new-above) (+ no-progress 1) no-progress)))))))
+                       (if (or (not new-above) (= above new-above)) (+ no-progress 1) no-progress)))))))
 
 
     (define (convex-hull-append-face model mesh T-indices)
