@@ -131,6 +131,17 @@
                        (vector-magnitude (vector-diff q (vector-scale q~ -1.0))) "\n")
                  #f))))
 
+
+      (define (test-point-above-plane)
+        (and
+         (point-is-above-plane
+          (vector 1.0 1.0 1.0)
+          (vector (vector 0.0 0.0 0.0) (vector 0.0 1.0 0.0)))
+         (not (point-is-above-plane
+               (vector 1.0 -1.0 1.0)
+               (vector (vector 0.0 0.0 0.0) (vector 0.0 1.0 0.0))))
+         ))
+
       ;; (begin (display (number->pretty-string 100.0 4)) (newline))
       ;; (begin (display (number->pretty-string 100.1 4)) (newline))
 
@@ -340,6 +351,8 @@
                 euler->quaternion~zyx
                 quaternion->euler~zyx
                 rot)))
+
+            (test-point-above-plane)
 
             )
       )))

@@ -163,6 +163,7 @@
 
           polar-coordinates->cartesian
           cartesian-coordinates->polar
+          vector-3->strings
           )
   (import (scheme base)
           (scheme write)
@@ -1051,7 +1052,7 @@
       (let* ((plane-normal (vector-ref plane 1))
              (AB (vector3-diff P (vector-ref plane 0)))
              (dot (dot-product AB plane-normal)))
-        (> 0 dot)))
+        (< 0 dot)))
 
 
     (define (angle-between-vectors v0 v1 . axis)
@@ -1666,4 +1667,10 @@
             ((> (vector3-y a) (vector3-y b)) #f)
             ((< (vector3-z a) (vector3-y b)) #t)
             (else #f)))
+
+    (define (vector-3->strings v)
+      (vector (number->pretty-string (vector-ref v 0) 6)
+              (number->pretty-string (vector-ref v 1) 6)
+              (number->pretty-string (vector-ref v 2) 6)))
+
     ))

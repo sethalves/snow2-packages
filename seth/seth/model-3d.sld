@@ -1182,16 +1182,22 @@
 
 
     (define (convex-hull-append-face model mesh T-indices)
-      (let* ((face-corners (vector-map
+      (let* ((vertices (coordinates-as-numeric-vector (model-vertices model)))
+             (T0 (vector-ref vertices (vector-ref T-indices 0)))
+             (T1 (vector-ref vertices (vector-ref T-indices 1)))
+             (T2 (vector-ref vertices (vector-ref T-indices 2)))
+             (normal (vector-3->strings (triangle-normal (vector T0 T1 T2))))
+             (normal-index (model-append-normal! model normal))
+             (face-corners (vector-map
                             (lambda (vertex-index)
-                              (make-face-corner vertex-index 'unset 'unset))
+                              (make-face-corner vertex-index 'unset normal-index))
                             T-indices))
              (face (make-face model face-corners #f)))
         (if (not (model-contains-equivalent-face model face vector-tolerance))
             (mesh-append-face! model mesh face))))
 
 
-    (define (convex-hull-finish model faces-indices)
+    (define (convex-hull-finish model index-tris)
       (let ((hull-model (make-empty-model))
             (mesh (make-mesh #f '())))
         (model-prepend-mesh! hull-model mesh)
@@ -1201,7 +1207,7 @@
         (for-each
          (lambda (face-indices)
            (convex-hull-append-face hull-model mesh face-indices))
-         faces-indices)
+         index-tris)
         hull-model))
 
 
