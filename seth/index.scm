@@ -94,8 +94,8 @@
     (name ())
     (version "1.0")
     (url "model-3d.tgz")
-    (size 45568)
-    (checksum (md5 "48e52ffaa0e3b8d165783cfb907193fc"))
+    (size 57344)
+    (checksum (md5 "b69bf5b457200d0bed03feec2c4bd75e"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
@@ -134,8 +134,8 @@
     (name ())
     (version "1.0")
     (url "math-3d.tgz")
-    (size 76800)
-    (checksum (md5 "b391def02f74a96c427fd53ef5859750"))
+    (size 80384)
+    (checksum (md5 "8158db476c6e30df3ec680667167cc23"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")
