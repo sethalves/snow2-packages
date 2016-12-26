@@ -97,6 +97,7 @@
           triangle-normal
           triangle->plane
           point-is-above-plane
+          point-is-above-or-on-plane
           angle-between-vectors
           rotation-between-vectors
           quaternion-normalize
@@ -188,48 +189,49 @@
     (define epsilon 0.000001)
 
 
-    (define (number->pretty-string v places)
-      ;; I didn't want to write this.  Why did I have to write this?
-      ;; number->string will return scientific notation on some platforms.
-      (define epsilon (expt 10 (inexact (- (- places) 1))))
-      (define n->s (vector "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
-      (define (first-power v)
-        (let loop ((p 1))
-          (if (> (expt 10 (inexact p)) v) (- p 1)
-              (loop (+ p 1)))))
-      (define (next-digit v p)
-        (let loop ((v v)
-                   (result 0))
-          (let ((x (expt 10 (inexact p))))
-            (cond ((< v (- x epsilon)) result)
+    (define (number->pretty-string v . maybe-places)
+      (let ((places (if (null? maybe-places) 6 (car maybe-places))))
+        ;; I didn't want to write this.  Why did I have to write this?
+        ;; number->string will return scientific notation on some platforms.
+        (define epsilon (expt 10 (inexact (- (- places) 1))))
+        (define n->s (vector "0" "1" "2" "3" "4" "5" "6" "7" "8" "9"))
+        (define (first-power v)
+          (let loop ((p 1))
+            (if (> (expt 10 (inexact p)) v) (- p 1)
+                (loop (+ p 1)))))
+        (define (next-digit v p)
+          (let loop ((v v)
+                     (result 0))
+            (let ((x (expt 10 (inexact p))))
+              (cond ((< v (- x epsilon)) result)
+                    (else
+                     (loop (- v x) (+ result 1)))))))
+        (define (do-loop v)
+          (let loop ((p (if (>= v 0) (first-power v) (first-power (- v))))
+                     (result "")
+                     (v v))
+            (cond ((< v (expt 10 (inexact (- places))))
+                   (if (>= p 0)
+                       (loop (- p 1) (string-append result "0") v)
+                       result))
+                  ;; ((= v 0.0) (if (>= p 0) (string-append result "0") result))
                   (else
-                   (loop (- v x) (+ result 1)))))))
-      (define (do-loop v)
-        (let loop ((p (if (>= v 0) (first-power v) (first-power (- v))))
-                   (result "")
-                   (v v))
-          (cond ((< v (expt 10 (inexact (- places))))
-                 (if (>= p 0)
-                     (loop (- p 1) (string-append result "0") v)
-                     result))
-                ;; ((= v 0.0) (if (>= p 0) (string-append result "0") result))
-                (else
-                 (let* ((n (next-digit v p))
-                        (next-v (- v (* n (expt 10 (inexact p))))))
-                   (loop (- p 1)
-                         (if (and (> next-v 0) (= p 0))
-                             (string-append result (vector-ref n->s n) ".")
-                             (string-append result (vector-ref n->s n)))
-                         next-v))))))
+                   (let* ((n (next-digit v p))
+                          (next-v (- v (* n (expt 10 (inexact p))))))
+                     (loop (- p 1)
+                           (if (and (> next-v 0) (= p 0))
+                               (string-append result (vector-ref n->s n) ".")
+                               (string-append result (vector-ref n->s n)))
+                           next-v))))))
 
-      (if (nan? v)
-          "+nan.0"
-          (let ((result (if (< v 0)
-                            (string-append "-" (do-loop (- v)))
-                            (do-loop v))))
-            (cond ((equal? result "") "0")
-                  ((equal? result "-") "0")
-                  (else result)))))
+        (if (nan? v)
+            "+nan.0"
+            (let ((result (if (< v 0)
+                              (string-append "-" (do-loop (- v)))
+                              (do-loop v))))
+              (cond ((equal? result "") "0")
+                    ((equal? result "-") "0")
+                    (else result))))))
 
 
     (define (vector-max v)
@@ -1034,7 +1036,7 @@
               (triangle-normal T)))
 
 
-    (define (point-is-above-plane P plane)
+    (define (point-is-above-plane~ P plane tester)
       ;; P is a vector of size 3.
       ;; plane is #(#(point) #(normal-vector))
       ;; https://www.opengl.org/discussion_boards/showthread.php/183759-Finding-if-a-point-is-in-front-or-behind-a-plane
@@ -1052,8 +1054,14 @@
       (let* ((plane-normal (vector-ref plane 1))
              (AB (vector3-diff P (vector-ref plane 0)))
              (dot (dot-product AB plane-normal)))
-        (< 0 dot)))
+        (tester 0 dot)))
 
+
+    (define (point-is-above-plane P plane)
+      (point-is-above-plane~ P plane <))
+
+    (define (point-is-above-or-on-plane P plane)
+      (point-is-above-plane~ P plane <=))
 
     (define (angle-between-vectors v0 v1 . axis)
       ;; return the angle (positive or negative) that rotates
