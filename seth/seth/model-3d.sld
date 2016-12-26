@@ -1074,23 +1074,11 @@
                                 (else
                                  (vector i j k)))))))))))
 
-    (define (convex-hull-find-a-triangle-with-jk vertices j k)
-      ;; find a valid triangle
-      (let loop-i ((i 0))
-        (cond ((= i (vector-length vertices)) #f)
-              ((triangle-is-degenerate? (vector
-                                         (vector-ref vertices i)
-                                         (vector-ref vertices j)
-                                         (vector-ref vertices k))
-                                        vector-tolerance)
-               (loop-i (+ i 1)))
-              (else
-               (vector i j k)))))
 
-
-    (define (convex-hull-points-above-triangle vertices T-indices)
+    (define (convex-hull-points-above-triangle vertices T-indices . maybe-to-beat)
       ;; count the number of points above the triangle's plane
-      (let* ((t0 (vector-ref T-indices 0))
+      (let* ((to-beat (if (null? maybe-to-beat) #f (car maybe-to-beat)))
+             (t0 (vector-ref T-indices 0))
              (t1 (vector-ref T-indices 1))
              (t2 (vector-ref T-indices 2))
              (T (vector (vector-ref vertices t0)
@@ -1100,7 +1088,8 @@
             (let ((plane (triangle->plane T)))
               (let loop ((i 0)
                          (above 0))
-                (cond ((= i (vector-length vertices)) above)
+                (cond ((and to-beat (>= above to-beat)) #f) ;; stop early
+                      ((= i (vector-length vertices)) above)
                       ((= i t0) (loop (+ i 1) above))
                       ((= i t1) (loop (+ i 1) above))
                       ((= i t2) (loop (+ i 1) above))
@@ -1110,50 +1099,29 @@
                        (loop (+ i 1) above))))))))
 
 
-    (define (convex-hull-any-points-above-triangle? vertices T-indices)
-      ;; count the number of points above the triangle's plane
-      (let* ((t0 (vector-ref T-indices 0))
-             (t1 (vector-ref T-indices 1))
-             (t2 (vector-ref T-indices 2))
-             (T (vector (vector-ref vertices t0)
-                        (vector-ref vertices t1)
-                        (vector-ref vertices t2))))
-        (if (triangle-is-degenerate? T vector-tolerance) #t
-            (let ((plane (triangle->plane T)))
-              ;; (cout T " -- " plane "\n")
-              (let loop ((i 0))
-                (cond ((= i (vector-length vertices)) #f)
-                      ((= i t0) (loop (+ i 1)))
-                      ((= i t1) (loop (+ i 1)))
-                      ((= i t2) (loop (+ i 1)))
-                      ((point-is-above-plane (vector-ref vertices i) plane) #t)
-                      (else (loop (+ i 1)))))))))
-
-
     (define (convex-hull-search-for-hull-lift-vertex vertices T-indices tester)
       ;; replace the first index in the triangle with other indices, search for one that puts
       ;; the fewest points above the triangle's plane
-      (let ((T-with-i (lambda (i)
-                        (vector i
-                                (vector-ref T-indices 1)
-                                (vector-ref T-indices 2)))))
+      (let ((T-with-i (lambda (i) (vector i (vector-ref T-indices 1) (vector-ref T-indices 2)))))
         (let loop ((i 0)
                    (best-i (vector-ref T-indices 0))
                    (best-above (convex-hull-points-above-triangle vertices (T-with-i (vector-ref T-indices 0)))))
           (if (= i (vector-length vertices))
               (T-with-i best-i)
               (let* ((T (T-with-i i))
-                     (above (convex-hull-points-above-triangle vertices T))
-                     (keep-searching (lambda () (loop (+ i 1) best-i best-above)))
-                     )
+                     (keep-searching (lambda () (loop (+ i 1) best-i best-above))))
                 (cond ((= i (vector-ref T-indices 1)) (keep-searching))
                       ((= i (vector-ref T-indices 2)) (keep-searching))
-                      ((not above) (keep-searching))
+                      ((= i best-i) (keep-searching))
                       ((not (tester T)) (keep-searching))
-                      ((= above 0) T)
-                      ((not best-above) (loop (+ i 1) i above))
-                      ((< above best-above) (loop (+ i 1) i above))
-                      (else (keep-searching))))))))
+                      (else
+                       (let ((above (convex-hull-points-above-triangle vertices T best-above)))
+                         (cond ((not above) (keep-searching))
+                               ((= above 0) T)
+                               ((not best-above) (loop (+ i 1) i above))
+                               ((< above best-above) (loop (+ i 1) i above))
+                               (else (keep-searching)))))))))))
+
 
     (define (convex-hull-rotate-triangle T-indices)
       ;; rotate the vertex indices but keep the normal the same
@@ -1193,39 +1161,7 @@
                               (make-face-corner vertex-index 'unset normal-index))
                             T-indices))
              (face (make-face model face-corners #f)))
-        (if (not (model-contains-equivalent-face model face vector-tolerance))
-            (mesh-append-face! model mesh face))))
-
-
-    ;; (define (convex-hull-triangle-overlaps-another? T1 triangles vertices)
-    ;;   (let loop ((existing-itriangles (hash-table-keys triangles)))
-    ;;     (cond ((null? existing-itriangles) #f)
-    ;;           (else
-    ;;            (let* ((A0 (vector-ref T1 0))
-    ;;                   (A1 (vector-ref T1 1))
-    ;;                   (A2 (vector-ref T1 2))
-    ;;                   (B0 (vector-ref (car existing-itriangles) 0))
-    ;;                   (B1 (vector-ref (car existing-itriangles) 1))
-    ;;                   (B2 (vector-ref (car existing-itriangles) 2))
-    ;;                   (shared-index-count (+ (if (= A0 B0) 1 0)
-    ;;                                          (if (= A0 B1) 1 0)
-    ;;                                          (if (= A0 B2) 1 0)
-    ;;                                          (if (= A1 B0) 1 0)
-    ;;                                          (if (= A1 B1) 1 0)
-    ;;                                          (if (= A1 B2) 1 0)
-    ;;                                          (if (= A2 B0) 1 0)
-    ;;                                          (if (= A2 B1) 1 0)
-    ;;                                          (if (= A2 B2) 1 0))))
-    ;;              (and (> shared-index-count 1)
-    ;;                   (vector3-almost-equal?
-    ;;                    (triangle-normal (vector (vector-ref vertices A0)
-    ;;                                             (vector-ref vertices A1)
-    ;;                                             (vector-ref vertices A2)))
-    ;;                    (triangle-normal (vector (vector-ref vertices B0)
-    ;;                                             (vector-ref vertices B1)
-    ;;                                             (vector-ref vertices B2)))
-    ;;                    vector-tolerance)))))))
-
+        (mesh-append-face! model mesh face)))
 
 
     (define (convex-hull-finish model index-tris)
