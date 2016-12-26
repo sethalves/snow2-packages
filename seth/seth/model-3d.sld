@@ -1130,7 +1130,7 @@
                       (else (loop (+ i 1)))))))))
 
 
-    (define (convex-hull-search-for-hull-lift-vertex vertices T-indices)
+    (define (convex-hull-search-for-hull-lift-vertex vertices T-indices tester)
       ;; replace the first index in the triangle with other indices, search for one that puts
       ;; the fewest points above the triangle's plane
       (let ((T-with-i (lambda (i)
@@ -1140,21 +1140,20 @@
         (let loop ((i 0)
                    (best-i (vector-ref T-indices 0))
                    (best-above (convex-hull-points-above-triangle vertices (T-with-i (vector-ref T-indices 0)))))
-          (cond ((= i (vector-length vertices)) (T-with-i best-i))
-                ((not best-above) (loop (+ i 1) best-i best-above))
-                ((= best-above 0) (T-with-i best-i))
-                ((= i best-i) (loop (+ i 1) best-i best-above))
-                ((= i (vector-ref T-indices 1)) (loop (+ i 1) best-i best-above))
-                ((= i (vector-ref T-indices 2)) (loop (+ i 1) best-i best-above))
-                (else
-                 (let ((above-for-this-i (convex-hull-points-above-triangle vertices (T-with-i i))))
-                   (cond ((not best-above) (loop (+ i 1) i above-for-this-i))
-                         ((not above-for-this-i) (loop (+ i 1) best-i best-above))
-                         (else
-                          (if (< above-for-this-i best-above)
-                              (loop (+ i 1) i above-for-this-i)
-                              (loop (+ i 1) best-i best-above))))))))))
-
+          (if (= i (vector-length vertices))
+              (T-with-i best-i)
+              (let* ((T (T-with-i i))
+                     (above (convex-hull-points-above-triangle vertices T))
+                     (keep-searching (lambda () (loop (+ i 1) best-i best-above)))
+                     )
+                (cond ((= i (vector-ref T-indices 1)) (keep-searching))
+                      ((= i (vector-ref T-indices 2)) (keep-searching))
+                      ((not above) (keep-searching))
+                      ((not (tester T)) (keep-searching))
+                      ((= above 0) T)
+                      ((not best-above) (loop (+ i 1) i above))
+                      ((< above best-above) (loop (+ i 1) i above))
+                      (else (keep-searching))))))))
 
     (define (convex-hull-rotate-triangle T-indices)
       ;; rotate the vertex indices but keep the normal the same
@@ -1174,7 +1173,8 @@
               ((= no-progress 6) #f)
               (else
                (let* ((spun-T-indices (convex-hull-rotate-triangle T-indices))
-                      (spun-lifted-T-indices (convex-hull-search-for-hull-lift-vertex vertices spun-T-indices))
+                      (spun-lifted-T-indices (convex-hull-search-for-hull-lift-vertex vertices spun-T-indices
+                                                                                      (lambda (T) #t)))
                       (new-above (convex-hull-points-above-triangle vertices spun-lifted-T-indices)))
                  (loop spun-lifted-T-indices
                        new-above
@@ -1197,6 +1197,37 @@
             (mesh-append-face! model mesh face))))
 
 
+    ;; (define (convex-hull-triangle-overlaps-another? T1 triangles vertices)
+    ;;   (let loop ((existing-itriangles (hash-table-keys triangles)))
+    ;;     (cond ((null? existing-itriangles) #f)
+    ;;           (else
+    ;;            (let* ((A0 (vector-ref T1 0))
+    ;;                   (A1 (vector-ref T1 1))
+    ;;                   (A2 (vector-ref T1 2))
+    ;;                   (B0 (vector-ref (car existing-itriangles) 0))
+    ;;                   (B1 (vector-ref (car existing-itriangles) 1))
+    ;;                   (B2 (vector-ref (car existing-itriangles) 2))
+    ;;                   (shared-index-count (+ (if (= A0 B0) 1 0)
+    ;;                                          (if (= A0 B1) 1 0)
+    ;;                                          (if (= A0 B2) 1 0)
+    ;;                                          (if (= A1 B0) 1 0)
+    ;;                                          (if (= A1 B1) 1 0)
+    ;;                                          (if (= A1 B2) 1 0)
+    ;;                                          (if (= A2 B0) 1 0)
+    ;;                                          (if (= A2 B1) 1 0)
+    ;;                                          (if (= A2 B2) 1 0))))
+    ;;              (and (> shared-index-count 1)
+    ;;                   (vector3-almost-equal?
+    ;;                    (triangle-normal (vector (vector-ref vertices A0)
+    ;;                                             (vector-ref vertices A1)
+    ;;                                             (vector-ref vertices A2)))
+    ;;                    (triangle-normal (vector (vector-ref vertices B0)
+    ;;                                             (vector-ref vertices B1)
+    ;;                                             (vector-ref vertices B2)))
+    ;;                    vector-tolerance)))))))
+
+
+
     (define (convex-hull-finish model index-tris)
       (let ((hull-model (make-empty-model))
             (mesh (make-mesh #f '())))
@@ -1207,7 +1238,7 @@
         (for-each
          (lambda (face-indices)
            (convex-hull-append-face hull-model mesh face-indices))
-         index-tris)
+         (hash-table-keys index-tris))
         hull-model))
 
 
@@ -1224,71 +1255,78 @@
                            T0
                            (loop (+ i 1))))))))))
 
+    (define (convex-hull-tri-edge T n . maybe-swap)
+      (if (or (null? maybe-swap) (not (car maybe-swap)))
+          (cond ((= n 0) (vector (vector-ref T 0) (vector-ref T 1)))
+                ((= n 1) (vector (vector-ref T 1) (vector-ref T 2)))
+                ((= n 2) (vector (vector-ref T 2) (vector-ref T 0)))
+                (else #f))
+          (cond ((= n 0) (vector (vector-ref T 1) (vector-ref T 0)))
+                ((= n 1) (vector (vector-ref T 2) (vector-ref T 1)))
+                ((= n 2) (vector (vector-ref T 0) (vector-ref T 2)))
+                (else #f))))
+
 
     (define (model->convex-hull model)
       ;; slow and naive gift-wrapping convex-hull finder
       (let* ((vertices (coordinates-as-numeric-vector (model-vertices model)))
              (T0 (convex-hull-find-initial-triangle vertices)))
-        (if (not T0) #f
+        (if (not T0)
+            (begin
+              (cerr "model->convex-hull failed to find initial triangle.")
+              #f)
             (let* ((processed-edges (make-hash-table))
-                   (add-edge (lambda (edges new-edge)
-                               (if (hash-table-exists? processed-edges new-edge)
-                                   edges
-                                   (cons new-edge edges)))))
-              (if (> (convex-hull-points-above-triangle vertices T0) 0)
-                  (begin
-                    (cerr "model->convex-hull failed to find initial triangle.")
-                    #f)
-                  (let loop ((triangles (list T0))
-                             ;; The edges are reversed so that the handedness changes.
-                             ;; this forces the next point found to be in a differnt
-                             ;; triangle than the one that produced the edge.
-                             (edges (list (vector (vector-ref T0 1) (vector-ref T0 0))
-                                          (vector (vector-ref T0 2) (vector-ref T0 1))
-                                          (vector (vector-ref T0 0) (vector-ref T0 2)))))
-                    (cond ((null? edges)
-                           (convex-hull-finish model triangles))
-                          (else
-                           ;; (cout edges "\n")
-                           (let* ((edge (car edges))
-                                  (j (vector-ref edge 0))
-                                  (k (vector-ref edge 1))
-                                  (T0 (convex-hull-find-a-triangle-with-jk vertices j k))
-                                  (T1 (convex-hull-search-for-hull-lift-vertex vertices T0))
-                                  )
-                             (hash-table-set! processed-edges (vector j k) #t)
-                             (hash-table-set! processed-edges (vector k j) #t)
+                   (triangles (make-hash-table))
+                   (edge-count (lambda (edge) (hash-table-ref/default processed-edges edge 0)))
+                   (no-conflict (lambda (T)
+                                  (and (< (edge-count (convex-hull-tri-edge T 0)) 2)
+                                       (< (edge-count (convex-hull-tri-edge T 1)) 2)
+                                       (< (edge-count (convex-hull-tri-edge T 2)) 2))))
+                   (increment-edge (lambda (edge)
+                                     (hash-table-set! processed-edges edge (+ (edge-count edge) 1))))
+                   (claim-edges-for-tri (lambda (T)
+                                          (increment-edge (convex-hull-tri-edge T 0))
+                                          (increment-edge (convex-hull-tri-edge T 0 #t))
+                                          (increment-edge (convex-hull-tri-edge T 1))
+                                          (increment-edge (convex-hull-tri-edge T 1 #t))
+                                          (increment-edge (convex-hull-tri-edge T 2))
+                                          (increment-edge (convex-hull-tri-edge T 2 #t)))))
+              (cond
+               ((> (convex-hull-points-above-triangle vertices T0) 0)
+                (cerr "model->convex-hull failed to find initial triangle on convex hull.")
+                #f)
+               (else
+                (hash-table-set! triangles T0 #t)
+                (claim-edges-for-tri T0)
 
-                             (let* ((edge-0 (vector (vector-ref T1 1) (vector-ref T1 0)))
-                                    (edge-1 (vector (vector-ref T1 2) (vector-ref T1 1)))
-                                    (edge-2 (vector (vector-ref T1 0) (vector-ref T1 2))))
-                               (loop
-                                (cons T1 triangles)
-                                (add-edge (add-edge
-                                           (add-edge (cdr edges) edge-0)
-                                           edge-1)
-                                          edge-2))))))))))))
-
-    ;; (define (model->convex-hull model)
-    ;;   (let ((vertices (coordinates-as-numeric-vector (model-vertices model)))
-    ;;         (hull-model (make-empty-model))
-    ;;         (mesh (make-mesh #f '())))
-    ;;     (model-prepend-mesh! hull-model mesh)
-    ;;     (model-set-vertices! hull-model (model-vertices model))
-    ;;     (do ((i 0 (+ i 1)))
-    ;;         ((= i (vector-length vertices)) #t)
-    ;;       (cout i " / " (vector-length vertices) "\n")
-    ;;       (do ((j 0 (+ j 1)))
-    ;;           ((= j (vector-length vertices)) #t)
-    ;;         (do ((k 0 (+ k 1)))
-    ;;             ((= k (vector-length vertices)) #t)
-    ;;           (cond ((= i j) #t)
-    ;;                 ((= j k) #t)
-    ;;                 ((= i k) #t)
-    ;;                 ((convex-hull-any-points-above-triangle? vertices (vector i j k)) #t)
-    ;;                 (else
-    ;;                  (convex-hull-append-face hull-model mesh (vector i j k)))))))
-    ;;     hull-model))
-
+                (let loop (;; The edges are reversed so that the handedness changes.
+                           ;; this forces the next point found to be in a differnt
+                           ;; triangle than the one that produced the edge.
+                           (edges (list (convex-hull-tri-edge T0 0 #t)
+                                        (convex-hull-tri-edge T0 1 #t)
+                                        (convex-hull-tri-edge T0 2 #t))))
+                  (cond ((null? edges)
+                         (convex-hull-finish model triangles))
+                        (else
+                         (let* ((edge (car edges))
+                                (j (vector-ref edge 0))
+                                (k (vector-ref edge 1))
+                                (T1 (convex-hull-search-for-hull-lift-vertex vertices (vector 0 j k) no-conflict))
+                                (above (convex-hull-points-above-triangle vertices T1)))
+                           (cond ((and above (= above 0))
+                                  (claim-edges-for-tri T1)
+                                  (hash-table-set! triangles T1 #t)
+                                  (loop
+                                   (let edge-loop ((edges (cdr edges))
+                                                   (new-edges (list (convex-hull-tri-edge T1 0 #t)
+                                                                    (convex-hull-tri-edge T1 1 #t)
+                                                                    (convex-hull-tri-edge T1 2 #t))))
+                                     (cond ((null? new-edges) edges)
+                                           ((>= (edge-count (car new-edges)) 2)
+                                            (edge-loop edges (cdr new-edges)))
+                                           (else
+                                            (edge-loop (cons (car new-edges) edges) (cdr new-edges)))))))
+                                 (else
+                                  (loop (cdr edges))))))))))))))
 
     ))
