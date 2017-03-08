@@ -32,6 +32,7 @@
           line-b
           make-line
           quat-s
+          quat-w
           quat-x
           quat-y
           quat-z
@@ -121,6 +122,7 @@
           matrix-A*B
           matrix-*
           matrix-translation
+          matrix-rotation-quaternion
           matrix-rotation-x
           matrix-rotation-y
           matrix-rotation-z
@@ -155,7 +157,7 @@
           aa-box-low-corner aa-box-set-low-corner!
           aa-box-high-corner aa-box-set-high-corner!
           aa-box-contains-aa-box
-
+          aa-box-center
 
           best-aligned-vector
           worst-aligned-vector
@@ -327,6 +329,7 @@
 
 
     (define (quat-s q) (vector-ref q 0))
+    (define (quat-w q) (vector-ref q 0))
     (define (quat-x q) (vector-ref q 1))
     (define (quat-y q) (vector-ref q 2))
     (define (quat-z q) (vector-ref q 3))
@@ -1005,6 +1008,9 @@
              (< (vector3-z (vector-ref S 0)) (vector3-z aa-box-high)))))
 
 
+    (define (aa-box-center aa-box)
+      (vector3-scale (vector3-sum (aa-box-low-corner aa-box) (aa-box-high-corner aa-box)) 0.5))
+
 
     (define (triangle-is-degenerate? T tolerance)
       (let ((T0 (vector-ref T 0))
@@ -1308,6 +1314,21 @@
               (vector 0 0 1 (vector3-z v))
               (vector 0 0 0 1)))
 
+
+    (define (matrix-rotation-quaternion q)
+      (let* ((qx (quat-x q))
+             (qy (quat-y q))
+             (qz (quat-z q))
+             (qw (quat-w q))
+             (qx2 (* qx qx))
+             (qy2 (* qy qy))
+             (qz2 (* qz qz))
+             )
+        (vector
+         (vector (- (- 1.0 (* 2.0 qy2)) (* 2.0 qz2)) (- (* 2.0 qx qy) (* 2.0 qz qw)) (+ (* 2.0 qx qz) (* 2.0 qy qw)) 0.0)
+         (vector (+ (* 2.0 qx qy) (* 2.0 qz qw)) (- (- 1.0 (* 2.0 qx2)) (* 2.0 qz2)) (- (* 2.0 qy qz) (* 2.0 qx qw)) 0.0)
+         (vector (- (* 2.0 qx qz) (* 2.0 qy qw)) (+ (* 2.0 qy qz) (* 2.0 qx qw)) (- (- 1.0 (* 2.0 qx2)) (* 2.0 qy2)) 0.0)
+         (vector 0.0 0.0 0.0 1.0))))
 
     (define (matrix-rotation-x a)
       (vector (vector 1       0           0 0)
