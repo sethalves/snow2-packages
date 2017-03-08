@@ -26,6 +26,7 @@
    model-clear-texture-coordinates!
    model-append-texture-coordinate!
    model-append-vertex!
+   model-append-deduped-vertex!
    model-append-normal!
    ;; materials
    make-material
@@ -45,6 +46,7 @@
    mesh-faces mesh-set-faces!
    mesh-prepend-face!
    mesh-append-face!
+   mesh-append-triangle!
    mesh-sort-faces-by-material-name
    ;; face-corners
    make-face-corner
@@ -151,14 +153,30 @@
       (coordinates-compact coords)
       (vector-ref (coordinates-vec coords) n))
 
+    (define (coordinates-find coords v)
+      (snow-assert (coordinates? coords))
+      (snow-assert (vector? v))
+      (snow-assert (every string? (vector->list v)))
+      (coordinates-compact coords)
+      (let* ((as-vec (coordinates-vec coords))
+             (v-len (vector-length as-vec)))
+        (let loop ((i 0))
+          (cond ((= i v-len) #f)
+                ((equal? (vector-ref as-vec i) v) i)
+                (else
+                 (loop (+ i 1)))))))
+
+
     (define (coordinates-as-vector coords)
       (coordinates-compact coords)
       (coordinates-vec coords))
+
 
     (define (coordinates-as-numeric-vector coords)
       (vector-map
        (lambda (vertex) (vector-map string->number vertex))
        (coordinates-as-vector coords)))
+
 
     (define (coordinates-null? coords)
       (coordinates-compact coords)
@@ -553,6 +571,13 @@
       (- (coordinates-length (model-vertices model)) 1))
 
 
+    (define (model-append-deduped-vertex! model v)
+      ;; returns the index of a old vertex if a match is found, else the index of a new vertex
+      (let* ((vertices (model-vertices model))
+             (i (coordinates-find vertices v)))
+        (if i i (model-append-vertex! model v))))
+
+
     (define (model-append-normal! model v)
       ;; returns the index of the new normal
       (snow-assert (model? model))
@@ -589,6 +614,28 @@
       (snow-assert (mesh? mesh))
       (snow-assert (face? face))
       (mesh-set-faces! mesh (reverse (cons face (reverse (mesh-faces mesh))))))
+
+
+    (define (mesh-append-triangle! model mesh material points)
+      (snow-assert (model? model))
+      (snow-assert (mesh? mesh))
+      (snow-assert (list? points))
+      (snow-assert (= (length points) 3))
+      (snow-assert (vector? (list-ref points 0)))
+      (snow-assert (vector? (list-ref points 1)))
+      (snow-assert (vector? (list-ref points 2)))
+
+      (let ((p0 (model-append-deduped-vertex! model (vector-map number->pretty-string (list-ref points 0))))
+            (p1 (model-append-deduped-vertex! model (vector-map number->pretty-string (list-ref points 1))))
+            (p2 (model-append-deduped-vertex! model (vector-map number->pretty-string (list-ref points 2)))))
+        (mesh-append-face! model mesh
+                           (make-face
+                            model
+                            (vector
+                             (make-face-corner p0 'unset 'unset)
+                             (make-face-corner p1 'unset 'unset)
+                             (make-face-corner p2 'unset 'unset))
+                            material))))
 
 
     (define (mesh-sort-faces-by-material-name model mesh)
@@ -1100,6 +1147,9 @@
 
 
     (define (convex-hull-triangle-distance vertices T)
+      ;; T is #(index0 index1 index2).  The indexes are into vertices which is a vector of points.
+      ;; each point is a vector of 3 numbers.
+      ;; return the smaller of the two distances between point0 -- point1 and point0 -- point2
       (let ((i (vector-ref vertices (vector-ref T 0)))
             (j (vector-ref vertices (vector-ref T 1)))
             (k (vector-ref vertices (vector-ref T 2))))
@@ -1107,30 +1157,34 @@
              (vector3-length (vector3-diff i k)))))
 
 
-    (define (convex-hull-search-for-hull-lift-vertex vertices j k tester)
+    (define (convex-hull-search-for-hull vertices j k tester)
       ;; replace the first index in the triangle with other indices, search for one that puts
-      ;; the fewest points above the triangle's plane
+      ;; the fewest points above the triangle's plane.  If there is more than one point that
+      ;; achieves this, use the closest one.
       (let* ((T-with-i (lambda (i) (vector i j k))))
-        (let loop ((i 0)
-                   (best-i #f)
-                   (best-above #f)
-                   (best-distance #f))
+        (let loop ((i 0) ;; current index
+                   (best-i #f) ;; best choice of index, so far
+                   (best-above #f) ;; how many points were above the plane of the triangle #(best-i j k)
+                   (best-distance #f)) ;; smaller of distances between best-i and either j or k
           (if (= i (vector-length vertices))
               (values best-above (T-with-i best-i))
               (let* ((T (T-with-i i))
+                     ;; call keep-searching when best-i is better than i
                      (keep-searching (lambda () (loop (+ i 1) best-i best-above best-distance))))
-
                 (cond ((= i j) (keep-searching))
                       ((= i k) (keep-searching))
-                      ((not (tester T)) (keep-searching))
+                      ((not (tester T)) (keep-searching)) ;; tester will reject if it would cause an edge with 3 tris
                       (else
                        (let* ((above (convex-hull-points-above-triangle vertices T))
                               (distance (convex-hull-triangle-distance vertices T))
+                              ;; call best-so-far when i is better than best-i
                               (best-so-far (lambda () (loop (+ i 1) i above distance))))
                          (cond ((not best-i) (best-so-far))
                                ((not above) (keep-searching))
                                ((not best-above) (best-so-far))
                                ((< above best-above) (best-so-far))
+                               ;; taking distance into account usually keeps the algorithm from producing
+                               ;; crossing/overlapping triangles
                                ((and (= above best-above) (not best-distance)) (best-so-far))
                                ((and (= above best-above) (< distance best-distance)) (best-so-far))
                                (else (keep-searching)))))))))))
@@ -1155,7 +1209,7 @@
               (else
                (let* ((spun-T (convex-hull-rotate-triangle T)))
                  (let-values (((new-above spun-lifted-T)
-                               (convex-hull-search-for-hull-lift-vertex vertices
+                               (convex-hull-search-for-hull vertices
                                                                         (vector-ref spun-T 1)
                                                                         (vector-ref spun-T 2)
                                                                         (lambda (T) #t))))
@@ -1265,7 +1319,7 @@
                                 (j (vector-ref edge 0))
                                 (k (vector-ref edge 1)))
                            (let-values (((above T1)
-                                         (convex-hull-search-for-hull-lift-vertex vertices j k no-conflict)))
+                                         (convex-hull-search-for-hull vertices j k no-conflict)))
                              (cond ((and above (= above 0))
                                     (claim-edges-for-tri T1)
                                     (hash-table-set! triangles T1 #t)
