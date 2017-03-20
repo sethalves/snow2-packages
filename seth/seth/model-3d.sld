@@ -657,29 +657,61 @@
       ;; make a mapping of vertex index to count of nearby vertexes
       (let* ((coords (model-vertices model))
              (vertices (coordinates-as-numeric-vector coords))
-             (vertex-index->neighbor-count
+             (vertex-index->neighbor-indexes
               (vector-map
                (lambda (vertex)
                  (snow-assert (vector? vertex))
                  (snow-assert (= (vector-length vertex) 3))
-                 (let ((neighbor-count 0))
-                   (let loop ((j 0))
-                     (cond ((= j (vector-length vertices)) #t)
-                           ((eq? vertex (vector-ref vertices j))
-                            (loop (+ j 1)))
-                           ((>= (distance-between-points vertex (vector-ref vertices j)) threshold)
-                            (set! neighbor-count (+ neighbor-count 1))
-                            (loop (+ j 1)))
-                           (else
-                            (loop (+ j 1)))))
-                   neighbor-count))
-               vertices)))
-        (cerr vertex-index->neighbor-count "\n")
-        ;;
-        ;; TODO finish this
-        ;;
-
-        #t))
+                 (let loop ((j 0)
+                            (neighbors '()))
+                   (cond ((= j (vector-length vertices)) neighbors)
+                         ((eq? vertex (vector-ref vertices j))
+                          (loop (+ j 1) neighbors))
+                         ((<= (distance-between-points vertex (vector-ref vertices j)) threshold)
+                          (loop (+ j 1) (cons j neighbors)))
+                         (else
+                          (loop (+ j 1) neighbors)))))
+               vertices))
+             (get-neighbor-count (lambda (vertex-index)
+                                   (length
+                                    (vector-ref vertex-index->neighbor-indexes vertex-index)))))
+        (operate-on-face-corners
+         model
+         (lambda (mesh face face-corner)
+           (let* ((vertex-index (face-corner-vertex-index face-corner))
+                  (possible-vertex-indices
+                   (cons vertex-index (vector-ref vertex-index->neighbor-indexes vertex-index))))
+             (let loop ((possible-vertex-indices possible-vertex-indices)
+                        (best-vertex-index #f)
+                        (best-neighbor-count 0))
+               (cond ((null? possible-vertex-indices)
+                      (make-face-corner best-vertex-index
+                                        (face-corner-texture-index face-corner)
+                                        (face-corner-normal-index face-corner)))
+                     (else
+                      (let* ((this-vertex-index (car possible-vertex-indices))
+                             (this-neighbor-count (get-neighbor-count this-vertex-index)))
+                        (cond ((eq? best-vertex-index #f)
+                               ;; first one, assume it's best
+                               (loop (cdr possible-vertex-indices)
+                                     this-vertex-index
+                                     this-neighbor-count))
+                              ((> this-neighbor-count best-neighbor-count)
+                               ;; more neighbors, use this one
+                               (loop (cdr possible-vertex-indices)
+                                     this-vertex-index
+                                     this-neighbor-count))
+                              ((and (= this-neighbor-count best-neighbor-count)
+                                    (< this-vertex-index best-vertex-index))
+                               ;; same neighbors, use the one with the lower index number
+                               (loop (cdr possible-vertex-indices)
+                                     this-vertex-index
+                                     this-neighbor-count))
+                              (else
+                               ;; else this one isn't as good as the best one so far
+                               (loop (cdr possible-vertex-indices)
+                                     best-vertex-index
+                                     best-neighbor-count))))))))))))
 
 
     (define (compact-obj-model model)
