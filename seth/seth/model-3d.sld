@@ -784,7 +784,10 @@
              (diff-2-0 (vector3-diff vertex-2 vertex-0))
              (cross (cross-product diff-1-0 diff-2-0))
              (normal-cross (cross-product normal cross)))
-        (cond ((vector3-equal? normal-cross zero-vector)
+        (cond ((or (vector3-equal? cross zero-vector)
+                   (vector3-equal? normal zero-vector))
+               0)
+              ((vector3-equal? normal-cross zero-vector)
                (if (vector3-almost-equal?
                     (vector3-normalize normal)
                     (vector3-normalize cross)
