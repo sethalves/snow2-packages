@@ -459,9 +459,11 @@
          (snow-assert (mesh? mesh))
          (mesh-set-faces!
           mesh
-          (map
-           (lambda (face) (op mesh face))
-           (mesh-faces mesh))))))
+          (filter
+           (lambda (x) x)
+           (map
+            (lambda (face) (op mesh face))
+            (mesh-faces mesh)))))))
 
 
     ;; call op with and replace every face corner.  op should accept mesh and
@@ -711,7 +713,18 @@
                                ;; else this one isn't as good as the best one so far
                                (loop (cdr possible-vertex-indices)
                                      best-vertex-index
-                                     best-neighbor-count))))))))))))
+                                     best-neighbor-count))))))))))
+        ;; the above may have created degenerate triangles (by combining two points on the same triangle)
+        (operate-on-faces
+         model
+         (lambda (mesh face)
+           (let* ((corners (vector->list (face-corners face)))
+                  (indices (map face-corner-vertex-index corners)))
+             (cond ((< (length indices) 3) #f)
+                   ((= (list-ref indices 0) (list-ref indices 1)) #f)
+                   ((= (list-ref indices 0) (list-ref indices 2)) #f)
+                   ((= (list-ref indices 1) (list-ref indices 2)) #f)
+                   (else face)))))))
 
 
     (define (compact-obj-model model)
