@@ -78,6 +78,13 @@
           vector3-normalize
           vector2-length
           vector3-length
+
+          triangle?
+          triangle-p0
+          triangle-p1
+          triangle-p2
+          triangle-segment
+
           quaternion-equal?
           quaternion-conjugate
           multiply-quaternions
@@ -93,6 +100,7 @@
           segment-plane-intersection
           triangle-plane-intersection
           segment-triangle-intersection
+          triangle-triangle-intersection
           segment-aa-box-intersection
           triangle-is-degenerate?
           triangle-normal
@@ -156,7 +164,11 @@
           aa-box-add-point!
           aa-box-low-corner aa-box-set-low-corner!
           aa-box-high-corner aa-box-set-high-corner!
+
+          aa-box-contains-point
           aa-box-contains-aa-box
+          aa-box-intersects-aa-box
+          aa-box-intersects-aa-box
           aa-box-center
 
           best-aligned-vector
@@ -784,6 +796,36 @@
                 (/ (vector3-z v) d))))
 
 
+    (define (triangle? T)
+      (and (vector? T)
+           (= (vector-length T) 3)
+           (= (vector-length (vector-ref T 0)) 3)
+           (= (vector-length (vector-ref T 1)) 3)
+           (= (vector-length (vector-ref T 2)) 3)))
+
+
+    (define (triangle-p0 T)
+      ;; T is #(P0 P1 P2), the P's are vectors of length 3
+      (vector-ref T 0))
+
+    (define (triangle-p1 T)
+      ;; T is #(P0 P1 P2), the P's are vectors of length 3
+      (vector-ref T 1))
+
+    (define (triangle-p2 T)
+      ;; T is #(P0 P1 P2), the P's are vectors of length 3
+      (vector-ref T 2))
+
+
+    (define (triangle-segment T n)
+      ;; T is #(P0 P1 P2), the P's are vectors of length 3
+      (snow-assert (>= n 0))
+      (snow-assert (< n 3))
+      (cond ((= n 0) (vector (triangle-p0 T) (triangle-p1 T)))
+            ((= n 1) (vector (triangle-p1 T) (triangle-p2 T)))
+            ((= n 2) (vector (triangle-p2 T) (triangle-p0 T)))))
+
+
     (define (quaternion-equal? q0 q1)
       ;; return #t if q0 and q1 are the same or almost the same
       (and (< (vector-max (vector (abs (- (quat-s q0) (quat-s q1)))
@@ -986,6 +1028,17 @@
                               #f ;; line but not ray intersection
                               )))))))))
 
+
+    (define (triangle-triangle-intersection T0 T1)
+      ;; T0 is #(P0 P1 P2), the P's are vectors of length 3
+      ;; T1 is #(P0 P1 P2), the P's are vectors of length 3
+      (cond ((segment-triangle-intersection (triangle-segment T0 0) T1) #t)
+            ((segment-triangle-intersection (triangle-segment T0 1) T1) #t)
+            ((segment-triangle-intersection (triangle-segment T0 2) T1) #t)
+            ((segment-triangle-intersection (triangle-segment T1 0) T0) #t)
+            ((segment-triangle-intersection (triangle-segment T1 1) T0) #t)
+            ((segment-triangle-intersection (triangle-segment T1 2) T0) #t)
+            (else #f)))
 
 
     ;; http://mathworld.wolfram.com/Plane-PlaneIntersection.html
@@ -1660,6 +1713,17 @@
                      (maxf (vector-ref prev-high 2) (vector-ref p 2))
                      (vector-ref prev-high 2))))))
 
+    (define (aa-box-contains-point box P)
+      (let ((box-low (aa-box-low-corner box))
+            (box-high (aa-box-high-corner box)))
+        (and (>= (vector3-x P) (vector3-x box-low))
+             (>= (vector3-y P) (vector3-y box-low))
+             (>= (vector3-z P) (vector3-z box-low))
+             (<= (vector3-x P) (vector3-x box-high))
+             (<= (vector3-y P) (vector3-y box-high))
+             (<= (vector3-z P) (vector3-z box-high)))))
+
+
     (define (aa-box-contains-aa-box big-box small-box)
       (let ((big-box-low (aa-box-low-corner big-box))
             (big-box-high (aa-box-high-corner big-box))
@@ -1671,6 +1735,29 @@
              (>= (vector3-x big-box-high) (vector3-x small-box-high))
              (>= (vector3-y big-box-high) (vector3-y small-box-high))
              (>= (vector3-z big-box-high) (vector3-z small-box-high)))))
+
+
+    (define (aa-box-intersects-aa-box box0 box1)
+      (let ((box0-low (aa-box-low-corner box0))
+            (box0-high (aa-box-high-corner box0))
+            (box1-low (aa-box-low-corner box1))
+            (box1-high (aa-box-high-corner box1)))
+        (or (aa-box-contains-point box0 (vector (vector3-x box1-low) (vector3-y box1-low) (vector3-z box1-low)))
+            (aa-box-contains-point box0 (vector (vector3-x box1-low) (vector3-y box1-low) (vector3-z box1-high)))
+            (aa-box-contains-point box0 (vector (vector3-x box1-low) (vector3-y box1-high) (vector3-z box1-low)))
+            (aa-box-contains-point box0 (vector (vector3-x box1-low) (vector3-y box1-high) (vector3-z box1-high)))
+            (aa-box-contains-point box0 (vector (vector3-x box1-high) (vector3-y box1-low) (vector3-z box1-low)))
+            (aa-box-contains-point box0 (vector (vector3-x box1-high) (vector3-y box1-low) (vector3-z box1-high)))
+            (aa-box-contains-point box0 (vector (vector3-x box1-high) (vector3-y box1-high) (vector3-z box1-low)))
+            (aa-box-contains-point box0 (vector (vector3-x box1-high) (vector3-y box1-high) (vector3-z box1-high)))
+            (aa-box-contains-point box1 (vector (vector3-x box0-low) (vector3-y box0-low) (vector3-z box0-low)))
+            (aa-box-contains-point box1 (vector (vector3-x box0-low) (vector3-y box0-low) (vector3-z box0-high)))
+            (aa-box-contains-point box1 (vector (vector3-x box0-low) (vector3-y box0-high) (vector3-z box0-low)))
+            (aa-box-contains-point box1 (vector (vector3-x box0-low) (vector3-y box0-high) (vector3-z box0-high)))
+            (aa-box-contains-point box1 (vector (vector3-x box0-high) (vector3-y box0-low) (vector3-z box0-low)))
+            (aa-box-contains-point box1 (vector (vector3-x box0-high) (vector3-y box0-low) (vector3-z box0-high)))
+            (aa-box-contains-point box1 (vector (vector3-x box0-high) (vector3-y box0-high) (vector3-z box0-low)))
+            (aa-box-contains-point box1 (vector (vector3-x box0-high) (vector3-y box0-high) (vector3-z box0-high))))))
 
 
     (define (polar-coordinates->cartesian radius theta phi)

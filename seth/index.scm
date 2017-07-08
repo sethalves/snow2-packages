@@ -94,8 +94,8 @@
     (name ())
     (version "1.0")
     (url "model-3d.tgz")
-    (size 62976)
-    (checksum (md5 "a001fe068371729919d3d860f493fc7c"))
+    (size 64000)
+    (checksum (md5 "139033917369da9e15c4359334017b4b"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
@@ -114,6 +114,7 @@
         (srfi 95)
         (snow assert)
         (snow input-parse)
+        (snow random)
         (seth cout)
         (seth math-3d)
         (seth octree))

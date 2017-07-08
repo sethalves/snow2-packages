@@ -87,6 +87,7 @@
    translate-model
    model->octree
    model->convex-hull
+   model->bullet-hull
    )
 
   (import (scheme base)
@@ -1005,6 +1006,19 @@
                            (face-loop (cdr faces) best-face best-distance)))))))))
 
 
+    (define (triangle-model-intersection model octree T)
+      ;; returns #t if triangle intersects any triangle from the model
+      (let loop ((octree-parts (octree-triangle-intersection octree T)))
+        (if (null? octree-parts) #f
+            (let face-loop ((faces (octree-contents (car octree-parts))))
+              (if (null? faces) (loop (cdr octree-parts))
+                  (let* ((vertices (face->vertices model (car faces)))
+                         (does-intersect (if (= (vector-length vertices) 3)
+                                             (triangle-triangle-intersection T vertices)
+                                             #f)))
+                    (cond (does-intersect #t)
+                          (else (face-loop (cdr faces))))))))))
+
 
     (define (add-top-texture-coordinates model xz-scale material face-filter)
       ;; put a y-normal texture face up over the rectangle from (0,0) to xz-scale
@@ -1390,5 +1404,34 @@
                                               (edge-loop (cons (car new-edges) edges) (cdr new-edges)))))))
                                    (else
                                     (loop (+ step 1) (cdr edges)))))))))))))))
+
+
+    (define (model->bullet-hull model)
+      ;; make each face into a tetrahedron with each tetrahedron its own sub-object.  the result is
+      ;; suitable for "compound" collision shapes in bullet
+      (let ((hull-model (make-empty-model))
+            (material (make-material "default")))
+        (for-each-face
+         model
+         (lambda (face)
+           (let* ((T (face->vertices-list model face))
+                  (i (list-ref T 0))
+                  (j (list-ref T 1))
+                  (k (list-ref T 2))
+                  (center (apply vector3-average T))
+                  (normal (face->average-normal model face))
+                  (normal-flipped (vector-scale normal -1.0))
+                  (shortest (min (vector3-length (vector3-diff i j))
+                                 (vector3-length (vector3-diff i k))))
+                  (normal-scaled (vector3-scale normal-flipped (* shortest 0.8)))
+                  (new-vertex (vector3-sum center normal-flipped))
+                  (mesh (make-mesh #f '())))
+             (model-prepend-mesh! hull-model mesh)
+             (mesh-append-triangle! hull-model mesh material T)
+             (mesh-append-triangle! hull-model mesh material (list i new-vertex j))
+             (mesh-append-triangle! hull-model mesh material (list j new-vertex k))
+             (mesh-append-triangle! hull-model mesh material (list k new-vertex i))
+             )))
+        hull-model))
 
     ))
