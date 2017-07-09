@@ -1038,7 +1038,8 @@
                      (model-append-texture-coordinate!
                       model
                       (vector (number->pretty-string (/ (vector3-x vertex) (vector2-x xz-scale)) 6)
-                              (number->pretty-string (/ (vector3-z vertex) (vector2-y xz-scale)) 6)))
+                              (number->pretty-string (/ (- (vector2-y xz-scale) (vector3-z vertex)) (vector2-y xz-scale))
+                                                     6)))
                      (face-corner-set-texture-index! face-corner index)))
                  (face-corners face))
                 (face-set-material! face material)))
