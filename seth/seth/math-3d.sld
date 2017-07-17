@@ -18,6 +18,8 @@
           average
           +f
           fmod
+          vector2?
+          vector3?
           vector2-x
           vector2-y
           vector3-x
@@ -307,6 +309,9 @@
             ((and (> v 0.0) (> v m)) (fmod (- v m) m))
             ((and (< v 0.0) (< v (- m))) (fmod (+ v m) m))
             (else v)))
+
+    (define (vector2? v) (and (vector? v) (= (vector-length v) 2)))
+    (define (vector3? v) (and (vector? v) (= (vector-length v) 3)))
 
     (define (vector2-x v) (vector-ref v 0))
     (define (vector2-y v) (vector-ref v 1))

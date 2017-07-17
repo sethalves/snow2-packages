@@ -56,6 +56,8 @@
    face-corner-normal-index face-corner-set-normal-index!
    face-corner->vertex
    face-corner->normal
+   face-corner->texture-coordinate
+   face-corner-set-texture-coordinate!
    ;; faces
    make-face
    model-contains-face
@@ -88,12 +90,17 @@
    model->octree
    model->convex-hull
    model->bullet-hull
+
+   ;; edge graph
+   model->edge-graph
+   apply-texture-across-edge-graph
    )
 
   (import (scheme base)
           (scheme file)
           (scheme write)
           (scheme cxr)
+          (scheme inexact)
           (srfi 1)
           (srfi 13)
           (srfi 29)
@@ -104,7 +111,9 @@
           (snow random)
           (seth cout)
           (seth math-3d)
-          (seth octree))
+          (seth octree)
+          (seth graph)
+          )
 
   (cond-expand
    (chicken (import (extras)))
@@ -129,12 +138,10 @@
       (snow-assert (coordinates? coords))
       (snow-assert (vector? new-coord))
       (snow-assert (every string? (vector->list new-coord)))
-      (coordinates-set-lst!
-       coords
-       (cons new-coord (coordinates-lst coords)))
-      (coordinates-set-lst-len!
-       coords
-       (+ (coordinates-lst-len coords) 1)))
+      (coordinates-set-lst! coords (cons new-coord (coordinates-lst coords)))
+      (let ((new-list-len (+ (coordinates-lst-len coords) 1)))
+        (coordinates-set-lst-len! coords new-list-len)
+        (- (+ (vector-length (coordinates-vec coords)) new-list-len) 1)))
 
     (define (coordinates-compact coords)
       (snow-assert (coordinates? coords))
@@ -275,15 +282,24 @@
       (make-face-corner~ vertex-index texture-index normal-index))
 
 
+    (define (face-corner-set-texture-coordinate! model face-corner tex-coord)
+      (snow-assert (model? model))
+      (snow-assert (face-corner? face-corner))
+      (snow-assert (vector2? tex-coord))
+      (let ((texture-coord-index (model-append-texture-coordinate! model tex-coord)))
+        (face-corner-set-texture-index! face-corner texture-coord-index)))
+
+
     ;; a face is a list of face corners and a material
     (define-record-type <face>
-      (make-face~ corners material)
+      (make-face~ corners material tag)
       face?
       (corners face-corners face-set-corners!) ;; corners is a vector
-      (material face-material face-set-material!))
+      (material face-material face-set-material!)
+      (tag face-tag face-set-tag!))
 
 
-    (define (make-face model corners material)
+    (define (make-face model corners material . maybe-tag)
       (snow-assert (model? model))
       (snow-assert (vector? corners))
       (vector-for-each
@@ -291,7 +307,25 @@
          (snow-assert (face-corner? corner)))
        corners)
       (snow-assert (or (material? material) (not material)))
-      (make-face~ corners material))
+      (make-face~ corners material (if (null? maybe-tag) #f (car maybe-tag))))
+
+
+    (define (face-corners->edge-index face corner-a corner-b)
+      (let loop ((index 0)
+                 (corners (vector->list (face-corners face))))
+        (cond ((null? corners) #f)
+              ((null? (cdr corners))
+               (cond ((and (eq? corner-a (car corners)) (eq? corner-b (vector-ref (face-corners face) 0))) index)
+                     ((and (eq? corner-b (car corners)) (eq? corner-a (vector-ref (face-corners face) 0))) index)
+                     (else #f)))
+              ((and (eq? corner-a (car corners)) (eq? corner-b (cadr corners))) index)
+              ((and (eq? corner-b (car corners)) (eq? corner-a (cadr corners))) index)
+              (else
+               (loop (+ index 1) (cdr corners))))))
+
+    (define (get-face-corner face index)
+      (let ((corners (face-corners face)))
+        (vector-ref corners (modulo index (vector-length corners)))))
 
 
     (define (model-contains-face model face)
@@ -398,8 +432,15 @@
             ((face-has-vertices-in-a-line model face) #t)
             (else #f)))
 
+
     (define (model-clear-texture-coordinates! model)
-      (model-set-texture-coordinates! model (make-coordinates)))
+      (snow-assert (model? model))
+      (model-set-texture-coordinates! model (make-coordinates))
+      (operate-on-face-corners
+       model
+       (lambda (mesh face face-corner)
+         (face-corner-set-texture-index! face-corner 'unset)
+         face-corner)))
 
 
     (define (model-append-texture-coordinate! model v)
@@ -418,6 +459,15 @@
                         (coordinates-ref (model-vertices model) index)))))
 
 
+    (define (face-corner->string model face-corner)
+      (snow-assert (model? model))
+      (snow-assert (face-corner? face-corner))
+      (let ((index (face-corner-vertex-index face-corner)))
+        (if (eq? index 'unset)
+            #f
+            (string-join (vector->list (coordinates-ref (model-vertices model) index)) ","))))
+
+
     (define (face-corner->normal model face-corner)
       (snow-assert (model? model))
       (snow-assert (face-corner? face-corner))
@@ -425,6 +475,15 @@
         (if (eq? index 'unset) 'unset
             (vector-map string->number
                         (coordinates-ref (model-normals model) index)))))
+
+
+    (define (face-corner->texture-coordinate model face-corner)
+      (snow-assert (model? model))
+      (snow-assert (face-corner? face-corner))
+      (let ((index (face-corner-texture-index face-corner)))
+        (if (eq? index 'unset) 'unset
+            (vector-map string->number
+                        (coordinates-ref (model-texture-coordinates model) index)))))
 
 
     (define (for-each-mesh model proc)
@@ -1434,5 +1493,206 @@
              (mesh-append-triangle! hull-model mesh material (list k new-vertex i))
              )))
         hull-model))
+
+
+    (define-record-type <eg-node-data>
+      (make-eg-node-data face extra-data)
+      eg-node-data?
+      (face eg-node-data-face eg-node-data-set-face!)
+      (extra-data eg-node-data-extra-data eg-node-data-set-extra-data!))
+
+
+    (define-record-type <eg-edge-data>
+      (make-eg-edge-data start-face-edge-index end-face-edge-index)
+      eg-edge-data?
+      (start-face-edge-index eg-edge-data-start-face-edge-index eg-edge-data-set-start-face-edge-index!)
+      (end-face-edge-index eg-edge-data-end-face-edge-index eg-edge-data-set-end-face-edge-index!))
+
+
+    (define (model->edge-graph model)
+      (define (sort-face-corners face-corners)
+        (sort face-corners (lambda (corner-a corner-b)
+                             (let ((v-a (face-corner->vertex model corner-a))
+                                   (v-b (face-corner->vertex model corner-b)))
+                               (cond ((< (vector3-x v-a) (vector3-x v-b)) #t)
+                                     ((> (vector3-x v-a) (vector3-x v-b)) #f)
+                                     ((< (vector3-y v-a) (vector3-y v-b)) #t)
+                                     ((> (vector3-y v-a) (vector3-y v-b)) #f)
+                                     ((< (vector3-z v-a) (vector3-z v-b)) #t)
+                                     (else #f))))))
+
+      (define (face-corners->hash-key face-corner-a face-corner-b)
+        (let* ((ordered-face-corners (sort-face-corners (list face-corner-a face-corner-b)))
+               (face-corner-1st (car ordered-face-corners))
+               (face-corner-2nd (cadr ordered-face-corners)))
+          (string-append (face-corner->string model face-corner-1st) ";"
+                         (face-corner->string model face-corner-2nd))))
+
+      (define nodes-touching-face-edge (make-hash-table))
+
+      (define (associate-node-with-face-edge face-corner-a face-corner-b node index)
+        (let ((vertex-a (face-corner->vertex model face-corner-a))
+              (vertex-b (face-corner->vertex model face-corner-b))
+              (key (face-corners->hash-key face-corner-a face-corner-b)))
+          (let ((current-faces (hash-table-ref/default nodes-touching-face-edge key (list))))
+            (hash-table-set! nodes-touching-face-edge key (cons (list node index) current-faces)))))
+
+      (define (for-each-directional-pairing lst worker)
+        (define (go-one-direction lst)
+          (let one-loop ((one-lst lst))
+            (cond ((null? one-lst) #t)
+                  (else
+                   (let other-loop ((other-lst (cdr one-lst)))
+                     (cond ((null? other-lst)
+                            (one-loop (cdr one-lst)))
+                           (else
+                            (worker (car one-lst) (car other-lst))
+                            (other-loop (cdr other-lst)))))))))
+        (go-one-direction lst)
+        (go-one-direction (reverse lst)))
+
+      (let ((graph (make-graph)))
+
+        ;; add nodes to hash table, once for each of their face borders.  the keys of the hash-table
+        ;; are sorted vertices converted to strings.  the values are (list <node> edge-index)
+        (for-each-face
+         model
+         (lambda (face)
+           (let ((node (make-node graph (make-eg-node-data face #f))))
+             (let loop ((i 0)
+                        (corners (vector->list (face-corners face))))
+               (cond ((null? corners) #t)
+                     ((null? (cdr corners))
+                      (associate-node-with-face-edge (car corners) (vector-ref (face-corners face) 0) node i)
+                      (loop (+ i 1) (cdr corners)))
+                     (else
+                      (associate-node-with-face-edge (car corners) (cadr corners) node i)
+                      (loop (+ i 1) (cdr corners))))))))
+
+        (for-each
+         (lambda (key)
+           ;; (cout key " --> " (hash-table-ref/default nodes-touching-face-edge key #f) "\n")
+           (for-each-directional-pairing
+            (hash-table-ref/default nodes-touching-face-edge key '())
+            (lambda (node-and-index-a node-and-index-b)
+              (let* ((node-a (car node-and-index-a))
+                     (index-a (cadr node-and-index-a))
+                     (node-b (car node-and-index-b))
+                     (index-b (cadr node-and-index-b)))
+                (connect-nodes graph node-a node-b (make-eg-edge-data index-a index-b))
+                ;; (connect-nodes graph node-b node-a (make-eg-edge-data index-b index-a))
+                ))))
+         (hash-table-keys nodes-touching-face-edge))
+
+        graph))
+
+
+    (define (apply-texture-to-node model edge-graph material face-filter texture-coords-scale
+                                   node border-index tex-coord-a tex-coord-b)
+      (let* ((node-data (node-value node))
+             (marked (eg-node-data-extra-data node-data)))
+        (if marked
+            (list) ;; we've already been to this node.  return an empty list of other nodes to recurse to
+            (let* ((face (eg-node-data-face node-data))
+                   (corners (face-corners face))
+                   (corner-count (vector-length corners))
+                   (set-texture-coords
+                    (lambda (index)
+                      (let* ((corner-a (get-face-corner face index))
+                             (tex-coord-a (face-corner->texture-coordinate model corner-a))
+                             (v-a (face-corner->vertex model corner-a))
+                             (corner-b (get-face-corner face (+ index 1)))
+                             (tex-coord-b (face-corner->texture-coordinate model corner-b))
+                             (v-b (face-corner->vertex model corner-b))
+                             (corner-c (get-face-corner face (+ index 2)))
+                             (v-c (face-corner->vertex model corner-c))
+                             ;; a's and b's tex-coords are known, set c's
+                             (texture-delta (vector2-diff tex-coord-b tex-coord-a))
+                             (texture-initial-angle (atan2 (vector2-y texture-delta) (vector2-x texture-delta)))
+                             (angle-change (angle-between-vectors (vector3-diff v-b v-a) (vector3-diff v-c v-b)))
+                             )
+                        (cond ((and angle-change texture-initial-angle)
+                               (let* ((texture-new-angle (+ texture-initial-angle angle-change))
+                                      (next-segment-length (vector3-length (vector3-diff v-c v-b)))
+                                      (tex-coord-c
+                                       (vector2-sum tex-coord-b
+                                                    (vector2-scale
+                                                     (vector (cos texture-new-angle) (sin texture-new-angle))
+                                                     (* next-segment-length texture-coords-scale)))))
+                                 ;; (cout index " " tex-coord-c "\n")
+                                 (face-corner-set-texture-coordinate! model corner-c
+                                                                  (vector-map number->pretty-string tex-coord-c))
+                                 ))
+                              (else
+                               (cout "bad\n")))
+                        )))
+                   )
+              (eg-node-data-set-extra-data! node-data #t) ;; so we don't revisit this node, later
+              ;; fill in the texture coordinates of the first two corners
+              (face-corner-set-texture-coordinate! model (get-face-corner face border-index)
+                                                   (vector-map number->pretty-string tex-coord-a))
+              (face-corner-set-texture-coordinate! model (get-face-corner face (+ border-index 1))
+                                                   (vector-map number->pretty-string tex-coord-b))
+
+              ;; figure out the texture vertices for the rest of the face-corners
+              (do ((i border-index (+ i 1)))
+                  ((= i corner-count) #t)
+                (set-texture-coords i ))
+              (do ((i 0 (+ i 1)))
+                  ((= i border-index) #t)
+                (set-texture-coords i))
+
+
+              ;; return a list of other faces to recurse to
+              (map
+               (lambda (node-edge)
+                 (let* ((edge-data (edge-value node-edge))
+                        (start-face-edge-index (eg-edge-data-start-face-edge-index edge-data))
+                        (face (eg-node-data-face node-data))
+                        (corner-a (get-face-corner face start-face-edge-index))
+                        (corner-b (get-face-corner face (+ start-face-edge-index 1)))
+                        (end-face-edge-index (eg-edge-data-end-face-edge-index edge-data)))
+                   ;; (cout start-face-edge-index " --> " end-face-edge-index "\n")
+                   (list
+                    (edge-other-node node-edge node)
+                    end-face-edge-index
+                    (face-corner->texture-coordinate model corner-b)
+                    (face-corner->texture-coordinate model corner-a))))
+               (filter (lambda (node-edge) (eq? (edge-start-node node-edge) node)) (node-edges node)))
+
+              ))))
+
+
+    (define (apply-texture-across-edge-graph model edge-graph material face-filter texture-coords-scale)
+      (let* ((nodes (graph-nodes edge-graph))
+             (first-node (car nodes))
+             (node-data (node-value first-node))
+             (face (eg-node-data-face node-data))
+             (corners (face-corners face))
+             (border-index 0)
+             (corner-a (vector-ref corners 0))
+             (corner-b (vector-ref corners 1))
+             (vertex-a (face-corner->vertex model corner-a))
+             (vertex-b (face-corner->vertex model corner-b))
+             (border-length (vector3-length (vector3-diff vertex-b vertex-a)))
+             (tex-coord-a (vector 0 0))
+             (tex-coord-b (vector 0 (* border-length texture-coords-scale)))
+             (do-next-sorter (lambda (a b)
+                               (< (vector2-length (vector2-diff (list-ref b 2) (list-ref b 3)))
+                                  (vector2-length (vector2-diff (list-ref a 2) (list-ref a 3)))))))
+
+        (let loop ((do-next-list
+                    (apply-texture-to-node model edge-graph material face-filter texture-coords-scale
+                                           first-node border-index tex-coord-a tex-coord-b)))
+          (cond ((null? do-next-list) #t)
+                (else
+                 ;; sort the longer edges to the front
+                 (let* ((do-next-list-sorted (sort do-next-list do-next-sorter))
+                        (do-next (car do-next-list-sorted)))
+                   (loop (append
+                          (apply-texture-to-node model edge-graph material face-filter texture-coords-scale
+                                                 (list-ref do-next 0) (list-ref do-next 1)
+                                                 (list-ref do-next 2) (list-ref do-next 3))
+                          (cdr do-next-list-sorted)))))))))
 
     ))
