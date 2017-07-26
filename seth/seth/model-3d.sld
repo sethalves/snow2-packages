@@ -1,5 +1,16 @@
 (define-library (seth model-3d)
   (export
+   ;; vertex
+   make-vertex
+   vertex?
+   vertex-position vertex-set-position!
+   vertex-color vertex-set-color!
+   make-vertex-from-point/color
+   vertex-position->vector3
+   vertex-color->vector3
+   vertex-scale
+   vertex-transform
+   vertex-translate
    ;; coordinates
    make-coordinates
    coordinates-append!
@@ -28,11 +39,11 @@
    model-append-vertex!
    model-append-deduped-vertex!
    model-append-normal!
+   model-append!
    ;; materials
    make-material
    material?
    material-name material-set-name!
-   add-simple-texture-coordinates
    ray-cast
    add-top-texture-coordinates
    set-all-faces-to-material
@@ -54,7 +65,7 @@
    face-corner-vertex-index face-corner-set-vertex-index!
    face-corner-texture-index face-corner-set-texture-index!
    face-corner-normal-index face-corner-set-normal-index!
-   face-corner->vertex
+   face-corner->position
    face-corner->normal
    face-corner->texture-coordinate
    face-corner-set-texture-coordinate!
@@ -73,7 +84,8 @@
    face->normals
    face->average-normal
    face-set-normals!
-   fix-face-winding
+   fix-face-winding!
+   smooth-normals!
    shift-face-indices
    ;; mapers/iterators
    for-each-mesh
@@ -94,6 +106,8 @@
    ;; edge graph
    model->edge-graph
    apply-texture-across-edge-graph
+
+   set-vertex-colors!
    )
 
   (import (scheme base)
@@ -106,7 +120,7 @@
           (srfi 29)
           (srfi 69)
           (srfi 95)
-          (snow assert)
+          ;; (snow assert)
           (snow input-parse)
           (snow random)
           (seth cout)
@@ -121,9 +135,94 @@
 
   (begin
 
+    (define-syntax snow-assert
+      (syntax-rules ()
+        ((_ e) #t)))
+
     (define vector-tolerance 0.000001)
 
-    ;; a generic sequence of vectors of strings (coordinates)
+
+    (define (value->pretty-string v)
+      (cond ((eq? v 'unset) 'unset)
+            ((eq? v #f) 'unset)
+            (else (number->pretty-string v))))
+
+
+    (define (string-vector2? v)
+      (and (vector? v)
+           (= (vector-length v) 2)
+           (every string? (vector->list v))))
+
+
+    (define (string-vector3? v)
+      (and (vector? v)
+           (= (vector-length v) 3)
+           (every string? (vector->list v))))
+
+
+    (define-record-type <vertex>
+      (make-vertex~ position color)
+      vertex?
+      (position vertex-position vertex-set-position!)
+      (color vertex-color vertex-set-color!))
+
+
+    (define (make-vertex position color)
+      (string-vector3? position)
+      (string-vector3? color)
+      (make-vertex~ position color))
+
+
+    (define (make-vertex-from-point/color p c)
+      (snow-assert (vector3? p))
+      (snow-assert (or (not c) (vector? c))) ;; may be #f or a vector of 'unset
+      (make-vertex
+       (vector-map value->pretty-string p)
+       (if c
+           (vector-map value->pretty-string c)
+           (vector 'unset 'unset 'unset))))
+
+
+    (define (vertex-position->vector3 v)
+      (snow-assert (vertex? v))
+      (vector-map string->number (vertex-position v)))
+
+
+    (define (vertex-color->vector3 v)
+      (snow-assert (vertex? v))
+      (vector-map string->number (vertex-color v)))
+
+
+    (define (vector3->string-vector3 str-vec)
+      (snow-assert (vector3? str-vec))
+      (vector-map value->pretty-string str-vec))
+
+
+    (define (vertex-scale vertex s)
+      (snow-assert (vertex? vertex))
+      (snow-assert (number? s))
+      (make-vertex
+       (vector3->string-vector3 (vector3-scale (vertex-position->vector3 vertex) s))
+       (vertex-color vertex)))
+
+
+    (define (vertex-transform matrix vertex)
+      (snow-assert (vertex? vertex))
+      (snow-assert (vector? matrix))
+      (make-vertex
+       (vector3->string-vector3
+        (let* ((pos (vertex-position->vector3 vertex)))
+          (vector4->3 (matrix-A*B matrix (vector3->4 pos)))))
+       (vertex-color vertex)))
+
+    (define (vertex-translate vertex by-offset)
+      (make-vertex
+       (let ((fvertex (vector-map string->number (vertex-position vertex))))
+         (vector-map value->pretty-string (vector3-sum fvertex by-offset)))
+       (vertex-color vertex)))
+
+
+    ;; a generic sequence of vertexes or (vector string string string)
     (define-record-type <coordinates>
       (make-coordinates~ vec rev-lst lst-len)
       coordinates?
@@ -136,8 +235,7 @@
 
     (define (coordinates-append! coords new-coord)
       (snow-assert (coordinates? coords))
-      (snow-assert (vector? new-coord))
-      (snow-assert (every string? (vector->list new-coord)))
+      (snow-assert (or (vertex? new-coord) (string-vector3? new-coord) (string-vector2? new-coord)))
       (coordinates-set-lst! coords (cons new-coord (coordinates-lst coords)))
       (let ((new-list-len (+ (coordinates-lst-len coords) 1)))
         (coordinates-set-lst-len! coords new-list-len)
@@ -164,8 +262,7 @@
 
     (define (coordinates-find coords v)
       (snow-assert (coordinates? coords))
-      (snow-assert (vector? v))
-      (snow-assert (every string? (vector->list v)))
+      (snow-assert (vertex? v))
       (coordinates-compact coords)
       (let* ((as-vec (coordinates-vec coords))
              (v-len (vector-length as-vec)))
@@ -177,17 +274,20 @@
 
 
     (define (coordinates-as-vector coords)
+      (snow-assert (coordinates? coords))
       (coordinates-compact coords)
       (coordinates-vec coords))
 
 
-    (define (coordinates-as-numeric-vector coords)
+    (define (coordinates->positions-vector coords)
+      (snow-assert (coordinates? coords))
       (vector-map
-       (lambda (vertex) (vector-map string->number vertex))
+       vertex-position->vector3
        (coordinates-as-vector coords)))
 
 
     (define (coordinates-null? coords)
+      (snow-assert (coordinates? coords))
       (coordinates-compact coords)
       (= (vector-length (coordinates-vec coords)) 0))
 
@@ -246,7 +346,7 @@
                         new-material)))))))
 
 
-    ;; a mesh is a group of triangles defined by indexing into the
+    ;; a mesh is a list of triangles defined by indexing into the
     ;; model's vertexes
     (define-record-type <mesh>
       (make-mesh name faces)
@@ -285,7 +385,7 @@
     (define (face-corner-set-texture-coordinate! model face-corner tex-coord)
       (snow-assert (model? model))
       (snow-assert (face-corner? face-corner))
-      (snow-assert (vector2? tex-coord))
+      (snow-assert (string-vector2? tex-coord))
       (let ((texture-coord-index (model-append-texture-coordinate! model tex-coord)))
         (face-corner-set-texture-index! face-corner texture-coord-index)))
 
@@ -294,7 +394,7 @@
     (define-record-type <face>
       (make-face~ corners material tag)
       face?
-      (corners face-corners face-set-corners!) ;; corners is a vector
+      (corners face-corners face-set-corners!) ;; corners is a vector of <face-corner>
       (material face-material face-set-material!)
       (tag face-tag face-set-tag!))
 
@@ -445,27 +545,18 @@
 
     (define (model-append-texture-coordinate! model v)
       (snow-assert (model? model))
-      (snow-assert (vector? v))
-      (snow-assert (= (vector-length v) 2))
+      (snow-assert (string-vector2? v))
       (coordinates-append! (model-texture-coordinates model) v))
 
 
-    (define (face-corner->vertex model face-corner)
+    (define (face-corner->position model face-corner)
       (snow-assert (model? model))
       (snow-assert (face-corner? face-corner))
       (let ((index (face-corner-vertex-index face-corner)))
         (if (eq? index 'unset) #f
-            (vector-map string->number
-                        (coordinates-ref (model-vertices model) index)))))
+            (vertex-position->vector3
+             (coordinates-ref (model-vertices model) index)))))
 
-
-    (define (face-corner->string model face-corner)
-      (snow-assert (model? model))
-      (snow-assert (face-corner? face-corner))
-      (let ((index (face-corner-vertex-index face-corner)))
-        (if (eq? index 'unset)
-            #f
-            (string-join (vector->list (coordinates-ref (model-vertices model) index)) ","))))
 
 
     (define (face-corner->normal model face-corner)
@@ -556,7 +647,7 @@
       (vector-map
        (lambda (face-corner)
          (snow-assert (face-corner? face-corner))
-         (face-corner->vertex model face-corner))
+         (face-corner->position model face-corner))
        (face-corners face)))
 
     (define (face->vertices-list model face)
@@ -606,35 +697,31 @@
       (snow-assert (integer? vertex-index-start))
       (snow-assert (integer? texture-index-start))
       (snow-assert (integer? normal-index-start))
-      (vector-map
-       (lambda (corner)
-         (snow-assert (face-corner? corner))
-         (face-corner-set-vertex-index!
-          corner (+ (face-corner-vertex-index corner) vertex-index-start))
-         (if (not (eq? (face-corner-texture-index corner) 'unset))
-             (face-corner-set-texture-index!
-              corner (+ (face-corner-texture-index corner)
-                        texture-index-start)))
-         (if (not (eq? (face-corner-normal-index corner) 'unset))
-             (face-corner-set-normal-index!
-              corner (+ (face-corner-normal-index corner)
-                        normal-index-start))))
-       (face-corners face)))
+      (let ((new-corners
+             (vector-map
+              (lambda (corner)
+                (snow-assert (face-corner? corner))
+                (make-face-corner~
+                 (+ (face-corner-vertex-index corner) vertex-index-start)
+                 (if (eq? (face-corner-texture-index corner) 'unset) 'unset
+                     (+ (face-corner-texture-index corner) texture-index-start))
+                 (if (eq? (face-corner-normal-index corner) 'unset) 'unset
+                     (+ (face-corner-normal-index corner) normal-index-start))))
+              (face-corners face))))
+        (make-face~ new-corners (face-material face) (face-tag face))))
 
 
     (define (model-append-vertex! model v)
       ;; returns the index of the new vertex
       (snow-assert (model? model))
-      (snow-assert (vector? v))
-      (snow-assert (= (vector-length v) 3))
-      (snow-assert (string? (vector-ref v 0)))
-      (snow-assert (string? (vector-ref v 1)))
-      (snow-assert (string? (vector-ref v 2)))
+      (snow-assert (vertex? v))
       (coordinates-append! (model-vertices model) v)
       (- (coordinates-length (model-vertices model)) 1))
 
 
     (define (model-append-deduped-vertex! model v)
+      (snow-assert (model? model))
+      (snow-assert (vertex? v))
       ;; returns the index of a old vertex if a match is found, else the index of a new vertex
       (let* ((vertices (model-vertices model))
              (i (coordinates-find vertices v)))
@@ -644,28 +731,23 @@
     (define (model-append-normal! model v)
       ;; returns the index of the new normal
       (snow-assert (model? model))
-      (snow-assert (vector? v))
-      (snow-assert (= (vector-length v) 3))
-      (snow-assert (string? (vector-ref v 0)))
-      (snow-assert (string? (vector-ref v 1)))
-      (snow-assert (string? (vector-ref v 2)))
+      (snow-assert (string-vector3? v))
       (coordinates-append! (model-normals model) v)
       (- (coordinates-length (model-normals model)) 1))
 
 
     (define (mesh-prepend-face! model mesh face-corners material
-                                vertex-index-start texture-index-start
-                                normal-index-start inport)
+                                vertex-index-start texture-index-start normal-index-start)
       (snow-assert (mesh? mesh))
       (snow-assert (list? face-corners))
-      (let ((face (make-face model (list->vector face-corners) material)))
-        (shift-face-indices face vertex-index-start texture-index-start normal-index-start)
-        (cond ((not (face-is-degenerate? model face))
-               (mesh-set-faces! mesh (cons face (mesh-faces mesh))))
+      (let* ((face (make-face model (list->vector face-corners) material))
+             (face-shifted (shift-face-indices face vertex-index-start texture-index-start normal-index-start)))
+        (cond ((not (face-is-degenerate? model face-shifted))
+               (mesh-set-faces! mesh (cons face-shifted (mesh-faces mesh))))
               (else
                (cerr "warning: face is degenerate: "
                      (map
-                      (lambda (face-corner) (face-corner->vertex model face-corner))
+                      (lambda (face-corner) (face-corner->position model face-corner))
                       face-corners)
                      "\n"))
               )))
@@ -678,18 +760,23 @@
       (mesh-set-faces! mesh (reverse (cons face (reverse (mesh-faces mesh))))))
 
 
-    (define (mesh-append-triangle! model mesh material points)
+    (define (mesh-append-triangle! model mesh material points . maybe-colors)
       (snow-assert (model? model))
       (snow-assert (mesh? mesh))
       (snow-assert (list? points))
       (snow-assert (= (length points) 3))
-      (snow-assert (vector? (list-ref points 0)))
-      (snow-assert (vector? (list-ref points 1)))
-      (snow-assert (vector? (list-ref points 2)))
+      (snow-assert (vector3? (list-ref points 0)))
+      (snow-assert (vector3? (list-ref points 1)))
+      (snow-assert (vector3? (list-ref points 2)))
 
-      (let ((p0 (model-append-deduped-vertex! model (vector-map number->pretty-string (list-ref points 0))))
-            (p1 (model-append-deduped-vertex! model (vector-map number->pretty-string (list-ref points 1))))
-            (p2 (model-append-deduped-vertex! model (vector-map number->pretty-string (list-ref points 2)))))
+      (let* ((colors (if (null? maybe-colors)
+                         (list (vector 'unset 'unset 'unset)
+                               (vector 'unset 'unset 'unset)
+                               (vector 'unset 'unset 'unset))
+                         (car maybe-colors)))
+             (p0 (model-append-vertex! model (make-vertex-from-point/color (list-ref points 0) (list-ref colors 0))))
+             (p1 (model-append-vertex! model (make-vertex-from-point/color (list-ref points 1) (list-ref colors 1))))
+             (p2 (model-append-vertex! model (make-vertex-from-point/color (list-ref points 2) (list-ref colors 2)))))
         (mesh-append-face! model mesh
                            (make-face
                             model
@@ -700,7 +787,50 @@
                             material))))
 
 
+    (define (model-append! dst-model src-model . maybe-vertex-transformer)
+      (snow-assert (model? dst-model))
+      (snow-assert (model? src-model))
+      (let* ((vertex-transformer (if (null? maybe-vertex-transformer)
+                                     (lambda (v) v)
+                                     (car maybe-vertex-transformer)))
+             (vertex-index-start (coordinates-length (model-vertices dst-model)))
+             (texture-index-start (coordinates-length (model-texture-coordinates dst-model)))
+             (normal-index-start (coordinates-length (model-normals dst-model))))
+        (vector-for-each
+         (lambda (vertex) (model-append-vertex! dst-model (vertex-transformer vertex)))
+         (coordinates-as-vector (model-vertices src-model)))
+        (vector-for-each
+         (lambda (tex-coord) (model-append-texture-coordinate! dst-model tex-coord))
+         (coordinates-as-vector (model-texture-coordinates src-model)))
+        (vector-for-each
+         (lambda (normal) (model-append-normal! dst-model normal))
+         (coordinates-as-vector (model-normals src-model)))
+        (for-each
+         (lambda (material-library-name) (add-material-library dst-model material-library-name))
+         (model-material-libraries src-model))
+        ;; ;; flip the meshes around so we can prepend to the list
+        ;; (model-set-meshes! dst-model (reverse (model-meshes dst-model)))
+        (for-each-mesh
+         src-model
+         (lambda (src-mesh)
+           (snow-assert (mesh? src-mesh))
+           (let ((dst-mesh (make-mesh (mesh-name src-mesh) '())))
+             (model-prepend-mesh! dst-model dst-mesh)
+             (for-each
+              (lambda (src-face)
+                (let* ((dst-face (make-face~ (face-corners src-face) (face-material src-face) (face-tag src-face)))
+                       (dst-face-shifted
+                        (shift-face-indices dst-face vertex-index-start texture-index-start normal-index-start)))
+                  (mesh-set-faces! dst-mesh (cons dst-face-shifted (mesh-faces dst-mesh)))))
+              (mesh-faces src-mesh)))))
+        ;; ;; flip the meshes back
+        ;; (model-set-meshes! dst-model (reverse (model-meshes dst-model)))
+        ))
+
+
     (define (mesh-sort-faces-by-material-name model mesh)
+      (snow-assert (model? model))
+      (snow-assert (mesh? mesh))
       (mesh-set-faces!
        mesh
        (sort (mesh-faces mesh) (lambda (a b)
@@ -718,18 +848,17 @@
       (snow-assert (model? model))
       ;; make a mapping of vertex index to count of nearby vertexes
       (let* ((coords (model-vertices model))
-             (vertices (coordinates-as-numeric-vector coords))
+             (vertices (coordinates->positions-vector coords))
              (vertex-index->neighbor-indexes
               (vector-map
-               (lambda (vertex)
-                 (snow-assert (vector? vertex))
-                 (snow-assert (= (vector-length vertex) 3))
+               (lambda (pos)
+                 (snow-assert (vector3? pos))
                  (let loop ((j 0)
                             (neighbors '()))
                    (cond ((= j (vector-length vertices)) neighbors)
-                         ((eq? vertex (vector-ref vertices j))
+                         ((eq? pos (vector-ref vertices j))
                           (loop (+ j 1) neighbors))
-                         ((<= (distance-between-points vertex (vector-ref vertices j)) threshold)
+                         ((<= (distance-between-points pos (vector-ref vertices j)) threshold)
                           (loop (+ j 1) (cons j neighbors)))
                          (else
                           (loop (+ j 1) neighbors)))))
@@ -789,20 +918,31 @@
 
     (define (compact-obj-model model)
       ;; fix a model that has repeated points
+      (define (coord->key c)
+        (define (->str x)
+          (cond ((eq? x 'unset) "unset")
+                (else x)))
+        (cond ((vertex? c)
+               (string-join (map ->str (vector->list (vector-append (vertex-position c) (vertex-color c)))) ","))
+              ((string-vector3? c)
+               (string-join (map ->str (vector->list c)) ","))
+              (else
+               (snow-assert #f))))
 
-      (define (remap-index index orig-vector new-ht)
+      (define (remap-index index orig-coords new-ht)
         (snow-assert (or (eq? index 'unset) (number? index)))
-        (snow-assert (vector? orig-vector))
+        (snow-assert (vector? orig-coords))
         (snow-assert (hash-table? new-ht))
         (cond ((equal? index 'unset) 'unset)
               (else
-               (let* ((old-value (vector-ref orig-vector index))
-                      (old-key (string-join (vector->list old-value))))
+               (let* ((old-value (vector-ref orig-coords index))
+                      (old-key (coord->key old-value)))
                  (hash-table-ref new-ht old-key)))))
 
       (snow-assert (model? model))
 
       (let ((original-vertices (coordinates-as-vector (model-vertices model)))
+            (original-in-use (make-hash-table))
             (new-vertices (make-coordinates))
             (vertex-ht (make-hash-table))
             (vertex-n 0)
@@ -811,10 +951,24 @@
             (normal-ht (make-hash-table))
             (normal-n 0))
 
+        ;; figure out which vertices are used by any face
+        (operate-on-face-corners
+         model
+         (lambda (mesh face face-corner)
+           (let* ((index (face-corner-vertex-index face-corner))
+                  (vertex (coordinates-ref (model-vertices model) index))
+                  (key (coord->key vertex)))
+             (hash-table-set! original-in-use key #t)
+             face-corner)))
+
+        ;; use a hash-table to compact the points
         (vector-for-each
          (lambda (vertex)
-           (let ((key (string-join (vector->list vertex))))
-             (cond ((not (hash-table-exists? vertex-ht key))
+           (let ((key (coord->key vertex)))
+             (cond ((not (hash-table-exists? original-in-use key))
+                    ;; no face uses this vertex, so skip it.
+                    #f)
+                   ((not (hash-table-exists? vertex-ht key))
                     (hash-table-set! vertex-ht key vertex-n)
                     (set! vertex-n (+ vertex-n 1))
                     (coordinates-append! new-vertices vertex)))))
@@ -822,7 +976,7 @@
 
         (vector-for-each
          (lambda (normal)
-           (let ((key (string-join (vector->list normal))))
+           (let ((key (coord->key normal)))
              (cond ((not (hash-table-exists? normal-ht key))
                     (hash-table-set! normal-ht key normal-n)
                     (set! normal-n (+ normal-n 1))
@@ -831,7 +985,6 @@
 
         (model-set-vertices! model new-vertices)
         (model-set-normals! model new-normals)
-
 
         (operate-on-face-corners
          model
@@ -887,7 +1040,7 @@
            (face-corner-set-normal-index! corner normal-index))
          (vector->list (face-corners face)))))
 
-    (define (fix-face-winding model)
+    (define (fix-face-winding! model)
       (snow-assert (model? model))
       ;; obj files should have counter-clockwise points.  If we read normals
       ;; and the ordering on the points that define a face suggest that
@@ -931,115 +1084,21 @@
                  (else face))))))
 
 
-    (define (pick-u-v-axis~ vertices)
-      (snow-assert (vector? vertices))
-      (snow-assert (> (vector-length vertices) 2))
-      (let* ((vertex-0 (vector-ref vertices 0))
-             (vertex-1 (vector-ref vertices 1))
-             (vertex-last (vector-ref vertices (- (vector-length vertices) 1)))
-             ;; pick u and v axis.  u is along the line from vertex-0
-             ;; to vertex-1.  v is perpendicular to the u axis and to
-             ;; the normal of the triangle.
-             (u-axis (vector3-normalize (vector3-diff vertex-1 vertex-0)))
-             (diff-last-0 (vector3-diff vertex-last vertex-0))
-             (normal (cross-product u-axis diff-last-0))
-             (v-axis (vector3-normalize (cross-product normal u-axis))))
-        (values u-axis v-axis)))
-
-
-    (define (pick-u-v-axis vertices)
-      (snow-assert (vector? vertices))
-      (snow-assert (> (vector-length vertices) 2))
-      (let* ((vertex-0 (vector-ref vertices 0))
-             (vertex-1 (vector-ref vertices 1))
-             (vertex-last (vector-ref vertices (- (vector-length vertices) 1)))
-             (diff-1-0 (vector3-diff vertex-1 vertex-0))
-             (diff-last-0 (vector3-diff vertex-last vertex-0))
-             (normal (cross-product diff-1-0 diff-last-0))
-
-             (sx (vector3-normalize #(1 0 0)))
-             (sy (vector3-normalize #(0 1 0)))
-             (sz (vector3-normalize #(0 0 1)))
-             (best-normal-axis (worst-aligned-vector normal (list sx sy sz)))
-
-             (center (vector3-scale
-                      (apply vector3-sum (vector->list vertices))
-                      (/ 1.0 (vector-length vertices))))
-             (plane-intersection (triangle-plane-intersection
-                                  vertices (vector center best-normal-axis))))
-        (cond ((not plane-intersection)
-               (pick-u-v-axis~ vertices))
-
-              ;; ((vector3-almost-equal? normal zero-vector vector-tolerance)
-              ;;  (pick-u-v-axis~ vertices))
-
-              (else
-               (let* ((u0 (vector-ref plane-intersection 0))
-                      (u1 (vector-ref plane-intersection 1))
-                      (u-direction (vector3-diff u1 u0))
-                      (u-axis (vector3-normalize u-direction))
-                      (v-axis (vector3-normalize
-                               (cross-product normal u-axis))))
-                 (values u-axis v-axis))))))
-
-
-    (define (add-simple-texture-coordinates model scale material face-filter)
-      ;; transform each face to the corner of some supposed texture and decide
-      ;; on reasonable texture coords for the face.
+    (define (smooth-normals! model)
       (snow-assert (model? model))
-      ;; erase all the existing texture coordinates
-      ;; (model-clear-texture-coordinates! model)
-      ;; set new texture coordinates for every face
-      (operate-on-faces
-       model
-       (lambda (mesh face)
-         (snow-assert (mesh? mesh))
-         (snow-assert (face? face))
-         (if (face-filter model mesh face)
-             (let ((vertices (face->vertices model face))
-                   ;; pick a random offset for this face
-                   (face-uv-offset (vector
-                                    (/ (random-fixnum 1000.0) 1000.0)
-                                    (/ (random-fixnum 1000.0) 1000.0))))
-               (snow-assert (> (vector-length vertices) 2))
-               (let-values (((u-axis v-axis) (pick-u-v-axis vertices)))
-                 (let* ((vertex-0 (vector-ref vertices 0))
-                        ;; vertex-transformer takes a vertex in 3 space and maps
-                        ;; it into the coordinate system defined by the axis
-                        ;; we defined, above.
-                        (vertex-transformer
-                         (lambda (vertex x-offset)
-                           (let* ((dv (vector3-diff vertex vertex-0))
-                                  (x (+ (dot-product u-axis dv) x-offset))
-                                  (y (dot-product v-axis dv)))
-                             (vector2-sum face-uv-offset
-                                          (vector (* (vector2-x scale) x)
-                                                  (* (vector2-y scale) y))))))
-                        (vertex-transformer-no-offset
-                         (lambda (vertex) (vertex-transformer vertex 0.0)))
-                        ;; figure out how much we have to slide this face over
-                        ;; in order to have all the uv coord be positive.
-                        (un-offset-uvs
-                         (vector->list
-                          (vector-map vertex-transformer-no-offset vertices)))
-                        (offset
-                         (- (apply min (map vector2-x un-offset-uvs)))))
+      (let* ((face-index 0)
+             (vertex-count (coordinates-length (model-vertices model)))
+             (vertex-index->face-index-list (make-vector vertex-count '()))
+             )
+        (operate-on-faces
+         model
+         (lambda (mesh other-face)
+           #t))
 
-                   (vector-for-each
-                    (lambda (face-corner)
-                      (snow-assert (face-corner? face-corner))
-                      (let ((index (coordinates-length
-                                    (model-texture-coordinates model)))
-                            (vertex (face-corner->vertex model face-corner)))
-                        (model-append-texture-coordinate!
-                         model
-                         (vector-map
-                          (lambda (v) (number->pretty-string v 6))
-                          (vertex-transformer vertex offset)))
-                        (face-corner-set-texture-index! face-corner index)))
-                    (face-corners face))))
-               (face-set-material! face material)))
-         face)))
+        (operate-on-face-corners
+         model
+         (lambda (mesh face face-corner)
+           #t))))
 
 
     (define (ray-cast model octree segment)
@@ -1093,12 +1152,12 @@
                    (snow-assert (face-corner? face-corner))
                    (let ((index (coordinates-length
                                  (model-texture-coordinates model)))
-                         (vertex (face-corner->vertex model face-corner)))
+                         (vertex (face-corner->position model face-corner)))
                      (model-append-texture-coordinate!
                       model
-                      (vector (number->pretty-string (/ (vector3-x vertex) (vector2-x xz-scale)) 6)
-                              (number->pretty-string (/ (- (vector2-y xz-scale) (vector3-z vertex)) (vector2-y xz-scale))
-                                                     6)))
+                      (vector
+                       (value->pretty-string (/ (vector3-x vertex) (vector2-x xz-scale)))
+                       (value->pretty-string (/ (- (vector2-y xz-scale) (vector3-z vertex)) (vector2-y xz-scale)))))
                      (face-corner-set-texture-index! face-corner index)))
                  (face-corners face))
                 (face-set-material! face material)))
@@ -1108,17 +1167,20 @@
     (define (model-aa-box model)
       (cond ((coordinates-null? (model-vertices model)) #f)
             (else
-             (let* ((p0 (vector-map
-                         string->number
-                         (vector-ref
-                          (coordinates-as-vector (model-vertices model)) 0)))
+             (let* ((p0
+                     ;; (vector-map
+                     ;;     string->number
+                     ;;     (vector-ref
+                     ;;      (coordinates-as-vector (model-vertices model)) 0))
+                     (vertex-position->vector3
+                      (vector-ref (coordinates-as-vector (model-vertices model)) 0))
+                     )
                     (aa-box (make-aa-box p0 p0)))
                ;; insert all of the model's vertices into the axis-aligned
                ;; bounding box
                (vector-for-each
-                (lambda (p)
-                  (aa-box-add-point! aa-box (vector-map string->number p)))
-                (coordinates-as-vector (model-vertices model)))
+                (lambda (p) (aa-box-add-point! aa-box p))
+                (coordinates->positions-vector (model-vertices model)))
                aa-box))))
 
 
@@ -1155,11 +1217,7 @@
       (coordinates-set-vec!
        (model-vertices model)
        (vector-map
-        (lambda (vertex)
-          (vector-map
-           (lambda (p)
-             (number->pretty-string (* (string->number p) scaling-factor) 6))
-           vertex))
+        (lambda (vertex) (vertex-scale vertex scaling-factor))
         (coordinates-as-vector (model-vertices model)))))
 
 
@@ -1176,9 +1234,7 @@
       (coordinates-set-vec!
        (model-vertices model)
        (vector-map
-        (lambda (vertex)
-          (let ((fvertex (vector-map string->number vertex)))
-            (vector-map number->string (vector3-sum fvertex by-offset))))
+        (lambda (vertex) (vertex-translate vertex by-offset))
         (coordinates-as-vector (model-vertices model)))))
 
 
@@ -1347,7 +1403,7 @@
 
 
     (define (convex-hull-append-face model mesh T)
-      (let* ((vertices (coordinates-as-numeric-vector (model-vertices model)))
+      (let* ((vertices (coordinates->positions-vector (model-vertices model)))
              (T0 (vector-ref vertices (vector-ref T 0)))
              (T1 (vector-ref vertices (vector-ref T 1)))
              (T2 (vector-ref vertices (vector-ref T 2)))
@@ -1403,7 +1459,7 @@
 
     (define (model->convex-hull model)
       ;; slow and naive gift-wrapping convex-hull finder
-      (let* ((vertices (coordinates-as-numeric-vector (model-vertices model)))
+      (let* ((vertices (coordinates->positions-vector (model-vertices model)))
              (T0 (convex-hull-find-initial-triangle vertices)))
         (if (not T0)
             (begin
@@ -1486,6 +1542,7 @@
                   (normal-scaled (vector3-scale normal-flipped (* shortest 0.8)))
                   (new-vertex (vector3-sum center normal-flipped))
                   (mesh (make-mesh #f '())))
+             (cout "face: " i " " j " " k "\n")
              (model-prepend-mesh! hull-model mesh)
              (mesh-append-triangle! hull-model mesh material T)
              (mesh-append-triangle! hull-model mesh material (list i new-vertex j))
@@ -1512,14 +1569,23 @@
     (define (model->edge-graph model)
       (define (sort-face-corners face-corners)
         (sort face-corners (lambda (corner-a corner-b)
-                             (let ((v-a (face-corner->vertex model corner-a))
-                                   (v-b (face-corner->vertex model corner-b)))
+                             (let ((v-a (face-corner->position model corner-a))
+                                   (v-b (face-corner->position model corner-b)))
                                (cond ((< (vector3-x v-a) (vector3-x v-b)) #t)
                                      ((> (vector3-x v-a) (vector3-x v-b)) #f)
                                      ((< (vector3-y v-a) (vector3-y v-b)) #t)
                                      ((> (vector3-y v-a) (vector3-y v-b)) #f)
                                      ((< (vector3-z v-a) (vector3-z v-b)) #t)
                                      (else #f))))))
+
+      (define (face-corner->string model face-corner)
+        (snow-assert (model? model))
+        (snow-assert (face-corner? face-corner))
+        (let ((index (face-corner-vertex-index face-corner)))
+          (if (eq? index 'unset)
+              #f
+              (let ((v (coordinates-ref (model-vertices model) index)))
+                (string-join (vector->list (vertex-position v)) ",")))))
 
       (define (face-corners->hash-key face-corner-a face-corner-b)
         (let* ((ordered-face-corners (sort-face-corners (list face-corner-a face-corner-b)))
@@ -1531,8 +1597,8 @@
       (define nodes-touching-face-edge (make-hash-table))
 
       (define (associate-node-with-face-edge face-corner-a face-corner-b node index)
-        (let ((vertex-a (face-corner->vertex model face-corner-a))
-              (vertex-b (face-corner->vertex model face-corner-b))
+        (let ((vertex-a (face-corner->position model face-corner-a))
+              (vertex-b (face-corner->position model face-corner-b))
               (key (face-corners->hash-key face-corner-a face-corner-b)))
           (let ((current-faces (hash-table-ref/default nodes-touching-face-edge key (list))))
             (hash-table-set! nodes-touching-face-edge key (cons (list node index) current-faces)))))
@@ -1605,12 +1671,12 @@
                   (lambda (index)
                     (let* ((corner-a (get-face-corner face index))
                            (tex-coord-a (face-corner->texture-coordinate model corner-a))
-                           (v-a (face-corner->vertex model corner-a))
+                           (v-a (face-corner->position model corner-a))
                            (corner-b (get-face-corner face (+ index 1)))
                            (tex-coord-b (face-corner->texture-coordinate model corner-b))
-                           (v-b (face-corner->vertex model corner-b))
+                           (v-b (face-corner->position model corner-b))
                            (corner-c (get-face-corner face (+ index 2)))
-                           (v-c (face-corner->vertex model corner-c))
+                           (v-c (face-corner->position model corner-c))
                            ;; a's and b's tex-coords are known, set c's
                            (texture-delta (vector2-diff tex-coord-b tex-coord-a))
                            (texture-initial-angle (atan2 (vector2-y texture-delta) (vector2-x texture-delta)))
@@ -1624,13 +1690,13 @@
                                                    (vector (cos texture-new-angle) (sin texture-new-angle))
                                                    (* next-segment-length texture-coords-scale)))))
                                (face-corner-set-texture-coordinate!
-                                model corner-c (vector-map number->pretty-string tex-coord-c)))))))))
+                                model corner-c (vector-map value->pretty-string tex-coord-c)))))))))
             (face-set-material! face material)
             ;; fill in the texture coordinates of the first two corners
             (face-corner-set-texture-coordinate! model (get-face-corner face border-index)
-                                                 (vector-map number->pretty-string tex-coord-a))
+                                                 (vector-map value->pretty-string tex-coord-a))
             (face-corner-set-texture-coordinate! model (get-face-corner face (+ border-index 1))
-                                                 (vector-map number->pretty-string tex-coord-b))
+                                                 (vector-map value->pretty-string tex-coord-b))
 
             ;; figure out the texture vertices for the rest of the face-corners
             (do ((i border-index (+ i 1)))
@@ -1680,8 +1746,8 @@
                       (border-index 0)
                       (corner-a (vector-ref corners 0))
                       (corner-b (vector-ref corners 1))
-                      (vertex-a (face-corner->vertex model corner-a))
-                      (vertex-b (face-corner->vertex model corner-b))
+                      (vertex-a (face-corner->position model corner-a))
+                      (vertex-b (face-corner->position model corner-b))
                       (border-length (vector3-length (vector3-diff vertex-b vertex-a)))
                       (tex-coord-a (vector 0 0))
                       (tex-coord-b (vector 0 (* border-length texture-coords-scale)))
@@ -1703,5 +1769,24 @@
                                                           (list-ref do-next 2) (list-ref do-next 3))
                                    (cdr do-next-list-sorted)))))))))))
        (graph-nodes edge-graph)))
+
+    (define (set-vertex-colors! model color face-filter)
+      (snow-assert (model? model))
+      (snow-assert (vector3? color))
+      (let ((vertices (coordinates-as-vector (model-vertices model)))
+            (color-strs (vector-map value->pretty-string color)))
+        (operate-on-faces
+         model
+         (lambda (mesh face)
+           (cond ((face-filter model mesh face)
+                  (vector-for-each
+                   (lambda (corner)
+                     (let ((index (face-corner-vertex-index corner)))
+                       (vertex-set-color! (vector-ref vertices index) color-strs)))
+                   (face-corners face))
+                  ;; (face-set-material! face material)
+
+                  ))
+           face))))
 
     ))

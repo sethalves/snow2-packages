@@ -188,7 +188,7 @@
           (scheme char)
           (srfi 1)
           (srfi 13)
-          (snow assert)
+          ;; (snow assert)
           (seth cout)
           )
 
@@ -197,6 +197,11 @@
 
     ;; http://www.j3d.org/matrix_faq/matrfaq_latest.html
     ;; http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/steps/index.htm
+
+
+    (define-syntax snow-assert
+      (syntax-rules ()
+        ((_ e) #t)))
 
 
     (define pi 3.14159265358979323846)
@@ -310,8 +315,15 @@
             ((and (< v 0.0) (< v (- m))) (fmod (+ v m) m))
             (else v)))
 
-    (define (vector2? v) (and (vector? v) (= (vector-length v) 2)))
-    (define (vector3? v) (and (vector? v) (= (vector-length v) 3)))
+    (define (vector2? v) (and (vector? v)
+                              (= (vector-length v) 2)
+                              (number? (vector-ref v 0))
+                              (number? (vector-ref v 1))))
+    (define (vector3? v) (and (vector? v)
+                              (= (vector-length v) 3)
+                              (number? (vector-ref v 0))
+                              (number? (vector-ref v 1))
+                              (number? (vector-ref v 2))))
 
     (define (vector2-x v) (vector-ref v 0))
     (define (vector2-y v) (vector-ref v 1))

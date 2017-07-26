@@ -71,9 +71,12 @@
                (let ((coord-strs (read-words 3 f)))
                  (if (= (length coord-strs) 3)
                      (loop 'read-vertex mesh
-                           (cons (vector (list-ref coord-strs 0)
-                                         (list-ref coord-strs 1)
-                                         (list-ref coord-strs 2))
+                           (cons
+                            (make-vertex (list->vector coord-strs) (vector 'unset 'unset 'unset))
+                            ;; (vector (list-ref coord-strs 0)
+                            ;;         (list-ref coord-strs 1)
+                            ;;         (list-ref coord-strs 2))
+
                                  vertexes)
                            normal)
                      (error "vertex is malformed."))))

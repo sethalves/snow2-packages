@@ -22,6 +22,19 @@
 
   (begin
 
+    (define (only-numbers str)
+      (let loop ((lst (string->list str)))
+        (cond ((null? lst) str)
+              (else
+               (let ((c (car lst)))
+                 (if (or (eq? c #\.)
+                         (eq? c #\-)
+                         (and (char>=? c #\0)
+                              (char<=? c #\9)))
+                     (loop (cdr lst))
+                     "0"))))))
+
+
     (define (parse-index index-string)
       ;; return a zero-based index value
       (snow-assert (string? index-string))
@@ -99,8 +112,8 @@
         (cond
          ;; geometry vertex
          ((equal? first-token "v")
-          (let* ((x (nt)) (y (nt)) (z (nt)))
-            (model-append-vertex! model (vector x y z))
+          (let* ((x (nt)) (y (nt)) (z (nt)) (r (nt)) (g (nt)) (b (nt)))
+            (model-append-vertex! model (make-vertex (vector x y z) (vector r g b)))
             material))
          ;; texture vertex
          ((equal? first-token "vt")
@@ -218,7 +231,7 @@
         (define (prepend-face! mesh face-corners material)
           (mesh-prepend-face! model mesh face-corners material
                               vertex-index-start texture-index-start
-                              normal-index-start inport))
+                              normal-index-start))
 
         (snow-assert (model? model))
 
@@ -259,27 +272,40 @@
 
       (vector-for-each
        (lambda (vertex)
-         (display (format "v ~a ~a ~a\n"
-                          (vector3-x vertex)
-                          (vector3-y vertex)
-                          (vector3-z vertex)) port))
+         (let ((position (vertex-position vertex))
+               (color (vertex-color vertex)))
+           (display (format "v ~a ~a ~a"
+                            (only-numbers (vector3-x position))
+                            (only-numbers (vector3-y position))
+                            (only-numbers (vector3-z position))) port)
+           (if (and color
+                    (> (vector-length color) 0)
+                    (not (eq? 'unset (vector-ref color 0))))
+               (display (format " ~a ~a ~a"
+                                (only-numbers (vector3-x color)) ;; red
+                                (only-numbers (vector3-y color)) ;; green
+                                (only-numbers (vector3-z color))) ;; blue
+                        port))
+           (newline port)
+           ))
        (coordinates-as-vector (model-vertices model)))
       (newline port)
 
       (vector-for-each
        (lambda (coord)
          (display (format "vt ~a ~a\n"
-                          (vector2-x coord)
-                          (vector2-y coord)) port))
+                          (only-numbers (vector2-x coord))
+                          (only-numbers (vector2-y coord)))
+                  port))
        (coordinates-as-vector (model-texture-coordinates model)))
       (newline port)
 
       (vector-for-each
        (lambda (normal)
          (display (format "vn ~a ~a ~a\n"
-                          (vector3-x normal)
-                          (vector3-y normal)
-                          (vector3-z normal)) port))
+                          (only-numbers (vector3-x normal))
+                          (only-numbers (vector3-y normal))
+                          (only-numbers (vector3-z normal))) port))
        (coordinates-as-vector (model-normals model)))
 
       (let loop ((meshes (model-meshes model))
