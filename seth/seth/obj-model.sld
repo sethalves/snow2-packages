@@ -41,7 +41,7 @@
       (cond ((equal? index-string "") 'unset)
             (else
              (let ((result (- (string->number index-string) 1)))
-               (snow-assert (>= result 0))
+               ;; (snow-assert (>= result 0))
                result))))
 
 
@@ -159,9 +159,26 @@
       (snow-assert (material? material))
       (let ((mesh (make-mesh #f '())))
 
-        (define (prepend-face-to-mesh! face material)
+        (define (handle-negative-indices face-corners)
+          (map (lambda (corner)
+                 (let ((vi (face-corner-vertex-index corner))
+                       (ti (face-corner-texture-index corner))
+                       (ni (face-corner-normal-index corner)))
+                   (make-face-corner
+                    (if (and vi (not (eq? vi 'unset)) (< vi 0))
+                        (+ (+ vi (coordinates-length (model-vertices model))) 1)
+                        vi)
+                    (if (and ti (not (eq? ti 'unset)) (< ti 0))
+                        (+ (+ ti (coordinates-length (model-texture-coordinates model))) 1)
+                        ti)
+                    (if (and ni (not (eq? ni 'unset)) (< ni 0))
+                        (+ (+ ni (coordinates-length (model-normals model))) 1)
+                        ni))))
+               face-corners))
+
+        (define (prepend-face-to-mesh! face-corners material)
           (snow-assert (material? material))
-          (prepend-face-rm-cb! mesh face material))
+          (prepend-face-rm-cb! mesh (handle-negative-indices face-corners) material))
 
         ;; read mesh-name first
         (define mesh-name
