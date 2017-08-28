@@ -11,6 +11,7 @@
    vertex-scale
    vertex-transform
    vertex-translate
+   value->pretty-string
    ;; coordinates
    make-coordinates
    coordinates-append!
@@ -120,7 +121,7 @@
           (srfi 29)
           (srfi 69)
           (srfi 95)
-          ;; (snow assert)
+          (snow assert)
           (snow input-parse)
           (snow random)
           (seth cout)
@@ -135,9 +136,9 @@
 
   (begin
 
-    (define-syntax snow-assert
-      (syntax-rules ()
-        ((_ e) #t)))
+    ;; (define-syntax snow-assert
+    ;;   (syntax-rules ()
+    ;;     ((_ e) #t)))
 
     (define vector-tolerance 0.000001)
 
@@ -743,14 +744,15 @@
       (let* ((face (make-face model (list->vector face-corners) material))
              (face-shifted (shift-face-indices face vertex-index-start texture-index-start normal-index-start)))
         (cond ((not (face-is-degenerate? model face-shifted))
-               (mesh-set-faces! mesh (cons face-shifted (mesh-faces mesh))))
+               (mesh-set-faces! mesh (cons face-shifted (mesh-faces mesh)))
+               face)
               (else
                (cerr "warning: face is degenerate: "
                      (map
                       (lambda (face-corner) (face-corner->position model face-corner))
                       face-corners)
-                     "\n"))
-              )))
+                     "\n")
+               #f))))
 
 
     (define (mesh-append-face! model mesh face)

@@ -188,7 +188,7 @@
           (scheme char)
           (srfi 1)
           (srfi 13)
-          ;; (snow assert)
+          (snow assert)
           (seth cout)
           )
 
@@ -199,9 +199,9 @@
     ;; http://www.euclideanspace.com/maths/geometry/rotations/conversions/eulerToQuaternion/steps/index.htm
 
 
-    (define-syntax snow-assert
-      (syntax-rules ()
-        ((_ e) #t)))
+    ;; (define-syntax snow-assert
+    ;;   (syntax-rules ()
+    ;;     ((_ e) #t)))
 
 
     (define pi 3.14159265358979323846)
