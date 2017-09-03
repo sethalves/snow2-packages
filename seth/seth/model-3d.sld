@@ -100,6 +100,7 @@
    scale-model
    size-model
    translate-model
+   transform-model!
    model->octree
    model->convex-hull
    model->bullet-hull
@@ -1240,6 +1241,16 @@
         (coordinates-as-vector (model-vertices model)))))
 
 
+    (define (transform-model! transform-matrix model)
+      (let ((transformed-coords (make-coordinates)))
+        (for-each
+         (lambda (vertex)
+           (let ((rotated-vertex (vertex-transform transform-matrix vertex)))
+             (coordinates-append! transformed-coords rotated-vertex)))
+         (vector->list (coordinates-as-vector (model-vertices model))))
+        (model-set-vertices! model transformed-coords)))
+
+
     (define (set-all-faces-to-material model material-name face-filter)
       (snow-assert (model? model))
       (snow-assert (string? material-name))
@@ -1790,5 +1801,6 @@
 
                   ))
            face))))
+
 
     ))

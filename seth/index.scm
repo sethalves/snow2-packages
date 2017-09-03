@@ -94,8 +94,8 @@
     (name ())
     (version "1.0")
     (url "model-3d.tgz")
-    (size 81920)
-    (checksum (md5 "9501620a11722bb265529a998fecc93f"))
+    (size 82432)
+    (checksum (md5 "346744f38967a5db01dea4c2d88803ff"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
@@ -112,6 +112,7 @@
         (srfi 29)
         (srfi 69)
         (srfi 95)
+        (snow assert)
         (snow input-parse)
         (snow random)
         (seth cout)
@@ -135,8 +136,8 @@
     (name ())
     (version "1.0")
     (url "math-3d.tgz")
-    (size 87552)
-    (checksum (md5 "5f4615c72bb53d30cdb7bd49fabcae1c"))
+    (size 88064)
+    (checksum (md5 "2e08c08668f34163c6f3206f721127b4"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")
@@ -147,7 +148,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "utilities for doing 3d math")
       (license bsd)
-      (depends (srfi 1) (srfi 13) (seth cout))
+      (depends (srfi 1) (srfi 13) (snow assert) (seth cout))
       (use-for final))
     (library
       (name (seth math-3d tests))

@@ -1419,10 +1419,16 @@
               (vector       0           0 0 1)))
 
     (define (matrix-scaling v)
-      (vector (vector v 0 0 0)
-              (vector 0 v 0 0)
-              (vector 0 0 v 0)
-              (vector 0 0 0 1)))
+      (cond ((vector3? v)
+             (vector (vector (vector3-x v) 0 0 0)
+                     (vector 0 (vector3-y v) 0 0)
+                     (vector 0 0 (vector3-z v) 0)
+                     (vector 0 0 0 1)))
+            (else
+             (vector (vector v 0 0 0)
+                     (vector 0 v 0 0)
+                     (vector 0 0 v 0)
+                     (vector 0 0 0 1)))))
 
     (define (matrix->string m)
 
