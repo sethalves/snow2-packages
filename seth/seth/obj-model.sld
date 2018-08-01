@@ -271,7 +271,7 @@
     (define (read-obj-model-file input-file-name . maybe-model)
       (snow-assert (string? input-file-name))
       (let ((model (if (null? maybe-model)
-                       (make-model '() '() '() '() '() (make-hash-table))
+                       (make-empty-model)
                        (car maybe-model))))
         (snow-assert (model? model))
         (read-obj-model (open-input-file input-file-name) model)))
@@ -333,38 +333,39 @@
               (else
                (let ((mesh (car meshes))
                      (current-material material)
-                     (a-group-face-has-been-output #f)
-                     )
+                     (a-group-face-has-been-output #f))
 
-                 (mesh-sort-faces-by-material-name model mesh)
-                 (if (mesh-name mesh)
-                     (display (format "\ng ~a\n" (mesh-name mesh)) port)
-                     (display (format "\ng mesh-~a\n" nth) port))
-                 (for-each
-                  (lambda (face)
-                    (snow-assert (face? face))
+                 (cond ((not (null? (mesh-faces mesh)))
+                        (mesh-sort-faces-by-material-name model mesh)
+                        (if (mesh-name mesh)
+                            (display (format "\ng ~a\n" (mesh-name mesh)) port)
+                            (display (format "\ng mesh-~a\n" nth) port))
+                        (for-each
+                         (lambda (face)
+                           (snow-assert (face? face))
 
-                    (let ((next-material (face-material face)))
-                      (cond ((not (eq? next-material current-material))
-                             ;; force a new group if material changes
-                             (if a-group-face-has-been-output
-                                 (if (mesh-name mesh)
-                                     (display (format "\ng ~a-~a\n" (mesh-name mesh) (material-name next-material)) port)
-                                     (display (format "\ng mesh-~a-~a\n" nth (material-name next-material)) port)))
-                             (set! a-group-face-has-been-output #f)
-                             (display (format "usemtl ~a\n"
-                                              (material-name next-material))
+                           (let ((next-material (face-material face)))
+                             (cond ((not (eq? next-material current-material))
+                                    ;; force a new group if material changes
+                                    (if a-group-face-has-been-output
+                                        (if (mesh-name mesh)
+                                            (display (format "\ng ~a-~a\n" (mesh-name mesh)
+                                                             (material-name next-material)) port)
+                                            (display (format "\ng mesh-~a-~a\n" nth (material-name next-material)) port)))
+                                    (set! a-group-face-has-been-output #f)
+                                    (display (format "usemtl ~a\n"
+                                                     (material-name next-material))
+                                             port)
+                                    (set! current-material next-material)))
+                             (display (format "f ~a"
+                                              (string-join
+                                               (vector->list
+                                                (vector-map unparse-face-corner
+                                                            (face-corners face)))))
                                       port)
-                             (set! current-material next-material)))
-                      (display (format "f ~a"
-                                       (string-join
-                                        (vector->list
-                                         (vector-map unparse-face-corner
-                                                     (face-corners face)))))
-                               port)
-                      (set! a-group-face-has-been-output #t)
-                      (newline port)))
-                  (mesh-faces mesh))
+                             (set! a-group-face-has-been-output #t)
+                             (newline port)))
+                         (mesh-faces mesh))))
                  (loop (cdr meshes) (+ nth 1) current-material))))))
 
     ))

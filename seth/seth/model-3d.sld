@@ -100,6 +100,7 @@
    scale-model
    size-model
    translate-model
+   rotate-model
    transform-model!
    model->octree
    model->convex-hull
@@ -223,6 +224,11 @@
          (vector-map value->pretty-string (vector3-sum fvertex by-offset)))
        (vertex-color vertex)))
 
+    (define (vertex-rotate vertex by-quat)
+      (make-vertex
+       (let ((fvertex (vector-map string->number (vertex-position vertex))))
+         (vector-map value->pretty-string (vector3-rotate fvertex by-quat)))
+       (vertex-color vertex)))
 
     ;; a generic sequence of vertexes or (vector string string string)
     (define-record-type <coordinates>
@@ -1238,6 +1244,16 @@
        (model-vertices model)
        (vector-map
         (lambda (vertex) (vertex-translate vertex by-offset))
+        (coordinates-as-vector (model-vertices model)))))
+
+    (define (rotate-model model by-quat)
+      (snow-assert (model? model))
+      (snow-assert (vector? by-quat))
+      (snow-assert (= (vector-length by-quat) 4))
+      (coordinates-set-vec!
+       (model-vertices model)
+       (vector-map
+        (lambda (vertex) (vertex-rotate vertex by-quat))
         (coordinates-as-vector (model-vertices model)))))
 
 

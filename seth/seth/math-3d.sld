@@ -113,6 +113,7 @@
           rotation-between-vectors
           quaternion-normalize
           quaternion->matrix
+          matrix->quaternion
           vector-numbers->strings
           triangle-number
           matrix-new
@@ -138,6 +139,8 @@
           matrix-rotation-z
           matrix-scaling
           matrix->string
+          matrix-transform-vector3
+          matrix-transform-position3
           matrix-print
           circle-center-from-circumference-points-2d
           matrix-squash-z
@@ -1211,6 +1214,65 @@
                           (vector (- x) (- y) (- z) w)))))
 
 
+    ;; (define (matrix->quaternion m)
+    ;;   ;; http://www.euclideanspace.com/maths/geometry/rotations/conversions/matrixToQuaternion/index.htm
+    ;;   (define (sign v) (if (>= v 0.0) 1.0 -1.0))
+    ;;   (let* ((qw (/ (sqrt (max 0 (+ 1 (matrix-ref m 0 0) (matrix-ref m 1 1) (matrix-ref m 2 2)))) 2.0))
+    ;;          (qx (/ (sqrt (max 0 (+ 1 (matrix-ref m 0 0) (- (matrix-ref m 1 1)) (- (matrix-ref m 2 2))))) 2.0))
+    ;;          (qy (/ (sqrt (max 0 (+ 1 (- (matrix-ref m 0 0)) (matrix-ref m 1 1) (- (matrix-ref m 2 2))))) 2.0))
+    ;;          (qz (/ (sqrt (max 0 (+ 1 (- (matrix-ref m 0 0)) (- (matrix-ref m 1 1)) (matrix-ref m 2 2)))) 2.0)))
+    ;;     (quaternion-normalize
+    ;;      (quaternion qw
+    ;;                  (* qx (sign (* qx (- (matrix-ref m 2 1) (matrix-ref m 1 2)))))
+    ;;                  (* qy (sign (* qy (- (matrix-ref m 0 2) (matrix-ref m 2 0)))))
+    ;;                  (* qz (sign (* qz (- (matrix-ref m 1 0) (matrix-ref m 0 1)))))))))
+
+
+
+    (define (matrix->quaternion m)
+      ;; http://www.cg.info.hiroshima-cu.ac.jp/~miyazaki/knowledge/teche52.html
+      (define (sign v) (if (>= v 0.0) 1.0 -1.0))
+      (define (norm a b c d) (sqrt (+ (* a a) (* b b) (* c c) (* d d))))
+      (let ((qw (/ (+ (matrix-ref m 0 0) (matrix-ref m 1 1) (matrix-ref m 2 2) 1.0) 4.0))
+            (qx (/ (+ (matrix-ref m 0 0) (- (matrix-ref m 1 1)) (- (matrix-ref m 2 2)) 1.0) 4.0))
+            (qy (/ (+ (- (matrix-ref m 0 0)) (matrix-ref m 1 1) (- (matrix-ref m 2 2)) 1.0) 4.0))
+            (qz (/ (+ (- (matrix-ref m 0 0)) (- (matrix-ref m 1 1)) (matrix-ref m 2 2) 1.0) 4.0)))
+        (if (< qw 0.0) (set! qw 0.0))
+        (if (< qx 0.0) (set! qx 0.0))
+        (if (< qy 0.0) (set! qy 0.0))
+        (if (< qz 0.0) (set! qz 0.0))
+        (set! qw (sqrt qw))
+        (set! qx (sqrt qx))
+        (set! qy (sqrt qy))
+        (set! qz (sqrt qz))
+        (cond ((and (>= qw qx) (>= qw qy) (>= qw qz))
+               (set! qw (* qw 1.0))
+               (set! qx (* qx (sign (- (matrix-ref m 2 1) (matrix-ref m 1 2)))))
+               (set! qy (* qy (sign (- (matrix-ref m 0 2) (matrix-ref m 2 0)))))
+               (set! qz (* qz (sign (- (matrix-ref m 1 0) (matrix-ref m 0 1))))))
+              ((and (>= qx qw) (>= qx qy) (>= qx qz))
+               (set! qw (* qw (sign (- (matrix-ref m 2 1) (matrix-ref m 1 2)))))
+               (set! qx (* qx 1.0))
+               (set! qy (* qy (sign (- (matrix-ref m 1 0) (matrix-ref m 0 1)))))
+               (set! qz (* qz (sign (- (matrix-ref m 0 2) (matrix-ref m 2 0))))))
+              ((and (>= qy qw) (>= qy qx) (>= qy qz))
+               (set! qw (* qw (sign (- (matrix-ref m 0 2) (matrix-ref m 2 0)))))
+               (set! qx (* qx (sign (- (matrix-ref m 1 0) (matrix-ref m 0 1)))))
+               (set! qy (* qy 1.0))
+               (set! qz (* qz (sign (- (matrix-ref m 2 1) (matrix-ref m 1 2))))))
+              ((and (>= qz qw) (>= qz qx) (>= qz qy))
+               (set! qw (* qw (sign (- (matrix-ref m 1 0) (matrix-ref m 0 1)))))
+               (set! qx (* qx (sign (- (matrix-ref m 2 0) (matrix-ref m 0 2)))))
+               (set! qy (* qy (sign (- (matrix-ref m 2 1) (matrix-ref m 1 2)))))
+               (set! qz (* qz 1.0)))
+              (else
+               (snow-assert #f)))
+        (let ((r (norm qw qx qy qz)))
+          (quaternion (/ qw r)
+                      (/ qx r)
+                      (/ qy r)
+                      (/ qz r)))))
+
 
     (define (quaternion->matrix-alt q)
       ;; http://web.archive.org/web/20041029003853/http:/www.j3d.org/matrix_faq/matrfaq_latest.html#Q54
@@ -1473,6 +1535,15 @@
             (get-output-string p))))
         result))
 
+
+    (define (matrix-transform-vector3 m v)
+      (vector4->3 (matrix-A*B m (vector (vector (vector-ref v 0))
+                                        (vector (vector-ref v 1))
+                                        (vector (vector-ref v 2))
+                                        (vector 0)))))
+
+    (define (matrix-transform-position3 m v)
+      (vector4->3 (matrix-A*B m (vector3->4 v))))
 
     (define (matrix-print m port)
       (cout (matrix->string m) port))
