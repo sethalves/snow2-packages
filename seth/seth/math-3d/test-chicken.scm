@@ -6,6 +6,7 @@ exec csi -s $0 "$@"
 (use r7rs)
 (import-for-syntax r7rs)
 (import (scheme base))
+(include "snow/assert.sld")
 (include "seth/cout.sld")
 (include "seth/math-3d.sld")
 (include "seth/math-3d/tests.sld")

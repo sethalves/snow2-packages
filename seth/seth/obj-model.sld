@@ -343,28 +343,29 @@
                         (for-each
                          (lambda (face)
                            (snow-assert (face? face))
-
-                           (let ((next-material (face-material face)))
-                             (cond ((not (eq? next-material current-material))
-                                    ;; force a new group if material changes
-                                    (if a-group-face-has-been-output
-                                        (if (mesh-name mesh)
-                                            (display (format "\ng ~a-~a\n" (mesh-name mesh)
-                                                             (material-name next-material)) port)
-                                            (display (format "\ng mesh-~a-~a\n" nth (material-name next-material)) port)))
-                                    (set! a-group-face-has-been-output #f)
-                                    (display (format "usemtl ~a\n"
-                                                     (material-name next-material))
-                                             port)
-                                    (set! current-material next-material)))
-                             (display (format "f ~a"
-                                              (string-join
-                                               (vector->list
-                                                (vector-map unparse-face-corner
-                                                            (face-corners face)))))
-                                      port)
-                             (set! a-group-face-has-been-output #t)
-                             (newline port)))
+                           (if (not (face-is-degenerate? model face))
+                               (let ((next-material (face-material face)))
+                                 (cond ((not (eq? next-material current-material))
+                                        ;; force a new group if material changes
+                                        (if a-group-face-has-been-output
+                                            (if (mesh-name mesh)
+                                                (display (format "\ng ~a-~a\n" (mesh-name mesh)
+                                                                 (material-name next-material)) port)
+                                                (display (format "\ng mesh-~a-~a\n" nth (material-name next-material)) port)))
+                                        (set! a-group-face-has-been-output #f)
+                                        (display (format "usemtl ~a\n"
+                                                         (material-name next-material))
+                                                 port)
+                                        (set! current-material next-material)))
+                                 (display (format "f ~a"
+                                                  (string-join
+                                                   (vector->list
+                                                    (vector-map unparse-face-corner
+                                                                (face-corners face)))))
+                                          port)
+                                 (set! a-group-face-has-been-output #t)
+                                 (newline port)))
+                           )
                          (mesh-faces mesh))))
                  (loop (cdr meshes) (+ nth 1) current-material))))))
 

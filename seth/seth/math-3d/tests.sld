@@ -146,6 +146,22 @@
       ;; (begin (display (number->pretty-string 100.1 4)) (newline))
 
 
+      (define (test-sphere-aa-box-intersection)
+        (and
+         (not (sphere-intersects-aa-box? (make-sphere (vector 1.0 0.0 0.0) 0.5)
+                                         (make-aa-box (vector 0.0 -1.0 -1.0)
+                                                      (vector 0.4 1.0 1.0))))
+         (sphere-intersects-aa-box? (make-sphere (vector 1.0 0.0 0.0) 0.5)
+                                    (make-aa-box (vector 0.0 -1.0 -1.0)
+                                                 (vector 0.55 1.0 1.0)))
+         (not (sphere-intersects-aa-box? (make-sphere (vector -1.0 0.0 0.0) 0.9)
+                                         (make-aa-box (vector 0.0 -1.0 -1.0)
+                                                      (vector 0.4 1.0 1.0))))
+         (sphere-intersects-aa-box? (make-sphere (vector -1.0 0.0 0.0) 1.1)
+                                    (make-aa-box (vector 0.0 -1.0 -1.0)
+                                                 (vector 0.55 1.0 1.0)))))
+
+
       (and  (= (+f 2 4) 6)
             (eq? (+f #f 4) #f)
             (eq? (+f 4 #f) #f)
@@ -353,6 +369,8 @@
                 rot)))
 
             (test-point-above-plane)
+
+            (test-sphere-aa-box-intersection)
 
             )
       )))

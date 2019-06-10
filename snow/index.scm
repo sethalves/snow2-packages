@@ -184,7 +184,7 @@
       (authors "Marc Feeley <feeley at iro.umontreal.ca>")
       (description "File system access." os snow)
       (license lgpl/v2.1)
-      (depends (srfi 13) (srfi 1) (srfi 14))
+      (depends (srfi 13) (chibi char-set) (srfi 1) (srfi 14))
       (use-for final))
     (library
       (name (snow filesys tests))

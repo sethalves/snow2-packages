@@ -21,12 +21,16 @@
     (name "Snow2 Repository")
     (url "http://seth-misc.s3-website-us-east-1.amazonaws.com/index.scm")
     (trust 1.0))
+  (sibling
+    (name "Snow Fort")
+    (url "http://snow-fort.org/pkg/repo/index.scm")
+    (trust 1.0))
   (package
     (name ())
     (version "1.0")
     (url "stl-model.tgz")
     (size 10752)
-    (checksum (md5 "7a07da51b8a87b6c8fa7186332987148"))
+    (checksum (md5 "aab452f46ff096ffc3bdb66ef7f49ec6"))
     (library
       (name (seth stl-model))
       (path "seth/stl-model.sld")
@@ -94,8 +98,8 @@
     (name ())
     (version "1.0")
     (url "model-3d.tgz")
-    (size 82432)
-    (checksum (md5 "346744f38967a5db01dea4c2d88803ff"))
+    (size 88064)
+    (checksum (md5 "f810deeb058646d800bcb255cd8b1757"))
     (library
       (name (seth model-3d))
       (path "seth/model-3d.sld")
@@ -136,8 +140,8 @@
     (name ())
     (version "1.0")
     (url "math-3d.tgz")
-    (size 88064)
-    (checksum (md5 "2e08c08668f34163c6f3206f721127b4"))
+    (size 97280)
+    (checksum (md5 "a424723f6ce2e941f6c7d8c282cb27e6"))
     (library
       (name (seth math-3d))
       (path "seth/math-3d.sld")
@@ -166,8 +170,8 @@
     (name ())
     (version "1.0")
     (url "obj-model.tgz")
-    (size 19968)
-    (checksum (md5 "c25b2c0d3ad49695cd4b60d37c167d16"))
+    (size 20480)
+    (checksum (md5 "4ff3a1038a03dfe918aa94117f5c3e64"))
     (library
       (name (seth obj-model))
       (path "seth/obj-model.sld")
@@ -356,7 +360,7 @@
     (version "1.0")
     (url "aws.tgz")
     (size 27136)
-    (checksum (md5 "46dd9729c39fd53f877c5de4c4b7b46c"))
+    (checksum (md5 "a45f159ca9430356cb015b06add5c658"))
     (library
       (name (seth aws s3))
       (path "seth/aws/s3.sld")
@@ -401,6 +405,7 @@
         (seth crypt hmac-sha-1)
         (seth uri)
         (seth base64)
+        (chibi char-set)
         (srfi 14))
       (use-for final))
     (library
@@ -648,7 +653,7 @@
       (authors "Seth Alves <seth@hungry.com>")
       (description "string-read-write")
       (license bsd)
-      (depends)
+      (depends (chibi show base))
       (use-for final))
     (library
       (name (seth string-read-write tests))
@@ -768,7 +773,7 @@
       (authors "Alex Shinn")
       (description "md5")
       (license BSD-style)
-      (depends (snow bytevector) (srfi 60))
+      (depends (chibi crypto md5) (snow bytevector) (srfi 60))
       (use-for final))
     (library
       (name (seth crypt sha-1))
@@ -984,6 +989,7 @@
       (description "memcache-client")
       (license bsd)
       (depends
+        (chibi string)
         (snow bytevector)
         (srfi 13)
         (snow binio)
@@ -1146,6 +1152,7 @@
       (description "uri")
       (license bsd)
       (depends
+        (chibi char-set)
         (chibi optional)
         (chibi match)
         (srfi 1)

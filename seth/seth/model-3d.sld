@@ -58,6 +58,7 @@
    mesh-faces mesh-set-faces!
    mesh-prepend-face!
    mesh-append-face!
+   mesh-add-face!
    mesh-append-triangle!
    mesh-sort-faces-by-material-name
    ;; face-corners
@@ -95,6 +96,9 @@
    operate-on-faces
    operate-on-face-corners
    ;; utilities
+   find-face-corners-within-range
+   find-nearest-face-corner
+   transfer-texture-coords
    combine-near-points
    compact-obj-model
    scale-model
@@ -265,8 +269,13 @@
          (coordinates-lst-len coords)))
 
     (define (coordinates-ref coords n)
-      (coordinates-compact coords)
-      (vector-ref (coordinates-vec coords) n))
+      (let* ((v (coordinates-vec coords))
+             (len (vector-length v)))
+        (cond ((< n len)
+               (vector-ref v n))
+              (else
+               (coordinates-compact coords)
+               (vector-ref (coordinates-vec coords) n)))))
 
     (define (coordinates-find coords v)
       (snow-assert (coordinates? coords))
@@ -604,7 +613,7 @@
       (for-each-face
        model
        (lambda (face)
-         (for-each
+         (vector-for-each
           proc
           (face-corners face)))))
 
@@ -769,6 +778,13 @@
       (mesh-set-faces! mesh (reverse (cons face (reverse (mesh-faces mesh))))))
 
 
+    (define (mesh-add-face! model mesh face)
+      (snow-assert (model? model))
+      (snow-assert (mesh? mesh))
+      (snow-assert (face? face))
+      (mesh-set-faces! mesh (cons face (mesh-faces mesh))))
+
+
     (define (mesh-append-triangle! model mesh material points . maybe-colors)
       (snow-assert (model? model))
       (snow-assert (mesh? mesh))
@@ -853,34 +869,113 @@
 
 
 
+    (define (find-face-corners-within-range model octree pos cutoff)
+      (snow-assert (model? model))
+      (snow-assert (octree? octree))
+      (snow-assert (vector3? pos))
+      (let ((cutoff-sq (* cutoff cutoff)))
+        ;; loop over nearby octree elements
+        (let loop ((octree-parts (if cutoff
+                                     (octree-sphere-intersection octree pos cutoff)
+                                     (octree-all-elements octree)))
+                   (face-corners-in-range '()))
+          (if (null? octree-parts) face-corners-in-range
+              ;; loop over faces in each octree element
+              (let face-loop ((faces (octree-contents (car octree-parts)))
+                              (face-corners-in-range face-corners-in-range))
+                (if (null? faces) (loop (cdr octree-parts) face-corners-in-range)
+                    ;; loop over face-corners in each face
+                    (let fc-loop ((fcs (vector->list (face-corners (car faces))))
+                                  (face-corners-in-range face-corners-in-range))
+                      (if (null? fcs) (face-loop (cdr faces) face-corners-in-range)
+                          ;; test this face-corner against previous best
+                          (let* ((fc (car fcs))
+                                 (fc-pos (face-corner->position model fc))
+                                 (v-pos-distance-sqr (distance-between-points-squared pos fc-pos)))
+                            (cond ((<= v-pos-distance-sqr cutoff)
+                                   (fc-loop (cdr fcs) (cons fc face-corners-in-range)))
+                                  (else
+                                   (fc-loop (cdr fcs) face-corners-in-range))))))))))))
+
+
+    (define (find-nearest-face-corner model octree pos . maybe-cutoff)
+      (snow-assert (model? model))
+      (snow-assert (octree? octree))
+      (snow-assert (vector3? pos))
+      (let ((cutoff (if (null? maybe-cutoff) #f (car maybe-cutoff))))
+        ;; loop over nearby octree elements
+        (let loop ((octree-parts (if cutoff
+                                     (octree-sphere-intersection octree pos cutoff)
+                                     (octree-all-elements octree)))
+                   (nearest-face-corner #f)
+                   (nearest-distance-sqr 0))
+          (if (null? octree-parts) nearest-face-corner
+              ;; loop over faces in each octree element
+              (let face-loop ((faces (octree-contents (car octree-parts)))
+                              (nearest-face-corner nearest-face-corner)
+                              (nearest-distance-sqr nearest-distance-sqr))
+                (if (null? faces) (loop (cdr octree-parts) nearest-face-corner nearest-distance-sqr)
+                    ;; loop over face-corners in each face
+                    (let fc-loop ((fcs (vector->list (face-corners (car faces))))
+                                  (nearest-face-corner nearest-face-corner)
+                                  (nearest-distance-sqr nearest-distance-sqr))
+                      (if (null? fcs) (face-loop (cdr faces) nearest-face-corner nearest-distance-sqr)
+                          ;; test this face-corner against previous best
+                          (let* ((fc (car fcs))
+                                 (fc-pos (face-corner->position model fc))
+                                 (v-pos-distance-sqr (distance-between-points-squared pos fc-pos)))
+                            (cond ((or (not nearest-face-corner) (< v-pos-distance-sqr nearest-distance-sqr))
+                                   ;; best so far
+                                   (fc-loop (cdr fcs) fc v-pos-distance-sqr))
+                                  (else
+                                   ;; already saw a better one
+                                   (fc-loop (cdr fcs) nearest-face-corner nearest-distance-sqr))))))))))))
+
+
+    (define (transfer-texture-coords model-src model-dst cutoff)
+      ;; this won't work unless the models are substantially similar
+      (snow-assert (model? model-src))
+      (snow-assert (model? model-dst))
+      (model-set-texture-coordinates! model-dst (model-texture-coordinates model-src))
+      (let* ((src-aa-box (model-aa-box model-src))
+             (octree (model->octree model-src src-aa-box)))
+        (operate-on-face-corners
+         model-dst
+         (lambda (mesh face face-corner)
+
+           (let* ((vertex-index (face-corner-vertex-index face-corner))
+                  (v (coordinates-ref (model-vertices model-dst) vertex-index))
+                  (nearest-fc (find-nearest-face-corner model-src octree (vertex-position->vector3 v) cutoff)))
+             (if nearest-fc
+                 (face-corner-set-texture-index! face-corner (face-corner-texture-index nearest-fc)))
+             face-corner)))))
+
+
     (define (combine-near-points model threshold)
       (snow-assert (model? model))
       ;; make a mapping of vertex index to count of nearby vertexes
-      (let* ((coords (model-vertices model))
+      (let* ((threshold-squared (* threshold threshold))
+             (aa-box (model-aa-box model))
+             (octree (model->octree model aa-box))
+             (coords (model-vertices model))
              (vertices (coordinates->positions-vector coords))
-             (vertex-index->neighbor-indexes
+             (vertex-index->neighbor-face-corners
               (vector-map
                (lambda (pos)
                  (snow-assert (vector3? pos))
-                 (let loop ((j 0)
-                            (neighbors '()))
-                   (cond ((= j (vector-length vertices)) neighbors)
-                         ((eq? pos (vector-ref vertices j))
-                          (loop (+ j 1) neighbors))
-                         ((<= (distance-between-points pos (vector-ref vertices j)) threshold)
-                          (loop (+ j 1) (cons j neighbors)))
-                         (else
-                          (loop (+ j 1) neighbors)))))
+                 (find-face-corners-within-range model octree pos threshold))
                vertices))
              (get-neighbor-count (lambda (vertex-index)
                                    (length
-                                    (vector-ref vertex-index->neighbor-indexes vertex-index)))))
+                                    (vector-ref vertex-index->neighbor-face-corners vertex-index)))))
         (operate-on-face-corners
          model
          (lambda (mesh face face-corner)
            (let* ((vertex-index (face-corner-vertex-index face-corner))
                   (possible-vertex-indices
-                   (cons vertex-index (vector-ref vertex-index->neighbor-indexes vertex-index))))
+                   (cons vertex-index (map
+                                       face-corner-vertex-index
+                                       (vector-ref vertex-index->neighbor-face-corners vertex-index)))))
              (let loop ((possible-vertex-indices possible-vertex-indices)
                         (best-vertex-index #f)
                         (best-neighbor-count 0))

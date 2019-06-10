@@ -97,7 +97,9 @@
           vector3-magnitude
           cross-product
           distance-between-points
+          distance-between-points-squared
           distance-from-point-to-plane
+          point-to-plane-offset
           line-plane-intersection
           segment-plane-intersection
           triangle-plane-intersection
@@ -113,6 +115,19 @@
           rotation-between-vectors
           quaternion-normalize
           quaternion->matrix
+
+          make-sphere
+          sphere?
+          sphere-center sphere-set-center!
+          sphere-radius sphere-set-radius!
+
+          sphere-inside-plane?
+          sphere-outside-plane?
+          sphere-intersects-plane?
+          sphere-inside-aa-box?
+          sphere-intersects-aa-box?
+          sphere-outside-aa-box?
+
           matrix->quaternion
           vector-numbers->strings
           triangle-number
@@ -170,9 +185,15 @@
           aa-box-low-corner aa-box-set-low-corner!
           aa-box-high-corner aa-box-set-high-corner!
 
+          aa-box-left
+          aa-box-right
+          aa-box-top
+          aa-box-bottom
+          aa-box-front
+          aa-box-back
+
           aa-box-contains-point
           aa-box-contains-aa-box
-          aa-box-intersects-aa-box
           aa-box-intersects-aa-box
           aa-box-center
 
@@ -949,21 +970,16 @@
                  (* dy dy)
                  (* dz dz)))))
 
+    (define (distance-between-points-squared a b)
+      (let ((dx (- (point-x a) (point-x b)))
+            (dy (- (point-y a) (point-y b)))
+            (dz (if (= (vector-length a) 3)
+                    (- (point-z a) (point-z b))
+                    0)))
+        (+ (* dx dx)
+           (* dy dy)
+           (* dz dz))))
 
-    (define (distance-from-point-to-plane P plane)
-      ;; P is a vector of size 3.
-      ;; plane is #(#(point) #(normal-vector))
-      ;; http://softsurfer.com/Archive/algorithm_0104/algorithm_0104.htm
-      (let* ((plane-point (vector-ref plane 0))
-             (plane-normal (vector-ref plane 1))
-             (sn (- (dot-product plane-normal (vector3-diff P plane-point))))
-             (sd (dot-product plane-normal plane-normal))
-             (sb (/ sn sd))
-             ;; B is the point on the plane from which the plane's normal
-             ;; passes through P
-             (B (vector3-sum P (vector3-scale plane-normal sb)))
-             (d (vector3-diff P B)))
-        (vector3-magnitude d)))
 
     ;; http://www.realtimerendering.com/intersections.html
 
@@ -1081,10 +1097,6 @@
              (< (vector3-z (vector-ref S 0)) (vector3-z aa-box-high)))))
 
 
-    (define (aa-box-center aa-box)
-      (vector3-scale (vector3-sum (aa-box-low-corner aa-box) (aa-box-high-corner aa-box)) 0.5))
-
-
     (define (triangle-is-degenerate? T tolerance)
       (let ((T0 (vector-ref T 0))
             (T1 (vector-ref T 1))
@@ -1141,6 +1153,29 @@
 
     (define (point-is-above-or-on-plane P plane)
       (point-is-above-plane~ P plane <=))
+
+    (define (distance-from-point-to-plane P plane)
+      ;; P is a vector of size 3.
+      ;; plane is #(#(point) #(normal-vector))
+      ;; http://softsurfer.com/Archive/algorithm_0104/algorithm_0104.htm
+      (let* ((plane-point (vector-ref plane 0))
+             (plane-normal (vector-ref plane 1))
+             (sn (- (dot-product plane-normal (vector3-diff P plane-point))))
+             (sd (dot-product plane-normal plane-normal))
+             (sb (/ sn sd))
+             ;; B is the point on the plane from which the plane's normal
+             ;; passes through P
+             (B (vector3-sum P (vector3-scale plane-normal sb)))
+             (d (vector3-diff P B)))
+        (vector3-magnitude d)))
+
+
+    (define (point-to-plane-offset P plane)
+      ;; like distance-from-point-to-plane but signed
+      (let* ((plane-point (vector-ref plane 0))
+             (plane-normal (vector-ref plane 1)))
+        (dot-product (vector3-diff P plane-point) plane-normal)))
+
 
     (define (angle-between-vectors v0 v1 . axis)
       ;; return the angle (positive or negative) that rotates
@@ -1852,6 +1887,97 @@
             (aa-box-contains-point box1 (vector (vector3-x box0-high) (vector3-y box0-low) (vector3-z box0-high)))
             (aa-box-contains-point box1 (vector (vector3-x box0-high) (vector3-y box0-high) (vector3-z box0-low)))
             (aa-box-contains-point box1 (vector (vector3-x box0-high) (vector3-y box0-high) (vector3-z box0-high))))))
+
+
+
+    (define (aa-box-center aa-box)
+      (snow-assert (aa-box? aa-box))
+      (vector3-scale (vector3-sum (aa-box-low-corner aa-box) (aa-box-high-corner aa-box)) 0.5))
+
+    ;;  y
+    ;;  |
+    ;;  |___ x
+    ;;  /
+    ;; z
+
+    (define (aa-box-left aa-box)
+      (snow-assert (aa-box? aa-box))
+      (vector (aa-box-low-corner aa-box) (vector -1 0 0)))
+
+    (define (aa-box-right aa-box)
+      (snow-assert (aa-box? aa-box))
+      (vector (aa-box-high-corner aa-box) (vector 1 0 0)))
+
+    (define (aa-box-top aa-box)
+      (snow-assert (aa-box? aa-box))
+      (vector (aa-box-high-corner aa-box) (vector 0 1 0)))
+
+    (define (aa-box-bottom aa-box)
+      (snow-assert (aa-box? aa-box))
+      (vector (aa-box-low-corner aa-box) (vector 0 -1 0)))
+
+    (define (aa-box-front aa-box)
+      (snow-assert (aa-box? aa-box))
+      (vector (aa-box-high-corner aa-box) (vector 0 0 1)))
+
+    (define (aa-box-back aa-box)
+      (snow-assert (aa-box? aa-box))
+      (vector (aa-box-low-corner aa-box) (vector 0 0 -1)))
+
+
+    (define-record-type <sphere>
+      (make-sphere center radius)
+      sphere?
+      (center sphere-center sphere-set-center!)
+      (radius sphere-radius sphere-set-radius!))
+
+
+    (define (sphere-inside-plane? sphere plane)
+      ;; plane is #(#(point) #(normal-vector))
+      (> (- (point-to-plane-offset (sphere-center sphere) plane)) (sphere-radius sphere)))
+
+
+    (define (sphere-outside-plane? sphere plane)
+      ;; plane is #(#(point) #(normal-vector))
+      (> (point-to-plane-offset (sphere-center sphere) plane) (sphere-radius sphere)))
+
+
+    (define (sphere-intersects-plane? sphere plane)
+      ;; plane is #(#(point) #(normal-vector))
+      (<= (abs (point-to-plane-offset (sphere-center sphere) plane)) (sphere-radius sphere)))
+
+
+    (define (sphere-inside-aa-box? sphere aa-box)
+      (snow-assert (sphere? sphere))
+      (snow-assert (aa-box? aa-box))
+      (and (sphere-inside-plane? sphere (aa-box-front aa-box))
+           (sphere-inside-plane? sphere (aa-box-back aa-box))
+           (sphere-inside-plane? sphere (aa-box-top aa-box))
+           (sphere-inside-plane? sphere (aa-box-bottom aa-box))
+           (sphere-inside-plane? sphere (aa-box-left aa-box))
+           (sphere-inside-plane? sphere (aa-box-right aa-box))))
+
+
+    (define (sphere-intersects-aa-box? sphere aa-box)
+      (snow-assert (sphere? sphere))
+      (snow-assert (aa-box? aa-box))
+      (let ((in-left (not (sphere-outside-plane? sphere (aa-box-left aa-box))))
+            (in-right (not (sphere-outside-plane? sphere (aa-box-right aa-box))))
+            (in-front (not (sphere-outside-plane? sphere (aa-box-front aa-box))))
+            (in-back (not (sphere-outside-plane? sphere (aa-box-back aa-box))))
+            (in-top (not (sphere-outside-plane? sphere (aa-box-top aa-box))))
+            (in-bottom (not (sphere-outside-plane? sphere (aa-box-bottom aa-box)))))
+        (cond ((and (sphere-intersects-plane? sphere (aa-box-top aa-box)) in-left in-right in-front in-back) #t)
+              ((and (sphere-intersects-plane? sphere (aa-box-bottom aa-box)) in-left in-right in-front in-back) #t)
+              ((and (sphere-intersects-plane? sphere (aa-box-left aa-box)) in-top in-bottom in-front in-back) #t)
+              ((and (sphere-intersects-plane? sphere (aa-box-right aa-box)) in-top in-bottom in-front in-back) #t)
+              ((and (sphere-intersects-plane? sphere (aa-box-front aa-box)) in-top in-bottom in-left in-right) #t)
+              ((and (sphere-intersects-plane? sphere (aa-box-back aa-box)) in-top in-bottom in-left in-right) #t)
+              (else #f))))
+
+
+    (define (sphere-outside-aa-box? sphere aa-box)
+      (or (not (sphere-inside-aa-box? sphere aa-box)) (sphere-intersects-aa-box? sphere aa-box)))
 
 
     (define (polar-coordinates->cartesian radius theta phi)
